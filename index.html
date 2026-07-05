@@ -1,183 +1,1132 @@
-/**
- * Función auxiliar para generar un código alfanumérico único de 5 caracteres.
- * Utiliza letras mayúsculas y números del 0 al 9 de forma aleatoria.
- */
-function generarCodigo() {
-  var caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  var codigo = '';
-  for (var i = 0; i < 5; i++) {
-    codigo += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
-  }
-  return codigo;
-}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- ==========================================
+         SEO BÁSICO Y CONFIGURACIÓN DE PWA
+         ========================================== -->
+    <title>Registro Integrante Movida SST Plus 🇻🇪</title>
+    <meta name="description" content="De la Reacción a la prevención. Únete a la comunidad de Seguridad y Salud en el Trabajo más activa de Venezuela y obtén tu código de integrante oficial.">
+    <meta name="keywords" content="SST, Seguridad y Salud Trabajo, Movida SST, Prevención de Riesgos, Venezuela, Higiene Ocupacional">
+    <meta name="author" content="David Linares Brea">
+    <meta name="robots" content="index, follow">
+    
+    <!-- PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Movida SST">
+    <meta name="theme-color" content="#00247D">
 
-/**
- * Función principal que recibe las peticiones POST desde el formulario web.
- */
-function doPost(e) {
-  // IDs de los recursos de Google (Sheets y Drive)
-  var sheetId = '1Pte41MIMcOdiJ5zpw8mhcyZiZ4Eq51D5J36l9nXPzbk';
-  var folderId = '1HhP1WuUV4iuzYPLduOTBw3Qy1lE2kMxT'; 
-  
-  var sheet = SpreadsheetApp.openById(sheetId).getActiveSheet();
-  
-  try {
-    var cedula = e.parameter.cedula || "";
+    <!-- ==========================================
+         METAETIQUETAS OPEN GRAPH (WhatsApp & Telegram)
+         ========================================== -->
+    <meta property="og:site_name" content="La Movida de SST 🇻🇪">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Registro Integrante Movida SST Plus">
+    <meta property="og:description" content="De la Reacción a la prevención 🛡️ Completa tu registro digital rápido y forma parte del cambio en Seguridad y Salud.">
+    <meta property="og:url" content="https://www.movidasst.com">
+    
+    <!-- Imagen de Vista Previa Cuadrada Optimizada -->
+    <meta property="og:image" content="https://assets.poap.xyz/ff0a7e68-7080-4798-af10-4a481f762e71.jpeg">
+    <meta property="og:image:secure_url" content="https://assets.poap.xyz/ff0a7e68-7080-4798-af10-4a481f762e71.jpeg">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:width" content="500">
+    <meta property="og:image:height" content="500">
+    <meta property="og:image:alt" content="Logotipo Oficial La Movida de SST Plus">
 
-    // 1. VALIDACIÓN: Verificar si la cédula ya existe en la Columna C (índice 2)
-    if (cedula !== "") {
-      var data = sheet.getDataRange().getValues();
-      // Empezamos en la fila índice 1 para omitir la fila de cabecera
-      for (var i = 1; i < data.length; i++) {
-        if (data[i][2] && data[i][2].toString().trim() === cedula.toString().trim()) {
-          return ContentService.createTextOutput(JSON.stringify({
-            "result": "error", 
-            "message": "already_registered"
-          })).setMimeType(ContentService.MimeType.JSON);
+    <!-- ==========================================
+         METAETIQUETAS TWITTER CARDS
+         ========================================== -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Registro Integrante Movida SST Plus">
+    <meta name="twitter:description" content="De la Reacción a la prevención 🛡️ Obtén tu código de integrante al instante.">
+    <meta name="twitter:image" content="https://assets.poap.xyz/ff0a7e68-7080-4798-af10-4a481f762e71.jpeg">
+
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- canvas-confetti para la celebración al registrarse -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- Configuración Custom de Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'movida-blue': '#00205b',
+                        'movida-teal': '#007b85',
+                        'movida-yellow': '#ffb600',
+                        'movida-red': '#ef4444',
+                        'movida-green': '#70ad47',
+                        'movida-border': '#e2e8f0'
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
         }
-      }
-    }
+    </script>
 
-    // 2. GENERAR CÓDIGO ALFANUMÉRICO ÚNICO
-    var codigoUnico = generarCodigo();
+    <style>
+        /* Estilos Globales App Nativa */
+        body {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        ::-webkit-scrollbar { display: none; }
+        * { scrollbar-width: none; }
+        input, select, textarea {
+            user-select: auto;
+            -webkit-user-select: auto;
+        }
+        /* Loader */
+        .loader {
+            border-top-color: #007b85;
+            -webkit-animation: spinner 1.5s linear infinite;
+            animation: spinner 1.5s linear infinite;
+        }
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Ocultar flechas en input number */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        /* Logo rotatorio */
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spin-slow 8s linear infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-600 font-sans min-h-screen flex flex-col">
 
-    // Recibir el resto de los parámetros desde el formulario web (Frontend)
-    var nombres = e.parameter.nombres || "";
-    var apellidos = e.parameter.apellidos || "";
-    var edad = e.parameter.edad || "";
-    var genero = e.parameter.genero || "";
-    var estado = e.parameter.estado || "";
-    var municipio = e.parameter.municipio || "";
-    var grado = e.parameter.grado || "";
-    var carrera = e.parameter.carrera || "";
-    var postgrado = e.parameter.postgrado || "";
-    var wasap = e.parameter.wasap || "";
-    var correo = e.parameter.correo || "";
-    var laboral = e.parameter.laboral || "";
-    var doctorado = e.parameter.doctorado || ""; // Parámetro para la columna Q
-    
-    var fotoUrl = ""; 
-    
-    // 3. PROCESAMIENTO Y GUARDADO DE LA FOTOGRAFÍA EN DRIVE
-    if (e.parameter.fotoData && e.parameter.fotoMimeType && e.parameter.fotoName) {
-      // Decodificar los datos en Base64 enviados desde la web
-      var decodedData = Utilities.base64Decode(e.parameter.fotoData);
-      var blob = Utilities.newBlob(decodedData, e.parameter.fotoMimeType, e.parameter.fotoName);
-      
-      // Obtener carpeta de destino y guardar archivo
-      var folder = DriveApp.getFolderById(folderId);
-      var file = folder.createFile(blob);
-      
-      // Otorgar permisos de lectura para que sea accesible mediante el enlace en la hoja
-      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-      fotoUrl = file.getUrl();
-    }
-    
-    // 4. GUARDADO EN GOOGLE SHEETS EN EL ORDEN EXACTO CORREGIDO:
-    sheet.appendRow([
-      nombres, 
-      apellidos, 
-      cedula, 
-      edad, 
-      genero, 
-      estado, 
-      municipio, 
-      grado, 
-      carrera, 
-      postgrado, 
-      wasap, 
-      correo, 
-      laboral, 
-      codigoUnico, // Columna N (14)
-      fotoUrl,     // Columna O (15)
-      new Date(),  // Columna P (16)
-      doctorado    // Columna Q (17)
-    ]);
+    <!-- Franja Nacional (Tope Absoluto) -->
+    <div class="fixed top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#FFCC00] via-[#00247D] to-[#CF142B] z-[60]"></div>
 
-    // 5. ENVÍO AUTOMÁTICO DE CORREO DE BIENVENIDA
-    if (correo !== "") {
-      var asunto = "¡Bienvenido a La Movida SST Plus! - Confirmación de Registro";
-      
-      var cuerpoHtml = 
-        "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);'>" +
-          
-          "<div style='text-align: center; margin-bottom: 25px;'>" +
-            "<img src='https://assets.poap.xyz/ff0a7e68-7080-4798-af10-4a481f762e71.jpeg' alt='Logo Movida SST Plus' style='width: 110px; height: 110px; border-radius: 50%; border: 3px solid #007b85; margin-bottom: 15px;' />" +
-            "<h2 style='color: #00205b; margin: 0; font-size: 24px;'>Movida SST Plus</h2>" +
-            "<p style='color: #007b85; margin: 5px 0 0 0; font-size: 14px; font-weight: bold; text-transform: uppercase;'>De la Reacción a la prevención</p>" +
-          "</div>" +
-          
-          "<h3 style='color: #334155; font-size: 18px;'>¡Hola, " + nombres + " " + apellidos + "!</h3>" +
-          "<p style='color: #475569; line-height: 1.6; font-size: 15px;'><strong>¡Muchas gracias por tu registro!</strong> Te damos la más cordial bienvenida a la red de profesionales de <strong>La Movida SST Plus</strong>. Tus datos han sido guardados de manera segura en nuestro sistema nacional.</p>" +
-          
-          "<div style='background-color: #f8fafc; padding: 18px; border-radius: 10px; margin: 25px 0; border-left: 5px solid #007b85; text-align: center;'>" +
-            "<p style='margin: 0; color: #00205b; font-size: 13px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;'>Tu Código de Integrante Oficial es:</p>" +
-            "<p style='margin: 8px 0 0 0; font-size: 32px; font-weight: 900; color: #007b85; letter-spacing: 4px; font-family: Courier, monospace;'>" + codigoUnico + "</p>" +
-          "</div>" +
+    <!-- Header App Mejorado -->
+    <header class="fixed top-1.5 left-0 w-full bg-white/95 backdrop-blur-[15px] border-b border-movida-border shadow-sm z-50 h-[6.5rem] flex items-center justify-between px-4">
+        <div class="flex items-center gap-4">
+            <!-- Efecto del Logo Táctico Mejorado y Más Grande -->
+            <div class="relative group cursor-pointer flex items-center justify-center w-20 h-20">
+                <!-- Anillo rotatorio exterior -->
+                <div class="absolute inset-0 rounded-full border-[3px] border-movida-teal/20 border-t-movida-teal animate-spin-slow"></div>
+                <!-- Pulso suave de latido -->
+                <div class="absolute inset-2 bg-movida-teal rounded-full animate-ping opacity-20"></div>
+                <!-- Logo principal ampliado -->
+                <img src="https://assets.poap.xyz/ff0a7e68-7080-4798-af10-4a481f762e71.jpeg" 
+                     class="relative w-18 h-18 rounded-full border-2 border-white shadow-[0_0_20px_rgba(0,123,133,0.6)] transition-transform duration-300 group-hover:scale-105" 
+                     alt="La Movida de SST">
+            </div>
+            <div>
+                <h1 class="text-movida-blue font-black text-xl tracking-tight leading-tight">Movida SST Plus</h1>
+                <div class="flex items-center gap-2 mt-0.5">
+                    <p class="text-[0.75rem] font-bold text-movida-teal uppercase tracking-wide">De la Reacción a la prevención</p>
+                    <!-- Badge del total de registrados en vivo -->
+                    <span class="inline-flex items-center gap-1 bg-movida-green/10 text-movida-green text-[0.65rem] font-black px-2 py-0.5 rounded-full">
+                        <span class="w-1.5 h-1.5 rounded-full bg-movida-green animate-pulse"></span>
+                        <span id="totalRegistradosHeader" class="animate-pulse">...</span> integrantes
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
 
-          "<div style='background-color: #e8fcf0; border: 1px solid #c1f2d6; padding: 20px; border-radius: 10px; margin: 25px 0; text-align: center;'>" +
-            "<p style='margin: 0 0 8px 0; color: #1e3a27; font-size: 16px; font-weight: bold;'>💬 ¡Únete a nuestra Comunidad de Interacción!</p>" +
-            "<p style='margin: 0 0 15px 0; color: #475569; font-size: 14px; line-height: 1.5;'>Para mantenerte conectado con otros integrantes, compartir experiencias, debatir y enterarte de las novedades en tiempo real, únete ahora a nuestro grupo oficial:</p>" +
-            "<a href='https://chat.whatsapp.com/GeSyHy6zjzo5H9EDkrTuY8' target='_blank' style='display: inline-block; background-color: #25D366; color: #ffffff; text-decoration: none; font-weight: bold; padding: 12px 28px; border-radius: 8px; font-size: 15px; box-shadow: 0 3px 6px rgba(37,211,102,0.3);'>👉 Toca aquí para unirte al Grupo</a>" +
-          "</div>" +
-          
-          "<p style='color: #475569; line-height: 1.6; font-size: 15px;'>A continuación, te mostramos el resumen de los datos que has registrado en nuestra plataforma:</p>" +
-          "<ul style='color: #475569; line-height: 1.6; font-size: 14px; background-color: #f1f5f9; padding: 15px 15px 15px 35px; border-radius: 10px; list-style-type: square;'>" +
-            "<li><strong>Cédula:</strong> " + cedula + "</li>" +
-            "<li><strong>Correo Electrónico:</strong> " + correo + "</li>" +
-            "<li><strong>WhatsApp Registrado:</strong> +" + wasap + "</li>" +
-          "</ul>" +
-          
-          // Firma Corporativa Oficial
-          "<div style='margin-top: 35px; border-top: 2px solid #e2e8f0; padding-top: 25px;'>" +
-            "<p style='color: #475569; margin: 0; font-size: 14px;'>Atentamente,</p>" +
-            "<p style='color: #00205b; font-size: 18px; font-weight: bold; margin: 5px 0 0 0;'>David Linares Brea</p>" +
-            "<p style='color: #64748b; font-size: 14px; margin: 2px 0 0 0;'>Director de La Movida de SST Plus</p>" +
-            "<p style='color: #007b85; font-size: 14px; margin: 4px 0 0 0;'>WhatsApp: <a href='https://wa.me/56968615650' style='color: #007b85; font-weight: bold; text-decoration: none;'>+56 9 6861 5650</a></p>" +
-            "<p style='font-size: 14px; margin: 2px 0 0 0;'>Web: <a href='https://www.movidasst.com' style='color: #00205b; text-decoration: none; font-weight: bold;'>www.movidasst.com</a></p>" +
-          "</div>" +
+    <!-- Contenedor Principal Multi-Paso (Ajustado el pt-[8.2rem] para el header) -->
+    <main class="w-full max-w-md mx-auto px-5 pt-[8.2rem] pb-8 mt-2 flex-grow">
+        
+        <div class="bg-white rounded-3xl border border-movida-border shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
+            
+            <!-- Barra de Progreso y Stepper Visual Premium (Neuro-UX) -->
+            <div class="bg-slate-50 border-b border-movida-border px-6 py-5">
+                <!-- Stepper con Círculos Conectados (Excelente Usabilidad Móvil) -->
+                <div class="flex items-center justify-between max-w-xs mx-auto mb-4 relative">
+                    <!-- Línea de Fondo -->
+                    <div class="absolute top-1/2 left-0 right-0 h-1 bg-slate-200 -translate-y-1/2 z-0 rounded-full"></div>
+                    <!-- Línea de Progreso Activo -->
+                    <div id="visualStepLine" class="absolute top-1/2 left-0 h-1 bg-movida-teal -translate-y-1/2 z-0 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                    
+                    <!-- Paso 1 Node -->
+                    <div id="nodeStep1" class="relative z-10 w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm bg-movida-teal text-white border-4 border-white shadow-md transition-all duration-500">
+                        1
+                    </div>
+                    <!-- Paso 2 Node -->
+                    <div id="nodeStep2" class="relative z-10 w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm bg-slate-200 text-slate-500 border-4 border-white shadow-md transition-all duration-500">
+                        2
+                    </div>
+                    <!-- Paso 3 Node -->
+                    <div id="nodeStep3" class="relative z-10 w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm bg-slate-200 text-slate-500 border-4 border-white shadow-md transition-all duration-500">
+                        3
+                    </div>
+                </div>
 
-          "<hr style='border: none; border-top: 1px solid #e2e8f0; margin: 25px 0;'/>" +
-          "<p style='font-size: 11px; color: #94a3b8; text-align: center;'>Este es un correo automático enviado por el sistema integrado de La Movida SST. Por favor, no respondas a este mensaje.</p>" +
-        "</div>";
+                <div class="flex justify-between items-center mb-1">
+                    <span id="stepTitle" class="text-sm font-extrabold uppercase tracking-tight text-movida-blue">Datos Personales</span>
+                    <span id="stepCounter" class="text-xs font-black text-movida-teal bg-movida-teal/10 px-2.5 py-1 rounded-full">Paso 1 de 3</span>
+                </div>
+                <!-- Mensaje motivacional dinámico -->
+                <p id="motivationalMessage" class="text-xs text-slate-500 font-medium italic mb-2">¡Empecemos! Solo tomará 1 minuto.</p>
+            </div>
 
-      MailApp.sendEmail({
-        to: correo,
-        subject: asunto,
-        htmlBody: cuerpoHtml
-      });
-    }
-    
-    return ContentService.createTextOutput(JSON.stringify({"result": "success", "codigo": codigoUnico}))
-      .setMimeType(ContentService.MimeType.JSON);
-      
-  } catch(error) {
-    return ContentService.createTextOutput(JSON.stringify({"result": "error", "message": error.message}))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
+            <!-- Contenedor del Carrusel Inteligente (Con altura dinámica suave para móviles) -->
+            <div id="carouselWrapper" class="relative overflow-hidden w-full transition-[height] duration-500 ease-out">
+                <!-- Se agregó "items-start" para evitar que los pasos hereden la altura del paso más largo -->
+                <form id="registroForm" class="transition-transform duration-500 ease-out flex w-[300%] items-start" style="transform: translateX(0%);">
+                    
+                    <!-- ================= PASO 1: DATOS PERSONALES ================= -->
+                    <div id="step1" class="w-1/3 shrink-0 p-6 space-y-6">
+                        
+                        <!-- Banner de Bienvenida y Explicación -->
+                        <div class="bg-movida-blue/5 border-l-4 border-movida-teal rounded-2xl p-4 shadow-sm">
+                            <div class="flex items-start gap-3">
+                                <div class="text-movida-teal mt-0.5">
+                                    <i class="fa-solid fa-circle-check text-base"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-bold text-movida-blue mb-1">¡Te damos la bienvenida!</h3>
+                                    <p class="text-xs text-slate-600 leading-relaxed font-medium mb-3">
+                                        Por favor, lee detalladamente cada campo y llénalo según las indicaciones. Al finalizar el registro, recibirás tu código de integrante y confirmación por correo electrónico.
+                                    </p>
+                                    <!-- Pill badge del contador real en la tarjeta de bienvenida -->
+                                    <div class="inline-flex items-center gap-1.5 bg-movida-teal/10 text-movida-teal text-[0.7rem] font-black px-3 py-1 rounded-full">
+                                        <i class="fa-solid fa-users"></i> ¡Ya somos <span id="totalRegistradosBanner" class="font-extrabold animate-pulse">...</span> integrantes oficiales!
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-/**
- * Responde a peticiones GET enviando el número total de registros reales en formato JSON
- */
-function doGet(e) {
-  var sheetId = '1Pte41MIMcOdiJ5zpw8mhcyZiZ4Eq51D5J36l9nXPzbk';
-  try {
-    var sheet = SpreadsheetApp.openById(sheetId).getActiveSheet();
-    var total = Math.max(0, sheet.getLastRow() - 1);
-    
-    var result = {
-      "result": "success",
-      "count": total
-    };
-    
-    return ContentService.createTextOutput(JSON.stringify(result))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch(err) {
-    return ContentService.createTextOutput(JSON.stringify({
-      "result": "error",
-      "count": 0,
-      "error": err.message
-    })).setMimeType(ContentService.MimeType.JSON);
-  }
-}
+                        <!-- Nombres -->
+                        <div class="flex flex-col relative group">
+                            <label for="nombres" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
+                                <i class="fa-solid fa-user text-movida-teal/70 text-xs"></i> Nombres *
+                            </label>
+                            <div class="relative">
+                                <input type="text" id="nombres" name="nombres" required pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$" class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm" placeholder="Ej. Juan Carlos" />
+                                <span class="absolute right-3.5 top-1/2 -translate-y-1/2 feedback-icon hidden"></span>
+                            </div>
+                            <p class="mt-1.5 text-[0.7rem] text-slate-400 font-medium"><i class="fa-solid fa-circle-info mr-1"></i>Solo letras y espacios.</p>
+                        </div>
+
+                        <!-- Apellidos -->
+                        <div class="flex flex-col relative">
+                            <label for="apellidos" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
+                                <i class="fa-solid fa-user text-movida-teal/70 text-xs"></i> Apellidos *
+                            </label>
+                            <div class="relative">
+                                <input type="text" id="apellidos" name="apellidos" required pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$" class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm" placeholder="Ej. Pérez Gómez" />
+                                <span class="absolute right-3.5 top-1/2 -translate-y-1/2 feedback-icon hidden"></span>
+                            </div>
+                        </div>
+
+                        <!-- Cédula -->
+                        <div class="flex flex-col relative">
+                            <label for="cedula" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
+                                <i class="fa-regular fa-id-card text-movida-teal/70 text-xs"></i> Cédula de Identidad *
+                            </label>
+                            <div class="relative">
+                                <input type="text" inputmode="numeric" id="cedula" name="cedula" required pattern="^[0-9]+$" class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm" placeholder="Ej. 12345678" />
+                                <span class="absolute right-3.5 top-1/2 -translate-y-1/2 feedback-icon hidden"></span>
+                            </div>
+                            <p class="mt-1.5 text-[0.7rem] text-slate-400 font-medium"><i class="fa-solid fa-circle-info mr-1"></i>Ingresa solo números, sin puntos ni letras.</p>
+                        </div>
+
+                        <!-- Edad -->
+                        <div class="flex flex-col relative">
+                            <label for="edad" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
+                                <i class="fa-solid fa-calendar-day text-movida-teal/70 text-xs"></i> Edad actual *
+                            </label>
+                            <div class="relative">
+                                <input type="number" inputmode="numeric" id="edad" name="edad" min="1" max="120" required class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm" placeholder="Ej. 25" />
+                                <span class="absolute right-3.5 top-1/2 -translate-y-1/2 feedback-icon hidden"></span>
+                            </div>
+                        </div>
+
+                        <!-- Género -->
+                        <div class="flex flex-col relative">
+                            <label for="genero" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
+                                <i class="fa-solid fa-venus-mars text-movida-teal/70 text-xs"></i> Género *
+                            </label>
+                            <div class="relative">
+                                <select id="genero" name="genero" required class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm">
+                                    <option value="" disabled selected>Selecciona tu género</option>
+                                    <option value="Masculino">Masculino</option>
+                                    <option value="Femenino">Femenino</option>
+                                </select>
+                                <span class="absolute right-8 top-1/2 -translate-y-1/2 feedback-icon hidden"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ================= PASO 2: UBICACIÓN Y CONTACTO ================= -->
+                    <div id="step2" class="w-1/3 shrink-0 p-6 space-y-6">
+                        
+                        <!-- Estado -->
+                        <div class="flex flex-col relative">
+                            <label for="estado" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
+                                <i class="fa-solid fa-map-location-dot text-movida-teal/70 text-xs"></i> Estado *
+                            </label>
+                            <div class="relative">
+                                <select id="estado" name="estado" required class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm">
+                                    <option value="" disabled selected>Selecciona tu Estado</option>
+                                </select>
+                                <span class="absolute right-8 top-1/2 -translate-y-1/2 feedback-icon hidden"></span>
+                            </div>
+                        </div>
+
+                        <!-- Municipio -->
+                        <div class="flex flex-col relative">
+                            <label for="municipio" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
+                                <i class="fa-solid fa-map-pin text-movida-teal/70 text-xs"></i> Municipio *
+                            </label>
+                            <div class="relative">
+                                <select id="municipio" name="municipio" required disabled class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm disabled:opacity-50 disabled:bg-slate-100">
+                                    <option value="" disabled selected>Primero selecciona un estado</option>
+                                </select>
+                                <span class="absolute right-8 top-1/2 -translate-y-1/2 feedback-icon hidden"></span>
+                            </div>
+                        </div>
+
+                        <!-- WhatsApp -->
+                        <div class="flex flex-col relative">
+                            <label for="wasap_mask" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
+                                <i class="fa-brands fa-whatsapp text-movida-green text-sm"></i> WhatsApp *
+                            </label>
+                            <div class="relative">
+                                <input type="tel" inputmode="numeric" id="wasap_mask" required class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base font-semibold text-movida-blue tracking-wide focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm" placeholder="Ej. +58 414 123 4567" />
+                                <span class="absolute right-3.5 top-1/2 -translate-y-1/2 feedback-icon hidden"></span>
+                            </div>
+                            <p class="mt-1.5 text-[0.7rem] text-slate-400 font-medium"><i class="fa-solid fa-circle-info mr-1"></i>Debe empezar por +58 (12 dígitos en total).</p>
+                            <!-- Input oculto que guardará el número limpio para el Backend -->
+                            <input type="hidden" id="wasap_hidden" name="wasap" />
+                        </div>
+
+                        <!-- Correo -->
+                        <div class="flex flex-col relative">
+                            <label for="correo" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
+                                <i class="fa-regular fa-envelope text-movida-teal/70 text-xs"></i> Correo Electrónico *
+                            </label>
+                            <div class="relative">
+                                <input type="email" id="correo" name="correo" required class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm" placeholder="usuario@dominio.com" />
+                                <span class="absolute right-3.5 top-1/2 -translate-y-1/2 feedback-icon hidden"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ================= PASO 3: PERFIL PROFESIONAL ================= -->
+                    <div id="step3" class="w-1/3 shrink-0 p-6 space-y-6">
+                        
+                        <!-- Grado de Instrucción -->
+                        <div class="flex flex-col relative">
+                            <label for="grado" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
+                                <i class="fa-solid fa-graduation-cap text-movida-teal/70 text-xs"></i> Grado de Instrucción *
+                            </label>
+                            <div class="relative">
+                                <select id="grado" name="grado" required class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm">
+                                    <option value="" disabled selected>Selecciona tu grado académico</option>
+                                    <option value="Primaria">Primaria</option>
+                                    <option value="Bachiller">Bachiller</option>
+                                    <option value="TSU">TSU (Técnico Superior Universitario)</option>
+                                    <option value="Universitario">Universitario (Lic./Ing.)</option>
+                                    <option value="Postgrado">Postgrado</option>
+                                </select>
+                                <span class="absolute right-8 top-1/2 -translate-y-1/2 feedback-icon hidden"></span>
+                            </div>
+                        </div>
+
+                        <!-- Situación Laboral -->
+                        <div class="flex flex-col relative">
+                            <label for="laboral" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
+                                <i class="fa-solid fa-briefcase text-movida-teal/70 text-xs"></i> Situación Laboral *
+                            </label>
+                            <div class="relative">
+                                <select id="laboral" name="laboral" required class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm">
+                                    <option value="" disabled selected>Selecciona tu situación actual</option>
+                                    <option value="Dependiente">Dependiente</option>
+                                    <option value="Independiente">Independiente</option>
+                                    <option value="Desempleado">Desempleado</option>
+                                </select>
+                                <span class="absolute right-8 top-1/2 -translate-y-1/2 feedback-icon hidden"></span>
+                            </div>
+                        </div>
+
+                        <!-- Carrera -->
+                        <div class="flex flex-col relative">
+                            <label for="carrera_select" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
+                                <i class="fa-solid fa-award text-movida-teal/70 text-xs"></i> Carrera *
+                            </label>
+                            <div class="relative">
+                                <select id="carrera_select" required class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm">
+                                    <option value="" disabled selected>Selecciona tu carrera</option>
+                                    <option value="TSU en Higiene y Seguridad Laboral">TSU en Higiene y Seguridad Laboral</option>
+                                    <option value="Ingeniería en HSL">Ingeniería en HSL</option>
+                                    <option value="Otra">Otra</option>
+                                </select>
+                                <span class="absolute right-8 top-1/2 -translate-y-1/2 feedback-icon hidden"></span>
+                            </div>
+                            <input type="text" id="carrera_otra" class="hidden mt-3 block w-full rounded-2xl border border-movida-teal shadow-sm bg-white p-3.5 text-base text-slate-700 outline-none transition-all" placeholder="Especifique su carrera" disabled>
+                        </div>
+
+                        <!-- Postgrado -->
+                        <div class="flex flex-col relative">
+                            <label for="postgrado" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
+                                <i class="fa-solid fa-user-graduate text-movida-teal/70 text-xs"></i> Postgrado (Opcional)
+                            </label>
+                            <div class="relative">
+                                <select id="postgrado" name="postgrado" class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm">
+                                    <option value="" selected>Ninguno / No aplica</option>
+                                    <option value="Especialización">Especialización</option>
+                                    <option value="Master">Master</option>
+                                    <option value="Maestría">Maestría</option>
+                                </select>
+                                <span class="absolute right-8 top-1/2 -translate-y-1/2 feedback-icon hidden"></span>
+                            </div>
+                        </div>
+
+                        <!-- Doctorado -->
+                        <div class="flex flex-col relative">
+                            <label for="doctorado" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
+                                <i class="fa-solid fa-book text-movida-teal/70 text-xs"></i> Doctorado / Post Doctorado (Opcional)
+                            </label>
+                            <div class="relative">
+                                <select id="doctorado" name="doctorado" class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm">
+                                    <option value="" selected>Ninguno / No aplica</option>
+                                    <option value="Doctorado">Doctorado</option>
+                                    <option value="Post Doctorado">Post Doctorado</option>
+                                </select>
+                                <span class="absolute right-8 top-1/2 -translate-y-1/2 feedback-icon hidden"></span>
+                            </div>
+                        </div>
+
+                        <!-- Foto UI -->
+                        <div class="flex flex-col">
+                            <label class="text-sm font-bold text-movida-blue mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-camera text-movida-teal/70 text-xs"></i> Fotografía de Perfil (Opcional)
+                            </label>
+                            <label for="foto" class="flex flex-col items-center justify-center w-full h-28 border-2 border-movida-border border-dashed rounded-2xl cursor-pointer bg-slate-50/50 hover:bg-slate-100 transition-colors">
+                                <div class="flex flex-col items-center justify-center pt-3 pb-3">
+                                    <i class="fa-solid fa-cloud-arrow-up text-movida-teal text-2xl mb-1.5"></i>
+                                    <p class="text-sm text-slate-500 font-bold"><span id="fileNameDisplay">Toca para subir tu foto</span></p>
+                                </div>
+                                <input id="foto" name="foto" type="file" accept="image/jpeg, image/png" class="hidden" />
+                            </label>
+                            <!-- Frase persuasiva para la foto (Neuro-UX) -->
+                            <p class="mt-2 text-[0.7rem] text-movida-teal font-bold"><i class="fa-solid fa-circle-info mr-1"></i>* Tu foto será utilizada para generar tu credencial digital de integrante oficial de La Movida de SST Plus.</p>
+                        </div>
+
+                        <!-- Términos y Privacidad (Casilla Obligatoria) -->
+                        <div class="bg-slate-50 border border-movida-border rounded-2xl p-4 mt-4">
+                            <label class="flex items-start gap-3 cursor-pointer">
+                                <div class="flex items-center h-5">
+                                    <input id="terms" type="checkbox" required class="w-5 h-5 text-movida-teal bg-white border-slate-300 rounded focus:ring-movida-teal focus:ring-2">
+                                </div>
+                                <div class="text-xs text-slate-600 leading-tight">
+                                    <span class="font-bold text-movida-blue">Acuerdo de Privacidad:</span> Entiendo que mis datos personales (incluyendo identificación y fotografía) serán utilizados exclusivamente para el registro en La Movida SST Plus bajo estrictas normas de confidencialidad. Acepto los términos de la comunidad.
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+            <!-- Controles de Navegación del Wizard (Diseñados para la zona de confort del pulgar) -->
+            <div class="flex justify-between items-center p-6 border-t border-slate-100 bg-white">
+                <button type="button" id="prevBtn" class="hidden px-5 py-3.5 rounded-xl font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors">
+                    <i class="fa-solid fa-chevron-left mr-2"></i> Anterior
+                </button>
+                
+                <button type="button" id="nextBtn" class="w-full ml-auto flex justify-center items-center px-6 py-3.5 rounded-xl font-bold text-white bg-movida-blue hover:bg-movida-blue/90 shadow-md transition-transform transform active:scale-[0.98]">
+                    Siguiente <i class="fa-solid fa-chevron-right ml-2"></i>
+                </button>
+
+                <button type="button" id="submitBtn" class="hidden w-full ml-auto flex justify-center items-center px-6 py-4 rounded-xl font-black text-white bg-movida-teal hover:bg-movida-teal/90 shadow-md shadow-movida-teal/30 transition-transform transform active:scale-[0.98]">
+                    <span id="btnText">Completar Registro</span>
+                    <div id="btnSpinner" class="hidden ml-3 w-5 h-5 border-2 border-white rounded-full loader"></div>
+                </button>
+            </div>
+
+            <!-- Mensajes de estado y Gamificación de Recompensa (Neuro-UX) -->
+            <div id="successMsg" class="hidden m-6 bg-movida-green/10 border-l-4 border-movida-green rounded-r-xl p-4 animate-fade-in text-center">
+                <div class="flex flex-col items-center">
+                    <i class="fa-solid fa-circle-check text-movida-green text-4xl mb-2"></i>
+                    <h3 class="text-base font-bold text-movida-blue">¡Registro Exitoso!</h3>
+                    <p class="text-xs text-slate-600 mt-1">¡Felicidades! Ya formas parte de nuestra red.</p>
+                    
+                    <div class="bg-white px-4 py-3 rounded-2xl border border-movida-teal/20 my-4 shadow-sm w-full max-w-xs">
+                        <span class="text-[0.7rem] uppercase font-bold text-slate-400 block tracking-widest">Código Único de Integrante</span>
+                        <span id="codigoDisplay" class="text-2xl font-black text-movida-teal tracking-widest block mt-1 font-mono"></span>
+                    </div>
+
+                    <!-- Botón de compartir en WhatsApp (Gatillo mental de prueba social) -->
+                    <a id="shareWaBtn" target="_blank" class="w-full flex items-center justify-center gap-2 bg-movida-green hover:bg-movida-green/90 text-white font-bold py-3.5 px-4 rounded-xl shadow-md transition-transform transform active:scale-95 text-sm mb-2 cursor-pointer">
+                        <i class="fa-brands fa-whatsapp text-lg"></i> Compartir en mi Estado de WhatsApp
+                    </a>
+                </div>
+            </div>
+
+            <div id="errorMsg" class="hidden m-6 bg-movida-red/10 border-l-4 border-movida-red rounded-r-xl p-4">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-circle-exclamation text-movida-red text-xl mr-3"></i>
+                    <p id="errorText" class="text-xs text-slate-600 font-bold">Hubo un error.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer / Pie de Página Corporativo -->
+        <footer class="mt-10 mb-4 text-center px-4">
+            <div class="inline-block bg-white p-5 rounded-2xl shadow-sm border border-movida-border w-full">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Plataforma desarrollada por</p>
+                <h3 class="text-lg font-black text-movida-blue mb-1">David Linares Brea</h3>
+                
+                <div class="flex flex-col gap-2 mt-4 text-sm font-medium text-slate-600">
+                    <a href="https://wa.me/56968615650" target="_blank" class="flex items-center justify-center gap-2 hover:text-movida-teal transition-colors">
+                        <i class="fa-brands fa-whatsapp text-movida-green text-lg"></i> +56 9 6861 5650
+                    </a>
+                    <a href="mailto:info@movidasst.com" class="flex items-center justify-center gap-2 hover:text-movida-teal transition-colors">
+                        <i class="fa-regular fa-envelope text-slate-400 text-lg"></i> info@movidasst.com
+                    </a>
+                    <a href="https://www.movidasst.com" target="_blank" class="flex items-center justify-center gap-2 hover:text-movida-teal transition-colors">
+                        <i class="fa-solid fa-globe text-slate-400 text-lg"></i> www.movidasst.com
+                    </a>
+                </div>
+
+                <!-- Redes Sociales Oficiales con Efectos Premium Permanentes (Visibles sin tocar) -->
+                <div class="mt-6 pt-5 border-t border-slate-100">
+                    <p class="text-[0.75rem] font-bold text-slate-400 uppercase tracking-widest mb-4">Síguenos en nuestras redes</p>
+                    <div class="flex justify-center items-center gap-4">
+                        <!-- Instagram (Siempre Colorido con Gradiente Oficial) -->
+                        <a href="https://www.instagram.com/movidasst/" target="_blank" aria-label="Instagram"
+                           class="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white shadow-[0_4px_12px_rgba(238,42,123,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_6px_20px_rgba(238,42,123,0.5)] active:scale-95">
+                            <i class="fa-brands fa-instagram text-xl"></i>
+                        </a>
+                        <!-- Facebook (Siempre Azul Oficial) -->
+                        <a href="https://web.facebook.com/movidadsst" target="_blank" aria-label="Facebook"
+                           class="flex items-center justify-center w-12 h-12 rounded-full bg-[#1877F2] text-white shadow-[0_4px_12px_rgba(24,119,242,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_6px_20px_rgba(24,119,242,0.5)] active:scale-95">
+                            <i class="fa-brands fa-facebook-f text-xl"></i>
+                        </a>
+                        <!-- X (Twitter - Siempre Negro con SVG Vectorial Integrado) -->
+                        <a href="https://x.com/movidasst" target="_blank" aria-label="X (Twitter)"
+                           class="flex items-center justify-center w-12 h-12 rounded-full bg-[#000000] text-white border border-slate-800 shadow-[0_4px_12px_rgba(0,0,0,0.3)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_6px_20px_rgba(0,0,0,0.45)] active:scale-95">
+                            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                                <path d="M18.244 2.25h3.308l-7.227 7.746 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.285L1.254 2.25h6.88l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                            </svg>
+                        </a>
+                        <!-- LinkedIn (Siempre Azul Profesional) -->
+                        <a href="https://www.linkedin.com/company/movidasst/" target="_blank" aria-label="LinkedIn"
+                           class="flex items-center justify-center w-12 h-12 rounded-full bg-[#0A66C2] text-white shadow-[0_4px_12px_rgba(10,102,194,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_6px_20px_rgba(10,102,194,0.5)] active:scale-95">
+                            <i class="fa-brands fa-linkedin-in text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-slate-100">
+                    <a href="https://whatsapp.com/channel/0029Va0mlH5Jf05mrcCz8r3e" target="_blank" class="inline-flex items-center gap-2 bg-slate-50 hover:bg-movida-green/10 text-movida-green border border-movida-green/30 px-4 py-2 rounded-xl transition-colors font-bold text-sm">
+                        <i class="fa-brands fa-whatsapp"></i> Únete a nuestro Canal Oficial
+                    </a>
+                </div>
+            </div>
+        </footer>
+
+    </main>
+
+    <script>
+        // URL de Google Apps Script actualizada con la nueva implementación
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby3X4_Jag3Bv0FebhCKU_cKEF5YAgHKnyvFfABpOFb5tF6IprYSiTjgo9C7DQE-y_jI/exec'; 
+
+        // Datos de Venezuela
+        const datosVenezuela = {
+            "Amazonas": ["Alto Orinoco", "Atabapo", "Atures", "Autana", "Manapiare", "Maroa", "Río Negro"],
+            "Anzoátegui": ["Anaco", "Aragua", "Bolívar", "Bruzual", "Cajigal", "Carvajal", "Diego Bautista Urbaneja", "Freites", "Guanipa", "Guanta", "Independencia", "Miranda", "Monagas", "Peñalver", "Píritu", "San Juan de Capistrano", "Santa Ana", "Simón Rodríguez", "Sotillo"],
+            "Apure": ["Achaguas", "Biruaca", "Muñoz", "Páez", "Pedro Camejo", "Rómulo Gallegos", "San Fernando"],
+            "Aragua": ["Bolívar", "Camatagua", "Francisco Linares Alcántara", "Girardot", "José Ángel Lamas", "José Félix Ribas", "José Rafael Revenga", "Libertador", "Mario Briceño Iragorry", "Ocumare de la Costa de Oro", "San Casimiro", "San Sebastián", "Santiago Mariño", "Sucre", "Tovar", "Urdaneta", "Zamora"],
+            "Barinas": ["Alberto Arvelo Torrealba", "Andrés Eloy Blanco", "Antonio José de Sucre", "Arismendi", "Barinas", "Bolívar", "Cruz Paredes", "Ezequiel Zamora", "Obispos", "Pedraza", "Rojas", "Sosa"],
+            "Bolívar": ["Caroní", "Cedeño", "El Callao", "Gran Sabana", "Heres", "Padre Pedro Chien", "Piar", "Raúl Leoni", "Roscio", "Sifontes", "Sucre"],
+            "Carabobo": ["Bejuma", "Carlos Arvelo", "Diego Ibarra", "Guacara", "Juan Dos", "Miranda", "Naguanagua", "Puerto Cabello", "San Diego", "Valencia"],
+            "Cojedes": ["Anzoátegui", "Tinaquillo", "Girardot", "Lima Blanco", "Pao de San Juan Bautista", "Ricaurte", "Rómulo Gallegos", "San Carlos", "Tinaco"],
+            "Delta Amacuro": ["Delta Amacuro", "Tucupita", "Pedernales", "Antonio Díaz", "Casacoima"],
+            "Distrito Capital": ["Libertador"],
+            "Falcón": ["Acosta", "Bolívar", "Buchivacoa", "Cacique Manaure", "Carirubana", "Colina", "Dabajuro", "Democracia", "Falcón", "Federación", "Jacura", "Los Taques", "Mauroa", "Miranda", "Monseñor Iturriza", "Palmasola", "Petit", "Píritu", "San Francisco", "Silva", "Sucre", "Tocópero", "Unión", "Urumaco", "Zamora"],
+            "Guárico": ["Camaguán", "Chaguaramas", "El Socorro", "José Félix Ribas", "José Tadeo Monagas", "Juan Germán Roscio", "Julián Mellado", "Las Mercedes", "Leonardo Infante", "Pedro Zaraza", "Ortíz", "San Gerónimo de Guayabal", "San José de Guaribe", "Santa María de Ipire"],
+            "Lara": ["Andrés Eloy Blanco", "Crespo", "Iribarren", "Jiménez", "Morán", "Palavecino", "Simón Planas", "Torres", "Urdaneta"],
+            "Mérida": ["Alberto Adriani", "Andrés Bello", "Antonio Pinto Salinas", "Aricagua", "Arzobiposa Chacón", "Campo Elías", "Caracciolo Parra Olmedo", "Cardenal Quintero", "Guaraque", "Julio César Salas", "Justo Briceño", "Libertador", "Miranda", "Obispo Ramos de Lora", "Padre Noguera", "Pueblo Llano", "Rangel", "Rivas Dávila", "Santos Marquina", "Sucre", "Tovar", "Tulio Febres Cordero", "Zea"],
+            "Miranda": ["Acevedo", "Andrés Bello", "Baruta", "Brión", "Buroz", "Carrizal", "Chacao", "Cristóbal Rojas", "El Hatillo", "Guaicaipuro", "Independencia", "Lander", "Los Salias", "Páez", "Paz Castillo", "Pedro Gual", "Plaza", "Simón Bolívar", "Sucre", "Urdaneta", "Zamora"],
+            "Monagas": ["Acosta", "Aguasay", "Bolívar", "Caripe", "Cedeño", "Ezequiel Zamora", "Libertador", "Maturín", "Piar", "Punceres", "Santa Bárbara", "Sotillo", "Uracoa"],
+            "Nueva Esparta": ["Antolín del Campo", "Arismendi", "Díaz", "García", "Gómez", "Maneiro", "Marcano", "Mariño", "Península de Macanao", "Tubores", "Villalba"],
+            "Portuguesa": ["Agua Blanca", "Araure", "Esteller", "Guanare", "Guanarito", "Monseñor di Stefano", "Ospino", "Páez", "Papelón", "San Genaro de Boconoíto", "San Rafael de Onoto", "Santa Rosalía", "Sucre", "Turén"],
+            "Sucre": ["Andrés Eloy Blanco", "Andrés Mata", "Arismendi", "Benítez", "Bermúdez", "Bolívar", "Cajigal", "Cruz Salmerón Acosta", "Libertador", "Mariño", "Mejía", "Montes", "Ribero", "Sucre", "Valdez"],
+            "Táchira": ["Andrés Bello", "Antonio Rómulo Costa", "Ayacucho", "Bolívar", "Cárdenas", "Córdoba", "Fernández Feo", "Francisco de Miranda", "García de Hevia", "Guásimos", "Independencia", "Jáuregui", "José María Vargas", "Junín", "Libertad", "Libertador", "Lobatera", "Michelena", "Panamericano", "Pedro María Ureña", "Rafael Urdaneta", "Samuel Darío Maldonado", "San Cristóbal", "San Judas Tadeo", "Seboruco", "Simón Rodríguez", "Sucre", "Torbes", "Uribante"],
+            "Trujillo": ["Andrés Bello", "Boconó", "Bolívar", "Candelaria", "Carache", "Escuque", "José Felipe Márquez Cañizalez", "Juan Vicente Campo Elías", "La Ceiba", "Miranda", "Monte Carmelo", "Motatán", "Pampán", "Pampanito", "Rafael Rangel", "San Rafael de Carvajal", "Sucre", "Trujillo", "Urdaneta", "Valera"],
+            "La Guaira": ["Vargas"],
+            "Yaracuy": ["Arístides Bastidas", "Bolívar", "Bruzual", "Cocorote", "Independencia", "José Antonio Páez", "Macanao", "Nirgua", "Peña", "San Felipe", "Sucre", "Trinidad", "Urachiche"],
+            "Zulia": ["Almirante Padilla", "Baralt", "Cabimas", "Catatumbo", "Colón", "Francisco Javier Pulgar", "Guajira", "Jesús Enrique Lossada", "Jesús María Semprún", "La Cañada de Urdaneta", "Lagunillas", "Machiques de Perijá", "Mara", "Maracaibo", "Miranda", "Rosario de Perijá", "San Francisco", "Santa Rita", "Simón Bolívar", "Sucre", "Valmore Rodríguez"]
+        };
+
+        // --- LÓGICA DEL WIZARD (MULTI-PASO DE DESLIZAMIENTO CON ALTURA DINÁMICA) ---
+        let currentStep = 1;
+        const totalSteps = 3;
+        const formElement = document.getElementById('registroForm');
+        const stepTitle = document.getElementById('stepTitle');
+        const stepCounter = document.getElementById('stepCounter');
+        const motivationalMessage = document.getElementById('motivationalMessage');
+        const progressBar = document.getElementById('progressBar');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+
+        const stepTitles = ["Datos Personales", "Ubicación y Contacto", "Perfil Profesional"];
+        const stepMotivations = [
+            "¡Empecemos! Solo tomará 1 minuto.",
+            "¡Vas por la mitad! Ya casi terminas.",
+            "¡Último paso! Sube tu foto y asegura tu código."
+        ];
+
+        // Función para ajustar de manera fluida la altura del carrusel según el paso activo
+        function updateHeight(step) {
+            const wrapper = document.getElementById('carouselWrapper');
+            const activeStepEl = document.getElementById(`step${step}`);
+            if (wrapper && activeStepEl) {
+                // Asigna la altura exacta del paso actual
+                wrapper.style.height = `${activeStepEl.offsetHeight}px`;
+            }
+        }
+
+        // Cargar contador de registrados en vivo directamente de la Sheets base
+        function cargarContadorRegistrados() {
+            fetch(SCRIPT_URL)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.count !== undefined) {
+                        const count = data.count;
+                        const headerCount = document.getElementById('totalRegistradosHeader');
+                        const bannerCount = document.getElementById('totalRegistradosBanner');
+                        if (headerCount) {
+                            headerCount.innerText = count;
+                            headerCount.classList.remove('animate-pulse');
+                        }
+                        if (bannerCount) {
+                            bannerCount.innerText = count;
+                            bannerCount.classList.remove('animate-pulse');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error("Error al cargar el contador:", error);
+                    // Fallbacks amigables
+                    const headerCount = document.getElementById('totalRegistradosHeader');
+                    const bannerCount = document.getElementById('totalRegistradosBanner');
+                    if (headerCount) headerCount.innerText = "SST";
+                    if (bannerCount) bannerCount.innerText = "muchos";
+                });
+        }
+
+        function showStep(step) {
+            // Desplazar el formulario lateralmente (Slide UX)
+            const translatePercent = -((step - 1) * 33.3333);
+            if (formElement) {
+                formElement.style.transform = `translateX(${translatePercent}%)`;
+            }
+
+            // Actualizar indicadores superiores
+            if (stepTitle) stepTitle.innerText = stepTitles[step-1];
+            if (stepCounter) stepCounter.innerText = `Paso ${step} de ${totalSteps}`;
+            if (motivationalMessage) motivationalMessage.innerText = stepMotivations[step-1];
+            if (progressBar) progressBar.style.width = `${(step / totalSteps) * 100}%`;
+
+            // Actualizar línea de progreso del Stepper Visual
+            const visualLine = document.getElementById('visualStepLine');
+            if (visualLine) {
+                if (step === 1) visualLine.style.width = '0%';
+                if (step === 2) visualLine.style.width = '50%';
+                if (step === 3) visualLine.style.width = '100%';
+            }
+
+            // Actualizar los círculos (nodos) del Stepper
+            for (let i = 1; i <= 3; i++) {
+                const node = document.getElementById(`nodeStep${i}`);
+                if (node) {
+                    if (i < step) {
+                        // Completado
+                        node.className = "relative z-10 w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm bg-movida-green text-white border-4 border-white shadow-md transition-all duration-500";
+                        node.innerHTML = '<i class="fa-solid fa-check text-xs"></i>';
+                    } else if (i === step) {
+                        // Activo
+                        node.className = "relative z-10 w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm bg-movida-teal text-white border-4 border-white shadow-md transition-all duration-500 ring-4 ring-movida-teal/20";
+                        node.innerHTML = i;
+                    } else {
+                        // Pendiente
+                        node.className = "relative z-10 w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm bg-slate-200 text-slate-500 border-4 border-white shadow-md transition-all duration-500";
+                        node.innerHTML = i;
+                    }
+                }
+            }
+
+            // Configurar visibilidad de botones con animación suave
+            if (prevBtn && nextBtn && submitBtn) {
+                if (step === 1) {
+                    prevBtn.classList.add('hidden');
+                    nextBtn.classList.remove('w-auto');
+                    nextBtn.classList.add('w-full');
+                } else {
+                    prevBtn.classList.remove('hidden');
+                    nextBtn.classList.remove('w-full');
+                    nextBtn.classList.add('w-auto', 'ml-auto');
+                }
+
+                if (step === totalSteps) {
+                    nextBtn.classList.add('hidden');
+                    submitBtn.classList.remove('hidden');
+                } else {
+                    nextBtn.classList.remove('hidden');
+                    submitBtn.classList.add('hidden');
+                }
+            }
+            
+            // Ajustar altura inicial del paso
+            updateHeight(step);
+
+            // Auto-focus en el primer input del paso correspondiente (Optimización de clicks)
+            setTimeout(() => {
+                const activePanel = document.getElementById(`step${step}`);
+                if (activePanel) {
+                    const firstInput = activePanel.querySelector('input, select');
+                    if (firstInput) firstInput.focus();
+                }
+                
+                // Recalcular altura una vez que el DOM se haya renderizado por completo
+                updateHeight(step);
+            }, 300);
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        nextBtn.addEventListener('click', () => {
+            const currentStepEl = document.getElementById(`step${currentStep}`);
+            if (currentStepEl) {
+                const inputs = currentStepEl.querySelectorAll('input, select');
+                let isValid = true;
+                
+                inputs.forEach(input => {
+                    validateField(input);
+                    if (!input.checkValidity()) {
+                        input.reportValidity();
+                        isValid = false;
+                    }
+                });
+
+                if(currentStep === 2 && isValid) {
+                    const rawWasap = document.getElementById('wasap_mask').value.replace(/\D/g, '');
+                    if(rawWasap.length !== 12 || !rawWasap.startsWith('58')) {
+                        const wInput = document.getElementById('wasap_mask');
+                        wInput.setCustomValidity('Debe empezar por +58 y tener 12 números en total.');
+                        wInput.reportValidity();
+                        isValid = false;
+                    } else {
+                        document.getElementById('wasap_mask').setCustomValidity('');
+                        document.getElementById('wasap_hidden').value = rawWasap;
+                    }
+                }
+
+                if (isValid) {
+                    currentStep++;
+                    showStep(currentStep);
+                }
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            currentStep--;
+            showStep(currentStep);
+        });
+
+        // --- MICRO-INTERACCIONES VISUALES (VALIDACIONES EN TIEMPO REAL - NEURO-UX) ---
+        function validateField(input) {
+            const container = input.closest('.flex-col');
+            if (!container) return;
+
+            const iconContainer = container.querySelector('.feedback-icon');
+            if (!iconContainer) return;
+
+            // No validar si está vacío y no es requerido
+            if (!input.required && input.value.trim() === '') {
+                iconContainer.classList.add('hidden');
+                input.classList.remove('border-movida-green', 'border-movida-red');
+                return;
+            }
+
+            // Excepción de WhatsApp con máscara
+            if (input.id === 'wasap_mask') {
+                const rawVal = input.value.replace(/\D/g, '');
+                if (rawVal.length === 12 && rawVal.startsWith('58')) {
+                    setValidState(input, iconContainer);
+                } else {
+                    setInvalidState(input, iconContainer);
+                }
+                return;
+            }
+
+            if (input.checkValidity() && input.value.trim() !== '') {
+                setValidState(input, iconContainer);
+            } else {
+                setInvalidState(input, iconContainer);
+            }
+        }
+
+        function setValidState(input, icon) {
+            input.classList.remove('border-movida-border', 'border-movida-red');
+            input.classList.add('border-movida-green');
+            icon.classList.remove('hidden', 'text-movida-red');
+            icon.classList.add('text-movida-green');
+            icon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+            updateHeight(currentStep); // Recalcular altura en caso de variaciones por mensajes
+        }
+
+        function setInvalidState(input, icon) {
+            input.classList.remove('border-movida-border', 'border-movida-green');
+            input.classList.add('border-movida-red');
+            icon.classList.remove('hidden', 'text-movida-green');
+            icon.classList.add('text-movida-red');
+            icon.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i>';
+            updateHeight(currentStep); // Recalcular altura en caso de variaciones por mensajes
+        }
+
+        // Asignar listeners de validación instantánea
+        document.querySelectorAll('input, select').forEach(input => {
+            input.addEventListener('input', () => {
+                validateField(input);
+                saveStateToStorage(); // Auto-guardado al escribir
+            });
+            input.addEventListener('change', () => {
+                validateField(input);
+                saveStateToStorage(); // Auto-guardado al cambiar selección
+            });
+        });
+
+        // --- PERSISTENCIA DE ESTADO TEMPORAL (sessionStorage - EVITAR FRUSTRACIÓN) ---
+        function saveStateToStorage() {
+            const formData = {};
+            document.querySelectorAll('input:not([type="file"]):not([type="hidden"]), select').forEach(input => {
+                if (input.type === 'checkbox') {
+                    formData[input.id] = input.checked;
+                } else {
+                    formData[input.id] = input.value;
+                }
+            });
+            sessionStorage.setItem('registro_sst_data', JSON.stringify(formData));
+        }
+
+        function loadStateFromStorage() {
+            const savedData = sessionStorage.getItem('registro_sst_data');
+            if (!savedData) return;
+
+            try {
+                const data = JSON.parse(savedData);
+                for (const id in data) {
+                    const el = document.getElementById(id);
+                    if (!el) continue;
+
+                    if (el.type === 'checkbox') {
+                        el.checked = data[id];
+                    } else {
+                        el.value = data[id];
+                        // Disparar evento para dependencias (ej. Estado -> Municipio)
+                        if (id === 'estado') {
+                            el.dispatchEvent(new Event('change'));
+                        }
+                    }
+                }
+                
+                // Restaurar municipio una vez cargado el estado
+                if (data['municipio']) {
+                    setTimeout(() => {
+                        const muniEl = document.getElementById('municipio');
+                        if (muniEl) muniEl.value = data['municipio'];
+                    }, 100);
+                }
+
+                // Correr validación visual para los campos cargados
+                setTimeout(() => {
+                    document.querySelectorAll('input:not([type="file"]), select').forEach(input => validateField(input));
+                }, 200);
+
+            } catch (err) {
+                console.error("Error al restaurar estado de sesión:", err);
+            }
+        }
+
+        // --- MÁSCARA AUTOMÁTICA DE WHATSAPP ---
+        const wasapMaskInput = document.getElementById('wasap_mask');
+        if (wasapMaskInput) {
+            wasapMaskInput.addEventListener('input', function(e) {
+                let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,3})(\d{0,7})/);
+                if (!x[1]) {
+                    e.target.value = '';
+                    return;
+                }
+                if (x[1].length === 2 && x[1] !== '58') x[1] = '58';
+                
+                let formatted = '+' + x[1];
+                if (x[2]) formatted += ' ' + x[2];
+                if (x[3]) formatted += ' ' + x[3].substring(0,3) + ' ' + x[3].substring(3,7);
+                
+                e.target.value = formatted;
+                this.setCustomValidity('');
+            });
+        }
+
+        // --- UI DE FOTO ---
+        const fotoInput = document.getElementById('foto');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        if (fotoInput) {
+            fotoInput.addEventListener('change', function(e) {
+                if(this.files && this.files.length > 0) {
+                    fileNameDisplay.textContent = this.files[0].name;
+                    fileNameDisplay.classList.add('text-movida-blue', 'font-bold');
+                } else {
+                    fileNameDisplay.textContent = "Toca para subir tu foto";
+                    fileNameDisplay.classList.remove('text-movida-blue', 'font-bold');
+                }
+                updateHeight(currentStep); // Actualizar altura al subir foto
+            });
+        }
+
+        // --- VALIDACIONES DE TEXTO LIMPIO ---
+        const nombresInput = document.getElementById('nombres');
+        if (nombresInput) {
+            nombresInput.addEventListener('input', function() {
+                this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+            });
+        }
+        const apellidosInput = document.getElementById('apellidos');
+        if (apellidosInput) {
+            apellidosInput.addEventListener('input', function() {
+                this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+            });
+        }
+        const cedulaInput = document.getElementById('cedula');
+        if (cedulaInput) {
+            cedulaInput.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+        }
+
+        // --- LÓGICA DE CARRERA OTRA ---
+        const carreraSelect = document.getElementById('carrera_select');
+        const carreraOtraInput = document.getElementById('carrera_otra');
+        if (carreraSelect) {
+            carreraSelect.addEventListener('change', function() {
+                if (this.value === 'Otra') {
+                    carreraOtraInput.classList.remove('hidden');
+                    carreraOtraInput.required = true;
+                    carreraOtraInput.disabled = false;
+                    carreraOtraInput.focus();
+                } else {
+                    carreraOtraInput.classList.add('hidden');
+                    carreraOtraInput.required = false;
+                    carreraOtraInput.disabled = true;
+                    carreraOtraInput.value = '';
+                }
+                // Recalcular altura de inmediato para evitar cortes visuales
+                setTimeout(() => { updateHeight(currentStep); }, 50);
+            });
+        }
+
+        // --- LÓGICA DE ESTADOS Y MUNICIPIOS ---
+        const estadoSelect = document.getElementById('estado');
+        const municipioSelect = document.getElementById('municipio');
+
+        if (estadoSelect) {
+            for (const estado in datosVenezuela) {
+                const option = document.createElement('option');
+                option.value = estado;
+                option.textContent = estado;
+                estadoSelect.appendChild(option);
+            }
+
+            estadoSelect.addEventListener('change', function() {
+                const estadoSeleccionado = this.value;
+                const municipios = datosVenezuela[estadoSeleccionado] || [];
+
+                municipioSelect.innerHTML = '<option value="" disabled selected>Selecciona un municipio</option>';
+                municipios.forEach(muni => {
+                    const option = document.createElement('option');
+                    option.value = muni;
+                    option.textContent = muni;
+                    municipioSelect.appendChild(option);
+                });
+
+                municipioSelect.disabled = municipios.length === 0;
+                if(!municipioSelect.disabled) {
+                    municipioSelect.classList.remove('bg-slate-100');
+                }
+                updateHeight(currentStep); // Actualizar altura al habilitar o cambiar municipios
+            });
+        }
+
+        // --- ENVÍO DE FORMULARIO ---
+        const form = document.getElementById('registroForm');
+        const btnText = document.getElementById('btnText');
+        const btnSpinner = document.getElementById('btnSpinner');
+        const successMsg = document.getElementById('successMsg');
+        const errorMsg = document.getElementById('errorMsg');
+
+        if (submitBtn) {
+            submitBtn.addEventListener('click', (e) => {
+                // Validar paso 3
+                const currentStepEl = document.getElementById(`step3`);
+                if (currentStepEl) {
+                    const inputs = currentStepEl.querySelectorAll('input, select');
+                    let isValid = true;
+                    
+                    inputs.forEach(input => {
+                        validateField(input);
+                        if (!input.checkValidity()) {
+                            input.reportValidity();
+                            isValid = false;
+                        }
+                    });
+
+                    if (isValid) {
+                        form.requestSubmit();
+                    }
+                }
+            });
+        }
+
+        if (form) {
+            form.addEventListener('submit', async e => {
+                e.preventDefault();
+                
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
+                btnText.innerText = 'Procesando...';
+                btnSpinner.classList.remove('hidden');
+                
+                successMsg.classList.add('hidden');
+                errorMsg.classList.add('hidden');
+
+                const formData = new FormData(form);
+
+                let carreraFinal = carreraSelect.value;
+                if (carreraFinal === 'Otra') carreraFinal = carreraOtraInput.value;
+                formData.set('carrera', carreraFinal);
+
+                const file = fotoInput.files[0];
+
+                const enviarDatos = (datos) => {
+                    const urlEncodedData = new URLSearchParams(datos);
+                    
+                    fetch(SCRIPT_URL, { 
+                        method: 'POST', 
+                        body: urlEncodedData,
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.result === 'success') {
+                            document.getElementById('codigoDisplay').innerText = data.codigo;
+                            successMsg.classList.remove('hidden');
+                            
+                            // Configurar botón de compartir en WhatsApp
+                            const customMsg = `¡Ya soy integrante oficial de La Movida de SST Plus! 🇻🇪 Mi código único de registro es ${data.codigo}. Regístrate tú también aquí para asegurar tu credencial: https://www.movidasst.com`;
+                            document.getElementById('shareWaBtn').href = `https://wa.me/?text=${encodeURIComponent(customMsg)}`;
+                            
+                            // ¡Efecto de Confeti (Confites) con los Colores de la Bandera de Venezuela!
+                            try {
+                                confetti({
+                                    particleCount: 180,
+                                    spread: 85,
+                                    origin: { y: 0.6 },
+                                    colors: ['#FFCC00', '#00247D', '#CF142B'] 
+                                });
+                            } catch (err) {
+                                console.error("No se pudo disparar el confeti:", err);
+                            }
+
+                            // Limpiar formulario y sesión
+                            form.reset();
+                            sessionStorage.removeItem('registro_sst_data');
+                            
+                            // Ocultar controles de navegación y formulario al terminar con éxito
+                            form.classList.add('hidden');
+                            document.querySelector('.border-t').classList.add('hidden');
+                            document.querySelector('.bg-slate-50.border-b').classList.add('hidden');
+                            
+                            // Remover límites de altura del carrusel para el mensaje de éxito
+                            document.getElementById('carouselWrapper').style.height = 'auto';
+
+                            carreraOtraInput.classList.add('hidden');
+                            municipioSelect.disabled = true;
+                            fileNameDisplay.textContent = "Toca para subir tu foto";
+                            
+                            // Actualizar contadores dinámicamente tras un nuevo registro exitoso
+                            cargarContadorRegistrados();
+                        } else if (data.result === 'error' && data.message === 'already_registered') {
+                            errorMsg.querySelector('#errorText').innerText = "Esta cédula ya se encuentra registrada en el sistema.";
+                            errorMsg.classList.remove('hidden');
+                        } else {
+                            throw new Error(data.message || "Error desconocido");
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error!', error);
+                        errorMsg.querySelector('#errorText').innerText = "Hubo un error al conectar con el servidor.";
+                        errorMsg.classList.remove('hidden');
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+                        btnText.innerText = 'Completar Registro';
+                        btnSpinner.classList.add('hidden');
+                        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                    });
+                };
+
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const base64Data = event.target.result.split(',')[1];
+                        formData.set('fotoData', base64Data);
+                        formData.set('fotoMimeType', file.type);
+                        formData.set('fotoName', file.name);
+                        formData.delete('foto'); 
+                        enviarDatos(formData);
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    enviarDatos(formData);
+                }
+            });
+        }
+
+        // Recalcular altura en eventos de cambio de tamaño de ventana
+        window.addEventListener('resize', () => {
+            updateHeight(currentStep);
+        });
+
+        // Al iniciar la página, cargar sesión guardada
+        window.addEventListener('load', () => {
+            loadStateFromStorage();
+            showStep(1); // Iniciar en paso 1
+            cargarContadorRegistrados(); // Carga de base de datos en vivo de integrantes
+        });
+    </script>
+</body>
+</html>
