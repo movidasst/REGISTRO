@@ -191,7 +191,7 @@
                     <span id="stepTitle" class="text-sm font-extrabold uppercase tracking-tight text-movida-blue">Datos Personales</span>
                     <span id="stepCounter" class="text-xs font-black text-movida-teal bg-movida-teal/10 px-2.5 py-1 rounded-full">Paso 1 de 3</span>
                 </div>
-                <!-- Mensaje motivacional dinámico -->
+                <!-- Message motivacional dinámico -->
                 <p id="motivationalMessage" class="text-xs text-slate-500 font-medium italic mb-2">¡Empecemos! Solo tomará 1 minuto.</p>
             </div>
 
@@ -485,7 +485,7 @@
                     </div>
 
                     <!-- Botón de unirse al grupo de WhatsApp (Agregado para incentivo post-registro) -->
-                    <a href="https://chat.whatsapp.com/GeSyHy6zjzo5H9EDkrTuY8" target="_blank" class="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold py-3.5 px-4 rounded-xl shadow-md transition-transform transform active:scale-95 text-sm mb-2 cursor-pointer">
+                    <a href="https://chat.whatsapp.com/GeSyHy6zjzo5H9EDkrTuY8" target="_blank" class="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold py-3.5 px-4 rounded-xl shadow-md transition-transform transform active:scale-95 text-sm mb-2 cursor-pointer animate-pulse-subtle">
                         <i class="fa-brands fa-whatsapp text-lg"></i> Unirse al Grupo Oficial de WhatsApp
                     </a>
 
@@ -562,8 +562,8 @@
     </main>
 
     <script>
-        // URL de Google Apps Script actualizada con la nueva implementación
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzAmXlEiiCurJuFRBmHMYfGCZXpcJ-ISjj25lRgexby0xu4NxkOvrqsJUjNzUOC7buu/exec'; 
+        // URL de Google Apps Script actualizada con la nueva implementación de producción
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw1isNOL6BrOAMZDZ9gZ9_MVYratByBjvNYeJ0085d0quyCeRufMwFDw4NnM0TLlnJ0/exec'; 
 
         // Datos de Venezuela
         const datosVenezuela = {
@@ -644,12 +644,12 @@
                             usarFallbackContador();
                         }
                     } catch (jsonError) {
-                        // Si el servidor devolvió texto plano ("Servidor Activo...") en vez de JSON
+                        // Si el servidor devolvió texto plano en vez de JSON
                         usarFallbackContador();
                     }
                 })
                 .catch(error => {
-                    // Manejo silencioso y seguro de errores de red
+                    // Manejo silencioso de errores de red
                     usarFallbackContador();
                 });
         }
@@ -658,7 +658,7 @@
             const headerCount = document.getElementById('totalRegistradosHeader');
             const bannerCount = document.getElementById('totalRegistradosBanner');
             if (headerCount) {
-                headerCount.innerText = "+100"; // Cambiamos a un valor por defecto elegante
+                headerCount.innerText = "+100"; 
                 headerCount.classList.remove('animate-pulse');
             }
             if (bannerCount) {
@@ -774,7 +774,7 @@
             showStep(currentStep);
         });
 
-        // --- MICRO-INTERACCIONES VISUALES (VALIDACIONES EN TIEMPO REAL - NEURO-UX) ---
+        // --- MICRO-INTERACCIONES VISUALES (VALIDACIONES EN TIEMPO REAL) ---
         function validateField(input) {
             const container = input.closest('.flex-col');
             if (!container) return;
@@ -834,7 +834,7 @@
             });
         });
 
-        // --- PERSISTENCIA DE ESTADO TEMPORAL (sessionStorage - EVITAR FRUSTRACIÓN) ---
+        // --- PERSISTENCIA DE ESTADO TEMPORAL ---
         function saveStateToStorage() {
             const formData = {};
             document.querySelectorAll('input:not([type="file"]):not([type="hidden"]), select').forEach(input => {
