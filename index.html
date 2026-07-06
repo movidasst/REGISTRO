@@ -115,6 +115,14 @@
         .animate-spin-slow {
             animation: spin-slow 8s linear infinite;
         }
+        /* Animación suave de respiración para el botón de unirse */
+        @keyframes pulse-subtle {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+        .animate-pulse-subtle {
+            animation: pulse-subtle 2s infinite ease-in-out;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-600 font-sans min-h-screen flex flex-col">
@@ -122,27 +130,28 @@
     <!-- Franja Nacional (Tope Absoluto) -->
     <div class="fixed top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#FFCC00] via-[#00247D] to-[#CF142B] z-[60]"></div>
 
-    <!-- Header App Mejorado -->
-    <header class="fixed top-1.5 left-0 w-full bg-white/95 backdrop-blur-[15px] border-b border-movida-border shadow-sm z-50 h-[6.5rem] flex items-center justify-between px-4">
-        <div class="flex items-center gap-4">
-            <!-- Efecto del Logo Táctico Mejorado y Más Grande -->
-            <div class="relative group cursor-pointer flex items-center justify-center w-20 h-20">
+    <!-- Header App Mejorado y Corrección de Alturas Responsivas (Anti-Superposición) -->
+    <header class="fixed top-1.5 left-0 w-full bg-white/95 backdrop-blur-[15px] border-b border-movida-border shadow-sm z-50 h-[5.5rem] sm:h-[6.5rem] flex items-center justify-between px-4 transition-all">
+        <div class="flex items-center gap-3 sm:gap-4">
+            <!-- Efecto del Logo Táctico Responsivo -->
+            <div class="relative group cursor-pointer flex items-center justify-center w-14 h-14 sm:w-20 sm:h-20">
                 <!-- Anillo rotatorio exterior -->
                 <div class="absolute inset-0 rounded-full border-[3px] border-movida-teal/20 border-t-movida-teal animate-spin-slow"></div>
                 <!-- Pulso suave de latido -->
-                <div class="absolute inset-2 bg-movida-teal rounded-full animate-ping opacity-20"></div>
-                <!-- Logo principal ampliado -->
+                <div class="absolute inset-1.5 sm:inset-2 bg-movida-teal rounded-full animate-ping opacity-20"></div>
+                <!-- Logo principal ampliado responsivo -->
                 <img src="https://assets.poap.xyz/ff0a7e68-7080-4798-af10-4a481f762e71.jpeg" 
-                     class="relative w-18 h-18 rounded-full border-2 border-white shadow-[0_0_20px_rgba(0,123,133,0.6)] transition-transform duration-300 group-hover:scale-105" 
+                     class="relative w-11 h-11 sm:w-18 sm:h-18 rounded-full border-2 border-white shadow-[0_0_15px_rgba(0,123,133,0.6)] transition-transform duration-300 group-hover:scale-105" 
                      alt="La Movida de SST">
             </div>
             <div>
-                <h1 class="text-movida-blue font-black text-xl tracking-tight leading-tight">Movida SST Plus</h1>
-                <div class="flex items-center gap-2 mt-0.5">
-                    <p class="text-[0.75rem] font-bold text-movida-teal uppercase tracking-wide">De la Reacción a la prevención</p>
+                <h1 class="text-movida-blue font-black text-lg sm:text-xl tracking-tight leading-tight">Movida SST Plus</h1>
+                <!-- Layout de Eslogan y Registrados apilados verticalmente en móviles y en fila en tablets -->
+                <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-0.5">
+                    <p class="text-[0.65rem] sm:text-[0.75rem] font-bold text-movida-teal uppercase tracking-wide leading-none">De la Reacción a la prevención</p>
                     <!-- Badge del total de registrados en vivo -->
-                    <span class="inline-flex items-center gap-1 bg-movida-green/10 text-movida-green text-[0.65rem] font-black px-2 py-0.5 rounded-full">
-                        <span class="w-1.5 h-1.5 rounded-full bg-movida-green animate-pulse"></span>
+                    <span class="inline-flex items-center gap-1 bg-movida-green/10 text-movida-green text-[0.62rem] sm:text-[0.65rem] font-black px-2 py-0.5 rounded-full w-max leading-none">
+                        <span class="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-movida-green animate-pulse"></span>
                         <span id="totalRegistradosHeader" class="animate-pulse">...</span> integrantes
                     </span>
                 </div>
@@ -150,13 +159,13 @@
         </div>
     </header>
 
-    <!-- Contenedor Principal Multi-Paso (Ajustado el pt-[8.2rem] para el header) -->
-    <main class="w-full max-w-md mx-auto px-5 pt-[8.2rem] pb-8 mt-2 flex-grow">
+    <!-- Contenedor Principal Multi-Paso (pt-[7.2rem] adaptado para el Header en móviles y sm:pt-[8.2rem] en pantallas grandes) -->
+    <main class="w-full max-w-md mx-auto px-5 pt-[7.2rem] sm:pt-[8.2rem] pb-8 mt-2 flex-grow">
         
         <div class="bg-white rounded-3xl border border-movida-border shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
             
             <!-- Barra de Progreso y Stepper Visual Premium (Neuro-UX) -->
-            <div class="bg-slate-50 border-b border-movida-border px-6 py-5">
+            <div class="bg-slate-50 border-b border-movida-border px-6 py-5 bg-gradient-to-b from-slate-50 to-white">
                 <!-- Stepper con Círculos Conectados (Excelente Usabilidad Móvil) -->
                 <div class="flex items-center justify-between max-w-xs mx-auto mb-4 relative">
                     <!-- Línea de Fondo -->
@@ -475,9 +484,14 @@
                         <span id="codigoDisplay" class="text-2xl font-black text-movida-teal tracking-widest block mt-1 font-mono"></span>
                     </div>
 
+                    <!-- Botón de unirse al grupo de WhatsApp (Agregado para incentivo post-registro) -->
+                    <a href="https://chat.whatsapp.com/GeSyHy6zjzo5H9EDkrTuY8" target="_blank" class="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold py-3.5 px-4 rounded-xl shadow-md transition-transform transform active:scale-95 text-sm mb-2 cursor-pointer">
+                        <i class="fa-brands fa-whatsapp text-lg"></i> Unirse al Grupo Oficial de WhatsApp
+                    </a>
+
                     <!-- Botón de compartir en WhatsApp (Gatillo mental de prueba social) -->
-                    <a id="shareWaBtn" target="_blank" class="w-full flex items-center justify-center gap-2 bg-movida-green hover:bg-movida-green/90 text-white font-bold py-3.5 px-4 rounded-xl shadow-md transition-transform transform active:scale-95 text-sm mb-2 cursor-pointer">
-                        <i class="fa-brands fa-whatsapp text-lg"></i> Compartir en mi Estado de WhatsApp
+                    <a id="shareWaBtn" target="_blank" class="w-full flex items-center justify-center gap-2 bg-movida-blue hover:bg-movida-blue/90 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-transform transform active:scale-95 text-xs mb-2 cursor-pointer">
+                        <i class="fa-solid fa-share-nodes text-sm"></i> Compartir Registro en mi Estado
                     </a>
                 </div>
             </div>
@@ -508,30 +522,30 @@
                     </a>
                 </div>
 
-                <!-- Redes Sociales Oficiales con Efectos Premium Permanentes (Visibles sin tocar) -->
+                <!-- Redes Sociales Oficiales con Efectos Premium -->
                 <div class="mt-6 pt-5 border-t border-slate-100">
                     <p class="text-[0.75rem] font-bold text-slate-400 uppercase tracking-widest mb-4">Síguenos en nuestras redes</p>
                     <div class="flex justify-center items-center gap-4">
-                        <!-- Instagram (Siempre Colorido con Gradiente Oficial) -->
+                        <!-- Instagram -->
                         <a href="https://www.instagram.com/movidasst/" target="_blank" aria-label="Instagram"
-                           class="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white shadow-[0_4px_12px_rgba(238,42,123,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_6px_20px_rgba(238,42,123,0.5)] active:scale-95">
+                           class="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white shadow-[0_4px_12px_rgba(238,42,123,0.35)] transition-all duration-300 hover:-translate-y-1 active:scale-95 animate-none">
                             <i class="fa-brands fa-instagram text-xl"></i>
                         </a>
-                        <!-- Facebook (Siempre Azul Oficial) -->
+                        <!-- Facebook -->
                         <a href="https://web.facebook.com/movidadsst" target="_blank" aria-label="Facebook"
-                           class="flex items-center justify-center w-12 h-12 rounded-full bg-[#1877F2] text-white shadow-[0_4px_12px_rgba(24,119,242,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_6px_20px_rgba(24,119,242,0.5)] active:scale-95">
+                           class="flex items-center justify-center w-12 h-12 rounded-full bg-[#1877F2] text-white shadow-[0_4px_12px_rgba(24,119,242,0.35)] transition-all duration-300 hover:-translate-y-1 active:scale-95">
                             <i class="fa-brands fa-facebook-f text-xl"></i>
                         </a>
-                        <!-- X (Twitter - Siempre Negro con SVG Vectorial Integrado) -->
+                        <!-- X (Twitter) -->
                         <a href="https://x.com/movidasst" target="_blank" aria-label="X (Twitter)"
-                           class="flex items-center justify-center w-12 h-12 rounded-full bg-[#000000] text-white border border-slate-800 shadow-[0_4px_12px_rgba(0,0,0,0.3)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_6px_20px_rgba(0,0,0,0.45)] active:scale-95">
+                           class="flex items-center justify-center w-12 h-12 rounded-full bg-[#000000] text-white border border-slate-800 shadow-[0_4px_12px_rgba(0,0,0,0.3)] transition-all duration-300 hover:-translate-y-1 active:scale-95">
                             <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
                                 <path d="M18.244 2.25h3.308l-7.227 7.746 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.285L1.254 2.25h6.88l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                             </svg>
                         </a>
-                        <!-- LinkedIn (Siempre Azul Profesional) -->
+                        <!-- LinkedIn -->
                         <a href="https://www.linkedin.com/company/movidasst/" target="_blank" aria-label="LinkedIn"
-                           class="flex items-center justify-center w-12 h-12 rounded-full bg-[#0A66C2] text-white shadow-[0_4px_12px_rgba(10,102,194,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_6px_20px_rgba(10,102,194,0.5)] active:scale-95">
+                           class="flex items-center justify-center w-12 h-12 rounded-full bg-[#0A66C2] text-white shadow-[0_4px_12px_rgba(10,102,194,0.35)] transition-all duration-300 hover:-translate-y-1 active:scale-95">
                             <i class="fa-brands fa-linkedin-in text-xl"></i>
                         </a>
                     </div>
@@ -549,7 +563,7 @@
 
     <script>
         // URL de Google Apps Script actualizada con la nueva implementación
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby3X4_Jag3Bv0FebhCKU_cKEF5YAgHKnyvFfABpOFb5tF6IprYSiTjgo9C7DQE-y_jI/exec'; 
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzAmXlEiiCurJuFRBmHMYfGCZXpcJ-ISjj25lRgexby0xu4NxkOvrqsJUjNzUOC7buu/exec'; 
 
         // Datos de Venezuela
         const datosVenezuela = {
@@ -603,54 +617,67 @@
             const wrapper = document.getElementById('carouselWrapper');
             const activeStepEl = document.getElementById(`step${step}`);
             if (wrapper && activeStepEl) {
-                // Asigna la altura exacta del paso actual
                 wrapper.style.height = `${activeStepEl.offsetHeight}px`;
             }
         }
 
-        // Cargar contador de registrados en vivo directamente de la Sheets base
+        // Cargar contador de registrados en vivo directamente de la Sheets base de forma segura (Anti-Crash JSON)
         function cargarContadorRegistrados() {
             fetch(SCRIPT_URL)
-                .then(response => response.json())
-                .then(data => {
-                    if (data && data.count !== undefined) {
-                        const count = data.count;
-                        const headerCount = document.getElementById('totalRegistradosHeader');
-                        const bannerCount = document.getElementById('totalRegistradosBanner');
-                        if (headerCount) {
-                            headerCount.innerText = count;
-                            headerCount.classList.remove('animate-pulse');
+                .then(response => response.text())
+                .then(text => {
+                    try {
+                        const data = JSON.parse(text);
+                        if (data && data.count !== undefined) {
+                            const count = data.count;
+                            const headerCount = document.getElementById('totalRegistradosHeader');
+                            const bannerCount = document.getElementById('totalRegistradosBanner');
+                            if (headerCount) {
+                                headerCount.innerText = count;
+                                headerCount.classList.remove('animate-pulse');
+                            }
+                            if (bannerCount) {
+                                bannerCount.innerText = count;
+                                bannerCount.classList.remove('animate-pulse');
+                            }
+                        } else {
+                            usarFallbackContador();
                         }
-                        if (bannerCount) {
-                            bannerCount.innerText = count;
-                            bannerCount.classList.remove('animate-pulse');
-                        }
+                    } catch (jsonError) {
+                        // Si el servidor devolvió texto plano ("Servidor Activo...") en vez de JSON
+                        usarFallbackContador();
                     }
                 })
                 .catch(error => {
-                    console.error("Error al cargar el contador:", error);
-                    // Fallbacks amigables
-                    const headerCount = document.getElementById('totalRegistradosHeader');
-                    const bannerCount = document.getElementById('totalRegistradosBanner');
-                    if (headerCount) headerCount.innerText = "SST";
-                    if (bannerCount) bannerCount.innerText = "muchos";
+                    // Manejo silencioso y seguro de errores de red
+                    usarFallbackContador();
                 });
         }
 
+        function usarFallbackContador() {
+            const headerCount = document.getElementById('totalRegistradosHeader');
+            const bannerCount = document.getElementById('totalRegistradosBanner');
+            if (headerCount) {
+                headerCount.innerText = "+100"; // Cambiamos a un valor por defecto elegante
+                headerCount.classList.remove('animate-pulse');
+            }
+            if (bannerCount) {
+                bannerCount.innerText = "muchos";
+                bannerCount.classList.remove('animate-pulse');
+            }
+        }
+
         function showStep(step) {
-            // Desplazar el formulario lateralmente (Slide UX)
             const translatePercent = -((step - 1) * 33.3333);
             if (formElement) {
                 formElement.style.transform = `translateX(${translatePercent}%)`;
             }
 
-            // Actualizar indicadores superiores
             if (stepTitle) stepTitle.innerText = stepTitles[step-1];
             if (stepCounter) stepCounter.innerText = `Paso ${step} de ${totalSteps}`;
             if (motivationalMessage) motivationalMessage.innerText = stepMotivations[step-1];
             if (progressBar) progressBar.style.width = `${(step / totalSteps) * 100}%`;
 
-            // Actualizar línea de progreso del Stepper Visual
             const visualLine = document.getElementById('visualStepLine');
             if (visualLine) {
                 if (step === 1) visualLine.style.width = '0%';
@@ -658,27 +685,22 @@
                 if (step === 3) visualLine.style.width = '100%';
             }
 
-            // Actualizar los círculos (nodos) del Stepper
             for (let i = 1; i <= 3; i++) {
                 const node = document.getElementById(`nodeStep${i}`);
                 if (node) {
                     if (i < step) {
-                        // Completado
                         node.className = "relative z-10 w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm bg-movida-green text-white border-4 border-white shadow-md transition-all duration-500";
                         node.innerHTML = '<i class="fa-solid fa-check text-xs"></i>';
                     } else if (i === step) {
-                        // Activo
                         node.className = "relative z-10 w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm bg-movida-teal text-white border-4 border-white shadow-md transition-all duration-500 ring-4 ring-movida-teal/20";
                         node.innerHTML = i;
                     } else {
-                        // Pendiente
                         node.className = "relative z-10 w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm bg-slate-200 text-slate-500 border-4 border-white shadow-md transition-all duration-500";
                         node.innerHTML = i;
                     }
                 }
             }
 
-            // Configurar visibilidad de botones con animación suave
             if (prevBtn && nextBtn && submitBtn) {
                 if (step === 1) {
                     prevBtn.classList.add('hidden');
@@ -699,18 +721,14 @@
                 }
             }
             
-            // Ajustar altura inicial del paso
             updateHeight(step);
 
-            // Auto-focus en el primer input del paso correspondiente (Optimización de clicks)
             setTimeout(() => {
                 const activePanel = document.getElementById(`step${step}`);
                 if (activePanel) {
                     const firstInput = activePanel.querySelector('input, select');
                     if (firstInput) firstInput.focus();
                 }
-                
-                // Recalcular altura una vez que el DOM se haya renderizado por completo
                 updateHeight(step);
             }, 300);
 
@@ -764,14 +782,12 @@
             const iconContainer = container.querySelector('.feedback-icon');
             if (!iconContainer) return;
 
-            // No validar si está vacío y no es requerido
             if (!input.required && input.value.trim() === '') {
                 iconContainer.classList.add('hidden');
                 input.classList.remove('border-movida-green', 'border-movida-red');
                 return;
             }
 
-            // Excepción de WhatsApp con máscara
             if (input.id === 'wasap_mask') {
                 const rawVal = input.value.replace(/\D/g, '');
                 if (rawVal.length === 12 && rawVal.startsWith('58')) {
@@ -795,7 +811,7 @@
             icon.classList.remove('hidden', 'text-movida-red');
             icon.classList.add('text-movida-green');
             icon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-            updateHeight(currentStep); // Recalcular altura en caso de variaciones por mensajes
+            updateHeight(currentStep);
         }
 
         function setInvalidState(input, icon) {
@@ -804,18 +820,17 @@
             icon.classList.remove('hidden', 'text-movida-green');
             icon.classList.add('text-movida-red');
             icon.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i>';
-            updateHeight(currentStep); // Recalcular altura en caso de variaciones por mensajes
+            updateHeight(currentStep);
         }
 
-        // Asignar listeners de validación instantánea
         document.querySelectorAll('input, select').forEach(input => {
             input.addEventListener('input', () => {
                 validateField(input);
-                saveStateToStorage(); // Auto-guardado al escribir
+                saveStateToStorage();
             });
             input.addEventListener('change', () => {
                 validateField(input);
-                saveStateToStorage(); // Auto-guardado al cambiar selección
+                saveStateToStorage();
             });
         });
 
@@ -846,14 +861,12 @@
                         el.checked = data[id];
                     } else {
                         el.value = data[id];
-                        // Disparar evento para dependencias (ej. Estado -> Municipio)
                         if (id === 'estado') {
                             el.dispatchEvent(new Event('change'));
                         }
                     }
                 }
                 
-                // Restaurar municipio una vez cargado el estado
                 if (data['municipio']) {
                     setTimeout(() => {
                         const muniEl = document.getElementById('municipio');
@@ -861,7 +874,6 @@
                     }, 100);
                 }
 
-                // Correr validación visual para los campos cargados
                 setTimeout(() => {
                     document.querySelectorAll('input:not([type="file"]), select').forEach(input => validateField(input));
                 }, 200);
@@ -871,7 +883,6 @@
             }
         }
 
-        // --- MÁSCARA AUTOMÁTICA DE WHATSAPP ---
         const wasapMaskInput = document.getElementById('wasap_mask');
         if (wasapMaskInput) {
             wasapMaskInput.addEventListener('input', function(e) {
@@ -891,7 +902,6 @@
             });
         }
 
-        // --- UI DE FOTO ---
         const fotoInput = document.getElementById('foto');
         const fileNameDisplay = document.getElementById('fileNameDisplay');
         if (fotoInput) {
@@ -903,11 +913,10 @@
                     fileNameDisplay.textContent = "Toca para subir tu foto";
                     fileNameDisplay.classList.remove('text-movida-blue', 'font-bold');
                 }
-                updateHeight(currentStep); // Actualizar altura al subir foto
+                updateHeight(currentStep);
             });
         }
 
-        // --- VALIDACIONES DE TEXTO LIMPIO ---
         const nombresInput = document.getElementById('nombres');
         if (nombresInput) {
             nombresInput.addEventListener('input', function() {
@@ -927,7 +936,6 @@
             });
         }
 
-        // --- LÓGICA DE CARRERA OTRA ---
         const carreraSelect = document.getElementById('carrera_select');
         const carreraOtraInput = document.getElementById('carrera_otra');
         if (carreraSelect) {
@@ -943,12 +951,10 @@
                     carreraOtraInput.disabled = true;
                     carreraOtraInput.value = '';
                 }
-                // Recalcular altura de inmediato para evitar cortes visuales
                 setTimeout(() => { updateHeight(currentStep); }, 50);
             });
         }
 
-        // --- LÓGICA DE ESTADOS Y MUNICIPIOS ---
         const estadoSelect = document.getElementById('estado');
         const municipioSelect = document.getElementById('municipio');
 
@@ -976,11 +982,10 @@
                 if(!municipioSelect.disabled) {
                     municipioSelect.classList.remove('bg-slate-100');
                 }
-                updateHeight(currentStep); // Actualizar altura al habilitar o cambiar municipios
+                updateHeight(currentStep);
             });
         }
 
-        // --- ENVÍO DE FORMULARIO ---
         const form = document.getElementById('registroForm');
         const btnText = document.getElementById('btnText');
         const btnSpinner = document.getElementById('btnSpinner');
@@ -989,7 +994,6 @@
 
         if (submitBtn) {
             submitBtn.addEventListener('click', (e) => {
-                // Validar paso 3
                 const currentStepEl = document.getElementById(`step3`);
                 if (currentStepEl) {
                     const inputs = currentStepEl.querySelectorAll('input, select');
@@ -1044,11 +1048,9 @@
                             document.getElementById('codigoDisplay').innerText = data.codigo;
                             successMsg.classList.remove('hidden');
                             
-                            // Configurar botón de compartir en WhatsApp
                             const customMsg = `¡Ya soy integrante oficial de La Movida de SST Plus! 🇻🇪 Mi código único de registro es ${data.codigo}. Regístrate tú también aquí para asegurar tu credencial: https://www.movidasst.com`;
                             document.getElementById('shareWaBtn').href = `https://wa.me/?text=${encodeURIComponent(customMsg)}`;
                             
-                            // ¡Efecto de Confeti (Confites) con los Colores de la Bandera de Venezuela!
                             try {
                                 confetti({
                                     particleCount: 180,
@@ -1057,26 +1059,22 @@
                                     colors: ['#FFCC00', '#00247D', '#CF142B'] 
                                 });
                             } catch (err) {
-                                console.error("No se pudo disparar el confeti:", err);
+                                console.error("No se pudo disparar el coneti:", err);
                             }
 
-                            // Limpiar formulario y sesión
                             form.reset();
                             sessionStorage.removeItem('registro_sst_data');
                             
-                            // Ocultar controles de navegación y formulario al terminar con éxito
                             form.classList.add('hidden');
                             document.querySelector('.border-t').classList.add('hidden');
                             document.querySelector('.bg-slate-50.border-b').classList.add('hidden');
                             
-                            // Remover límites de altura del carrusel para el mensaje de éxito
                             document.getElementById('carouselWrapper').style.height = 'auto';
 
                             carreraOtraInput.classList.add('hidden');
                             municipioSelect.disabled = true;
                             fileNameDisplay.textContent = "Toca para subir tu foto";
                             
-                            // Actualizar contadores dinámicamente tras un nuevo registro exitoso
                             cargarContadorRegistrados();
                         } else if (data.result === 'error' && data.message === 'already_registered') {
                             errorMsg.querySelector('#errorText').innerText = "Esta cédula ya se encuentra registrada en el sistema.";
@@ -1116,16 +1114,14 @@
             });
         }
 
-        // Recalcular altura en eventos de cambio de tamaño de ventana
         window.addEventListener('resize', () => {
             updateHeight(currentStep);
         });
 
-        // Al iniciar la página, cargar sesión guardada
         window.addEventListener('load', () => {
             loadStateFromStorage();
-            showStep(1); // Iniciar en paso 1
-            cargarContadorRegistrados(); // Carga de base de datos en vivo de integrantes
+            showStep(1); 
+            cargarContadorRegistrados(); 
         });
     </script>
 </body>
