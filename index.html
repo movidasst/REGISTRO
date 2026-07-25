@@ -157,6 +157,18 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Botón Mapa de Profesionales -->
+        <a href="https://mapa.movidasst.com" class="shrink-0 flex items-center gap-1.5 sm:gap-2 bg-white border border-movida-border hover:border-movida-teal hover:bg-movida-teal/5 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl transition-all shadow-sm active:scale-95 cursor-pointer">
+            <div class="bg-movida-teal/10 p-1.5 rounded-lg text-movida-teal">
+                <i class="fa-solid fa-map-location-dot text-sm sm:text-base"></i>
+            </div>
+            <div class="flex flex-col items-start justify-center hidden sm:flex">
+                <span class="text-[0.55rem] font-extrabold text-slate-400 uppercase tracking-widest leading-none">Ver Directorio</span>
+                <span class="text-xs font-black text-movida-blue leading-none mt-0.5">Mapa SST</span>
+            </div>
+            <span class="text-[0.7rem] font-black text-movida-blue sm:hidden">Mapa</span>
+        </a>
     </header>
 
     <!-- Contenedor Principal Multi-Paso (pt-[7.2rem] adaptado para el Header en móviles y sm:pt-[8.2rem] en pantallas grandes) -->
@@ -425,19 +437,21 @@
                         </div>
 
                         <!-- Foto UI -->
-                        <div class="flex flex-col">
+                        <div class="flex flex-col relative">
                             <label class="text-sm font-bold text-movida-blue mb-2 flex items-center gap-2">
-                                <i class="fa-solid fa-camera text-movida-teal/70 text-xs"></i> Fotografía de Perfil (Opcional)
+                                <i class="fa-solid fa-camera text-movida-teal/70 text-xs"></i> Fotografía de Perfil *
                             </label>
-                            <label for="foto" class="flex flex-col items-center justify-center w-full h-28 border-2 border-movida-border border-dashed rounded-2xl cursor-pointer bg-slate-50/50 hover:bg-slate-100 transition-colors">
+                            <label id="fotoLabel" for="foto" class="flex flex-col items-center justify-center w-full h-28 border-2 border-movida-border border-dashed rounded-2xl cursor-pointer bg-slate-50/50 hover:bg-slate-100 transition-colors">
                                 <div class="flex flex-col items-center justify-center pt-3 pb-3">
-                                    <i class="fa-solid fa-cloud-arrow-up text-movida-teal text-2xl mb-1.5"></i>
+                                    <i id="fotoIcon" class="fa-solid fa-cloud-arrow-up text-movida-teal text-2xl mb-1.5"></i>
                                     <p class="text-sm text-slate-500 font-bold"><span id="fileNameDisplay">Toca para subir tu foto</span></p>
                                 </div>
-                                <input id="foto" name="foto" type="file" accept="image/jpeg, image/png" class="hidden" />
+                                <input id="foto" name="foto" type="file" accept="image/jpeg, image/png" class="hidden" required />
                             </label>
                             <!-- Frase persuasiva para la foto (Neuro-UX) -->
                             <p class="mt-2 text-[0.7rem] text-movida-teal font-bold"><i class="fa-solid fa-circle-info mr-1"></i>* Tu foto será utilizada para generar tu credencial digital de integrante oficial de La Movida de SST Plus.</p>
+                            <!-- Mensaje de error (oculto por defecto) -->
+                            <p id="fotoError" class="hidden mt-1 text-[0.75rem] text-movida-red font-bold"><i class="fa-solid fa-circle-exclamation mr-1"></i>La foto de perfil es obligatoria.</p>
                         </div>
 
                         <!-- Términos y Privacidad (Casilla Obligatoria) -->
@@ -600,7 +614,6 @@
         const stepTitle = document.getElementById('stepTitle');
         const stepCounter = document.getElementById('stepCounter');
         const motivationalMessage = document.getElementById('motivationalMessage');
-        const progressBar = document.getElementById('progressBar');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
         const submitBtn = document.getElementById('submitBtn');
@@ -676,7 +689,6 @@
             if (stepTitle) stepTitle.innerText = stepTitles[step-1];
             if (stepCounter) stepCounter.innerText = `Paso ${step} de ${totalSteps}`;
             if (motivationalMessage) motivationalMessage.innerText = stepMotivations[step-1];
-            if (progressBar) progressBar.style.width = `${(step / totalSteps) * 100}%`;
 
             const visualLine = document.getElementById('visualStepLine');
             if (visualLine) {
@@ -904,8 +916,20 @@
 
         const fotoInput = document.getElementById('foto');
         const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const fotoLabel = document.getElementById('fotoLabel');
+        const fotoError = document.getElementById('fotoError');
+        const fotoIcon = document.getElementById('fotoIcon');
         if (fotoInput) {
             fotoInput.addEventListener('change', function(e) {
+                // Restablecer estados de error si existían
+                if (fotoLabel) {
+                    fotoLabel.classList.add('border-movida-border', 'bg-slate-50/50', 'hover:bg-slate-100');
+                    fotoLabel.classList.remove('border-movida-red', 'bg-movida-red/5');
+                    fotoIcon.classList.add('text-movida-teal');
+                    fotoIcon.classList.remove('text-movida-red');
+                    fotoError.classList.add('hidden');
+                }
+
                 if(this.files && this.files.length > 0) {
                     fileNameDisplay.textContent = this.files[0].name;
                     fileNameDisplay.classList.add('text-movida-blue', 'font-bold');
@@ -996,7 +1020,8 @@
             submitBtn.addEventListener('click', (e) => {
                 const currentStepEl = document.getElementById(`step3`);
                 if (currentStepEl) {
-                    const inputs = currentStepEl.querySelectorAll('input, select');
+                    // Excluimos la foto de la validación estándar nativa por estar 'hidden'
+                    const inputs = currentStepEl.querySelectorAll('input:not([type="file"]), select');
                     let isValid = true;
                     
                     inputs.forEach(input => {
@@ -1006,6 +1031,23 @@
                             isValid = false;
                         }
                     });
+
+                    // Validación manual y visual de la Foto
+                    const fotoInputEl = document.getElementById('foto');
+                    if (!fotoInputEl.files || fotoInputEl.files.length === 0) {
+                        isValid = false;
+                        const fLabel = document.getElementById('fotoLabel');
+                        const fIcon = document.getElementById('fotoIcon');
+                        const fError = document.getElementById('fotoError');
+                        if(fLabel && fIcon && fError) {
+                            fLabel.classList.remove('border-movida-border', 'bg-slate-50/50', 'hover:bg-slate-100');
+                            fLabel.classList.add('border-movida-red', 'bg-movida-red/5');
+                            fIcon.classList.remove('text-movida-teal');
+                            fIcon.classList.add('text-movida-red');
+                            fError.classList.remove('hidden');
+                        }
+                        updateHeight(currentStep); // Reajustar altura para que el texto de error quepa bien
+                    }
 
                     if (isValid) {
                         form.requestSubmit();
