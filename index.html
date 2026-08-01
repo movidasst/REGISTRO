@@ -518,6 +518,16 @@
                         <span id="codigoDisplay" class="text-2xl font-black text-movida-teal tracking-widest block mt-1 font-mono"></span>
                     </div>
 
+                    <div id="correoStatus" class="w-full max-w-xs mb-4 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left" role="status" aria-live="polite">
+                        <div class="flex items-start gap-2.5">
+                            <i id="correoStatusIcon" class="fa-solid fa-envelope-circle-check text-movida-teal mt-0.5"></i>
+                            <div>
+                                <p id="correoStatusTitle" class="text-xs font-black text-movida-blue">Preparando correo de confirmación</p>
+                                <p id="correoStatusText" class="text-[0.7rem] leading-relaxed text-slate-500 mt-0.5">El registro ya está guardado en Supabase.</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Botón de unirse al grupo de WhatsApp (Agregado para incentivo post-registro) -->
                     <a href="https://chat.whatsapp.com/GeSyHy6zjzo5H9EDkrTuY8" target="_blank" class="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold py-3.5 px-4 rounded-xl shadow-md transition-transform transform active:scale-95 text-sm mb-2 cursor-pointer animate-pulse-subtle">
                         <i class="fa-brands fa-whatsapp text-lg"></i> Unirse al Grupo Oficial de WhatsApp
@@ -601,6 +611,10 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhdWd4a3F5d3JkY2JicXZ5YWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1NzU1MDQsImV4cCI6MjEwMTE1MTUwNH0.lCEX-pKcGdIKVd7cTegAHJ-dZ8HDrkUxUy9vBUwLE44';
         const SUPABASE_TABLE = 'integrantes';
         const SUPABASE_PHOTO_BUCKET = 'fotos_perfil';
+
+        // Google Apps Script se conserva únicamente para enviar el correo de confirmación.
+        // Debe apuntar al despliegue del archivo google_apps_script_solo_correo.gs.
+        const EMAIL_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0n2kRHEiDkbiNVAeNxQ-xPdzfhB4QZhrpAr3ClxWBHaqoja0D6d3EdmNVcamK2HH5Hg/exec';
         const supabaseClient = window.supabase?.createClient
             ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
             : null;
@@ -789,6 +803,83 @@
                 return 'Supabase rechazó el registro por la política RLS de INSERT o Storage.';
             }
             return mensaje;
+        }
+
+        function actualizarEstadoCorreo(estado, correo) {
+            const box = document.getElementById('correoStatus');
+            const icon = document.getElementById('correoStatusIcon');
+            const title = document.getElementById('correoStatusTitle');
+            const text = document.getElementById('correoStatusText');
+            if (!box || !icon || !title || !text) return;
+
+            box.className = 'w-full max-w-xs mb-4 rounded-2xl border px-4 py-3 text-left';
+
+            if (estado === 'enviando') {
+                box.classList.add('border-sky-200', 'bg-sky-50');
+                icon.className = 'fa-solid fa-circle-notch fa-spin text-sky-600 mt-0.5';
+                title.textContent = 'Enviando correo de confirmación';
+                text.textContent = `Estamos enviando el código a ${correo}.`;
+                return;
+            }
+
+            if (estado === 'enviado') {
+                box.classList.add('border-emerald-200', 'bg-emerald-50');
+                icon.className = 'fa-solid fa-envelope-circle-check text-emerald-600 mt-0.5';
+                title.textContent = 'Correo enviado';
+                text.textContent = `La confirmación fue enviada a ${correo}. Revisa también la carpeta de spam.`;
+                return;
+            }
+
+            box.classList.add('border-amber-200', 'bg-amber-50');
+            icon.className = 'fa-solid fa-triangle-exclamation text-amber-600 mt-0.5';
+            title.textContent = 'Registro guardado; correo no confirmado';
+            text.textContent = 'Tu registro está completo. Guarda el código mostrado en pantalla. El correo puede reintentarse desde Apps Script.';
+        }
+
+        async function enviarCorreoRegistroConAppsScript(registro) {
+            actualizarEstadoCorreo('enviando', registro.correo);
+
+            const datosCorreo = new URLSearchParams({
+                action: 'send_registration_email',
+                cedula: registro.cedula,
+                codigo_integrante: registro.codigo_integrante
+            });
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+            try {
+                const response = await fetch(EMAIL_SCRIPT_URL, {
+                    method: 'POST',
+                    body: datosCorreo,
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                    },
+                    redirect: 'follow',
+                    signal: controller.signal
+                });
+
+                const rawText = await response.text();
+                let resultado = null;
+                try {
+                    resultado = JSON.parse(rawText);
+                } catch (_) {
+                    throw new Error('Apps Script devolvió una respuesta no válida.');
+                }
+
+                if (!response.ok || resultado?.result !== 'success') {
+                    throw new Error(resultado?.message || 'No se pudo confirmar el envío del correo.');
+                }
+
+                actualizarEstadoCorreo('enviado', registro.correo);
+                return true;
+            } catch (error) {
+                console.warn('El registro se guardó, pero el correo no pudo confirmarse:', error);
+                actualizarEstadoCorreo('error', registro.correo);
+                return false;
+            } finally {
+                clearTimeout(timeoutId);
+            }
         }
 
         function showStep(step) {
@@ -1255,6 +1346,10 @@
 
                     document.getElementById('codigoDisplay').innerText = codigo;
                     successMsg.classList.remove('hidden');
+
+                    // El correo es una operación secundaria: nunca revierte el registro de Supabase.
+                    // Se ejecuta después de confirmar el INSERT y usa sólo cédula + código.
+                    void enviarCorreoRegistroConAppsScript(registro);
 
                     const customMsg = `¡Ya soy integrante oficial de La Movida de SST Plus! 🇻🇪 Mi código único de registro es ${codigo}. Regístrate tú también aquí para asegurar tu credencial: https://registro.movidasst.com`;
                     document.getElementById('shareWaBtn').href = `https://wa.me/?text=${encodeURIComponent(customMsg)}`;
