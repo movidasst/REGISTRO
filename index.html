@@ -56,6 +56,9 @@
     
     <!-- canvas-confetti para la celebración al registrarse -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <!-- Configuración Custom de Tailwind -->
     <script>
@@ -349,6 +352,21 @@
                                 <span class="absolute right-3.5 top-1/2 -translate-y-1/2 feedback-icon hidden"></span>
                             </div>
                         </div>
+
+                        <!-- LinkedIn opcional -->
+                        <div class="flex flex-col relative">
+                            <label for="linkedin" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
+                                <i class="fa-brands fa-linkedin text-[#0A66C2] text-sm"></i> Perfil de LinkedIn <span class="text-[0.68rem] font-semibold text-slate-400">(Opcional)</span>
+                            </label>
+                            <div class="relative">
+                                <input type="text" id="linkedin" name="linkedin" inputmode="url" autocomplete="url"
+                                    pattern="^(https?:\/\/)?(www\.)?linkedin\.com\/in\/[-A-Za-z0-9._%]+\/?(?:\?.*)?$"
+                                    class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-[#0A66C2] focus:ring-1 focus:ring-[#0A66C2] outline-none transition-all shadow-sm"
+                                    placeholder="linkedin.com/in/tu-perfil" />
+                                <span class="absolute right-3.5 top-1/2 -translate-y-1/2 feedback-icon hidden"></span>
+                            </div>
+                            <p class="mt-1.5 text-[0.7rem] text-slate-400 font-medium"><i class="fa-solid fa-circle-info mr-1"></i>Debe ser el enlace público de tu perfil personal.</p>
+                        </div>
                     </div>
 
                     <!-- ================= PASO 3: PERFIL PROFESIONAL ================= -->
@@ -408,11 +426,12 @@
                         <!-- Postgrado -->
                         <div class="flex flex-col relative">
                             <label for="postgrado" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
-                                <i class="fa-solid fa-user-graduate text-movida-teal/70 text-xs"></i> Postgrado (Opcional)
+                                <i class="fa-solid fa-user-graduate text-movida-teal/70 text-xs"></i> Postgrado *
                             </label>
                             <div class="relative">
-                                <select id="postgrado" name="postgrado" class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm">
-                                    <option value="" selected>Ninguno / No aplica</option>
+                                <select id="postgrado" name="postgrado" required class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm">
+                                    <option value="" disabled selected>Selecciona una opción</option>
+                                    <option value="__NONE__">Ninguno / No aplica</option>
                                     <option value="Especialización">Especialización</option>
                                     <option value="Master">Master</option>
                                     <option value="Maestría">Maestría</option>
@@ -424,11 +443,12 @@
                         <!-- Doctorado -->
                         <div class="flex flex-col relative">
                             <label for="doctorado" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
-                                <i class="fa-solid fa-book text-movida-teal/70 text-xs"></i> Doctorado / Post Doctorado (Opcional)
+                                <i class="fa-solid fa-book text-movida-teal/70 text-xs"></i> Doctorado / Post Doctorado *
                             </label>
                             <div class="relative">
-                                <select id="doctorado" name="doctorado" class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm">
-                                    <option value="" selected>Ninguno / No aplica</option>
+                                <select id="doctorado" name="doctorado" required class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm">
+                                    <option value="" disabled selected>Selecciona una opción</option>
+                                    <option value="__NONE__">Ninguno / No aplica</option>
                                     <option value="Doctorado">Doctorado</option>
                                     <option value="Post Doctorado">Post Doctorado</option>
                                 </select>
@@ -576,8 +596,14 @@
     </main>
 
     <script>
-        // URL de Google Apps Script actualizada con la nueva implementación de producción
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw1isNOL6BrOAMZDZ9gZ9_MVYratByBjvNYeJ0085d0quyCeRufMwFDw4NnM0TLlnJ0/exec'; 
+        // Conexión pública a Supabase. La seguridad real depende de las políticas RLS.
+        const SUPABASE_URL = 'https://daugxkqywrdcbbqvyabe.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhdWd4a3F5d3JkY2JicXZ5YWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1NzU1MDQsImV4cCI6MjEwMTE1MTUwNH0.lCEX-pKcGdIKVd7cTegAHJ-dZ8HDrkUxUy9vBUwLE44';
+        const SUPABASE_TABLE = 'integrantes';
+        const SUPABASE_PHOTO_BUCKET = 'fotos_perfil';
+        const supabaseClient = window.supabase?.createClient
+            ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+            : null;
 
         // Datos de Venezuela
         const datosVenezuela = {
@@ -634,37 +660,33 @@
             }
         }
 
-        // Cargar contador de registrados en vivo directamente de la Sheets base de forma segura (Anti-Crash JSON)
-        function cargarContadorRegistrados() {
-            fetch(SCRIPT_URL)
-                .then(response => response.text())
-                .then(text => {
-                    try {
-                        const data = JSON.parse(text);
-                        if (data && data.count !== undefined) {
-                            const count = data.count;
-                            const headerCount = document.getElementById('totalRegistradosHeader');
-                            const bannerCount = document.getElementById('totalRegistradosBanner');
-                            if (headerCount) {
-                                headerCount.innerText = count;
-                                headerCount.classList.remove('animate-pulse');
-                            }
-                            if (bannerCount) {
-                                bannerCount.innerText = count;
-                                bannerCount.classList.remove('animate-pulse');
-                            }
-                        } else {
-                            usarFallbackContador();
-                        }
-                    } catch (jsonError) {
-                        // Si el servidor devolvió texto plano en vez de JSON
-                        usarFallbackContador();
-                    }
-                })
-                .catch(error => {
-                    // Manejo silencioso de errores de red
-                    usarFallbackContador();
-                });
+        // Contador en vivo desde Supabase. Se alinea con el directorio: sólo registros con estado válido.
+        async function cargarContadorRegistrados() {
+            try {
+                const { count, error } = await supabaseClient
+                    .from(SUPABASE_TABLE)
+                    .select('*', { count: 'exact', head: true })
+                    .not('estado', 'is', null)
+                    .neq('estado', '');
+
+                if (error) throw error;
+
+                const total = Number.isFinite(count) ? count : 0;
+                const headerCount = document.getElementById('totalRegistradosHeader');
+                const bannerCount = document.getElementById('totalRegistradosBanner');
+
+                if (headerCount) {
+                    headerCount.innerText = total;
+                    headerCount.classList.remove('animate-pulse');
+                }
+                if (bannerCount) {
+                    bannerCount.innerText = total;
+                    bannerCount.classList.remove('animate-pulse');
+                }
+            } catch (error) {
+                console.error('No se pudo consultar el contador de Supabase:', error);
+                usarFallbackContador();
+            }
         }
 
         function usarFallbackContador() {
@@ -678,6 +700,95 @@
                 bannerCount.innerText = "muchos";
                 bannerCount.classList.remove('animate-pulse');
             }
+        }
+
+        function normalizarLinkedInUrl(valor) {
+            const limpio = (valor || '').trim();
+            if (!limpio) return null;
+            return /^https?:\/\//i.test(limpio) ? limpio : `https://${limpio}`;
+        }
+
+        function generarCodigoCincoDigitos() {
+            const valores = new Uint32Array(1);
+            window.crypto.getRandomValues(valores);
+            return String(10000 + (valores[0] % 90000));
+        }
+
+        async function generarCodigoUnico() {
+            for (let intento = 0; intento < 20; intento++) {
+                const codigo = generarCodigoCincoDigitos();
+                const { data, error } = await supabaseClient
+                    .from(SUPABASE_TABLE)
+                    .select('codigo_integrante')
+                    .eq('codigo_integrante', codigo)
+                    .maybeSingle();
+
+                if (error) throw error;
+                if (!data) return codigo;
+            }
+            throw new Error('No fue posible generar un código único. Intenta nuevamente.');
+        }
+
+        function extensionSegura(file) {
+            const porMime = {
+                'image/jpeg': 'jpg',
+                'image/png': 'png'
+            };
+            return porMime[file.type] || 'jpg';
+        }
+
+        async function subirFotoSupabase(file, cedula) {
+            if (!file) throw new Error('La fotografía es obligatoria.');
+            if (!['image/jpeg', 'image/png'].includes(file.type)) {
+                throw new Error('La fotografía debe ser JPG o PNG.');
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                throw new Error('La fotografía no puede superar 5 MB.');
+            }
+
+            const ruta = `${cedula}/${cedula}_${Date.now()}.${extensionSegura(file)}`;
+            const { error: uploadError } = await supabaseClient.storage
+                .from(SUPABASE_PHOTO_BUCKET)
+                .upload(ruta, file, {
+                    cacheControl: '3600',
+                    contentType: file.type,
+                    upsert: false
+                });
+
+            if (uploadError) throw uploadError;
+
+            const { data: publicData } = supabaseClient.storage
+                .from(SUPABASE_PHOTO_BUCKET)
+                .getPublicUrl(ruta);
+
+            if (!publicData || !publicData.publicUrl) {
+                throw new Error('Supabase no devolvió la URL pública de la fotografía.');
+            }
+
+            return { ruta, publicUrl: publicData.publicUrl };
+        }
+
+        async function eliminarFotoSubida(ruta) {
+            if (!ruta) return;
+            try {
+                await supabaseClient.storage.from(SUPABASE_PHOTO_BUCKET).remove([ruta]);
+            } catch (error) {
+                console.warn('No se pudo eliminar una foto huérfana:', error);
+            }
+        }
+
+        function obtenerMensajeSupabase(error) {
+            const mensaje = String(error?.message || error || 'Error desconocido');
+            if (error?.code === '23505' && /cedula/i.test(mensaje)) {
+                return 'Esta cédula ya se encuentra registrada en el sistema.';
+            }
+            if (error?.code === '23505' && /codigo_integrante/i.test(mensaje)) {
+                return 'El código generado coincidió con otro registro. Intenta nuevamente.';
+            }
+            if (/row-level security|violates row-level security/i.test(mensaje)) {
+                return 'Supabase rechazó el registro por la política RLS de INSERT o Storage.';
+            }
+            return mensaje;
         }
 
         function showStep(step) {
@@ -931,7 +1042,18 @@
                 }
 
                 if(this.files && this.files.length > 0) {
-                    fileNameDisplay.textContent = this.files[0].name;
+                    const archivo = this.files[0];
+                    if (!['image/jpeg', 'image/png'].includes(archivo.type) || archivo.size > 5 * 1024 * 1024) {
+                        this.value = '';
+                        fileNameDisplay.textContent = 'Selecciona una imagen JPG o PNG de máximo 5 MB';
+                        fotoLabel.classList.remove('border-movida-border', 'bg-slate-50/50');
+                        fotoLabel.classList.add('border-movida-red', 'bg-movida-red/5');
+                        fotoError.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-1"></i>Formato no permitido o archivo mayor de 5 MB.';
+                        fotoError.classList.remove('hidden');
+                        updateHeight(currentStep);
+                        return;
+                    }
+                    fileNameDisplay.textContent = archivo.name;
                     fileNameDisplay.classList.add('text-movida-blue', 'font-bold');
                 } else {
                     fileNameDisplay.textContent = "Toca para subir tu foto";
@@ -1059,99 +1181,127 @@
         if (form) {
             form.addEventListener('submit', async e => {
                 e.preventDefault();
-                
+
                 submitBtn.disabled = true;
                 submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
-                btnText.innerText = 'Procesando...';
+                btnText.innerText = 'Registrando...';
                 btnSpinner.classList.remove('hidden');
-                
                 successMsg.classList.add('hidden');
                 errorMsg.classList.add('hidden');
 
-                const formData = new FormData(form);
+                let fotoSubidaRuta = null;
 
-                let carreraFinal = carreraSelect.value;
-                if (carreraFinal === 'Otra') carreraFinal = carreraOtraInput.value;
-                formData.set('carrera', carreraFinal);
+                try {
+                    if (!window.supabase || !supabaseClient) {
+                        throw new Error('No se pudo iniciar la conexión con Supabase.');
+                    }
 
-                const file = fotoInput.files[0];
+                    const formData = new FormData(form);
+                    const cedula = String(formData.get('cedula') || '').replace(/\D/g, '');
+                    const correo = String(formData.get('correo') || '').trim().toLowerCase();
+                    const linkedin = normalizarLinkedInUrl(formData.get('linkedin'));
+                    const file = fotoInput.files[0];
 
-                const enviarDatos = (datos) => {
-                    const urlEncodedData = new URLSearchParams(datos);
-                    
-                    fetch(SCRIPT_URL, { 
-                        method: 'POST', 
-                        body: urlEncodedData,
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.result === 'success') {
-                            document.getElementById('codigoDisplay').innerText = data.codigo;
-                            successMsg.classList.remove('hidden');
-                            
-                            const customMsg = `¡Ya soy integrante oficial de La Movida de SST Plus! 🇻🇪 Mi código único de registro es ${data.codigo}. Regístrate tú también aquí para asegurar tu credencial: https://www.movidasst.com`;
-                            document.getElementById('shareWaBtn').href = `https://wa.me/?text=${encodeURIComponent(customMsg)}`;
-                            
-                            try {
-                                confetti({
-                                    particleCount: 180,
-                                    spread: 85,
-                                    origin: { y: 0.6 },
-                                    colors: ['#FFCC00', '#00247D', '#CF142B'] 
-                                });
-                            } catch (err) {
-                                console.error("No se pudo disparar el coneti:", err);
-                            }
+                    let carreraFinal = carreraSelect.value;
+                    if (carreraFinal === 'Otra') carreraFinal = carreraOtraInput.value.trim();
 
-                            form.reset();
-                            sessionStorage.removeItem('registro_sst_data');
-                            
-                            form.classList.add('hidden');
-                            document.querySelector('.border-t').classList.add('hidden');
-                            document.querySelector('.bg-slate-50.border-b').classList.add('hidden');
-                            
-                            document.getElementById('carouselWrapper').style.height = 'auto';
+                    const rawWasap = document.getElementById('wasap_mask').value.replace(/\D/g, '');
+                    document.getElementById('wasap_hidden').value = rawWasap;
 
-                            carreraOtraInput.classList.add('hidden');
-                            municipioSelect.disabled = true;
-                            fileNameDisplay.textContent = "Toca para subir tu foto";
-                            
-                            cargarContadorRegistrados();
-                        } else if (data.result === 'error' && data.message === 'already_registered') {
-                            errorMsg.querySelector('#errorText').innerText = "Esta cédula ya se encuentra registrada en el sistema.";
-                            errorMsg.classList.remove('hidden');
-                        } else {
-                            throw new Error(data.message || "Error desconocido");
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error!', error);
-                        errorMsg.querySelector('#errorText').innerText = "Hubo un error al conectar con el servidor.";
-                        errorMsg.classList.remove('hidden');
-                    })
-                    .finally(() => {
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
-                        btnText.innerText = 'Completar Registro';
-                        btnSpinner.classList.add('hidden');
-                        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-                    });
-                };
+                    // Verificación anticipada para mostrar un mensaje claro.
+                    const { data: cedulaExistente, error: cedulaError } = await supabaseClient
+                        .from(SUPABASE_TABLE)
+                        .select('cedula')
+                        .eq('cedula', cedula)
+                        .maybeSingle();
 
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        const base64Data = event.target.result.split(',')[1];
-                        formData.set('fotoData', base64Data);
-                        formData.set('fotoMimeType', file.type);
-                        formData.set('fotoName', file.name);
-                        formData.delete('foto'); 
-                        enviarDatos(formData);
+                    if (cedulaError) throw cedulaError;
+                    if (cedulaExistente) {
+                        throw Object.assign(new Error('Esta cédula ya se encuentra registrada en el sistema.'), { code: 'DUPLICATE_CEDULA' });
+                    }
+
+                    const codigo = await generarCodigoUnico();
+                    const foto = await subirFotoSupabase(file, cedula);
+                    fotoSubidaRuta = foto.ruta;
+
+                    const valorPostgrado = String(formData.get('postgrado') || '');
+                    const valorDoctorado = String(formData.get('doctorado') || '');
+
+                    const registro = {
+                        nombres: String(formData.get('nombres') || '').trim(),
+                        apellidos: String(formData.get('apellidos') || '').trim(),
+                        cedula,
+                        edad: Number(formData.get('edad')),
+                        genero: String(formData.get('genero') || ''),
+                        estado: String(formData.get('estado') || ''),
+                        municipio: String(formData.get('municipio') || ''),
+                        wasap: rawWasap,
+                        correo,
+                        grado: String(formData.get('grado') || ''),
+                        laboral: String(formData.get('laboral') || ''),
+                        carrera: carreraFinal,
+                        postgrado: valorPostgrado === '__NONE__' ? null : valorPostgrado,
+                        doctorado: valorDoctorado === '__NONE__' ? null : valorDoctorado,
+                        linkedin,
+                        foto_url: foto.publicUrl,
+                        codigo_integrante: codigo
                     };
-                    reader.readAsDataURL(file);
-                } else {
-                    enviarDatos(formData);
+
+                    const { error: insertError } = await supabaseClient
+                        .from(SUPABASE_TABLE)
+                        .insert(registro);
+
+                    if (insertError) throw insertError;
+
+                    document.getElementById('codigoDisplay').innerText = codigo;
+                    successMsg.classList.remove('hidden');
+
+                    const customMsg = `¡Ya soy integrante oficial de La Movida de SST Plus! 🇻🇪 Mi código único de registro es ${codigo}. Regístrate tú también aquí para asegurar tu credencial: https://registro.movidasst.com`;
+                    document.getElementById('shareWaBtn').href = `https://wa.me/?text=${encodeURIComponent(customMsg)}`;
+
+                    try {
+                        confetti({
+                            particleCount: 180,
+                            spread: 85,
+                            origin: { y: 0.6 },
+                            colors: ['#FFCC00', '#00247D', '#CF142B']
+                        });
+                    } catch (confettiError) {
+                        console.warn('No se pudo ejecutar la animación:', confettiError);
+                    }
+
+                    form.reset();
+                    sessionStorage.removeItem('registro_sst_data');
+                    form.classList.add('hidden');
+
+                    const controlesWizard = submitBtn.closest('.border-t');
+                    if (controlesWizard) controlesWizard.classList.add('hidden');
+                    const cabeceraWizard = document.querySelector('.bg-slate-50.border-b');
+                    if (cabeceraWizard) cabeceraWizard.classList.add('hidden');
+
+                    document.getElementById('carouselWrapper').style.height = 'auto';
+                    carreraOtraInput.classList.add('hidden');
+                    carreraOtraInput.disabled = true;
+                    municipioSelect.disabled = true;
+                    fileNameDisplay.textContent = 'Toca para subir tu foto';
+                    await cargarContadorRegistrados();
+                } catch (error) {
+                    console.error('Error registrando integrante:', error);
+                    await eliminarFotoSubida(fotoSubidaRuta);
+
+                    const mensaje = error?.code === 'DUPLICATE_CEDULA'
+                        ? error.message
+                        : obtenerMensajeSupabase(error);
+
+                    const errorText = errorMsg.querySelector('#errorText');
+                    if (errorText) errorText.innerText = mensaje;
+                    errorMsg.classList.remove('hidden');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+                    btnText.innerText = 'Completar Registro';
+                    btnSpinner.classList.add('hidden');
+                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
                 }
             });
         }
