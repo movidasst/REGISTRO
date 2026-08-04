@@ -278,7 +278,7 @@
                                 <i class="fa-solid fa-calendar-day text-movida-teal/70 text-xs"></i> Edad actual *
                             </label>
                             <div class="relative">
-                                <input type="number" inputmode="numeric" id="edad" name="edad" min="1" max="120" required class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm" placeholder="Ej. 25" />
+                                <input type="number" inputmode="numeric" id="edad" name="edad" min="18" max="100" required class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm" placeholder="Ej. 25" />
                                 <span class="absolute right-3.5 top-1/2 -translate-y-1/2 feedback-icon hidden"></span>
                             </div>
                         </div>
@@ -518,6 +518,17 @@
                         <span id="codigoDisplay" class="text-2xl font-black text-movida-teal tracking-widest block mt-1 font-mono"></span>
                     </div>
 
+
+                    <div id="fotoStatus" class="w-full max-w-xs mb-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left" role="status" aria-live="polite">
+                        <div class="flex items-start gap-2.5">
+                            <i id="fotoStatusIcon" class="fa-solid fa-image text-movida-teal mt-0.5"></i>
+                            <div>
+                                <p id="fotoStatusTitle" class="text-xs font-black text-movida-blue">Preparando fotografía</p>
+                                <p id="fotoStatusText" class="text-[0.7rem] leading-relaxed text-slate-500 mt-0.5">La fotografía se guardará en Google Drive.</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div id="correoStatus" class="w-full max-w-xs mb-4 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left" role="status" aria-live="polite">
                         <div class="flex items-start gap-2.5">
                             <i id="correoStatusIcon" class="fa-solid fa-envelope-circle-check text-movida-teal mt-0.5"></i>
@@ -607,15 +618,24 @@
 
     <script>
         // Conexión pública a Supabase. La seguridad real depende de las políticas RLS.
-        const SUPABASE_URL = 'https://daugxkqywrdcbbqvyabe.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhdWd4a3F5d3JkY2JicXZ5YWJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1NzU1MDQsImV4cCI6MjEwMTE1MTUwNH0.lCEX-pKcGdIKVd7cTegAHJ-dZ8HDrkUxUy9vBUwLE44';
-        const SUPABASE_TABLE = 'integrantes';
+        const SUPABASE_URL = 'https://lfdmbkzghnwvsapxypvt.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_bRnkA6PA8-v073nrw9zxiQ_8rVGiOn1';
 
         // Google Apps Script guarda la fotografía en Google Drive y envía el correo.
         // Supabase conserva los datos y sólo recibe la URL pública de la fotografía.
-        const EMAIL_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzNatout2s76m80KQtxIiM-TMfiT0lbl1ZFDKzsRzE5EtQcw6C8q_T-EgM3WZSpQ6tfKA/exec';
+        const EMAIL_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzo8aLb22BBVI50aQr09AL6ibywewyrIrVo8QNb1Xx_YrrHGJScdV2paYuoPkKB71bu/exec';
         const supabaseClient = window.supabase?.createClient
-            ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+            ? window.supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_ANON_KEY,
+                {
+                    auth: {
+                        persistSession: false,
+                        autoRefreshToken: false,
+                        detectSessionInUrl: false
+                    }
+                }
+            )
             : null;
 
         // Datos de Venezuela
@@ -673,31 +693,35 @@
             }
         }
 
-        // Contador en vivo desde Supabase. Se alinea con el directorio: sólo registros con estado válido.
+        // Contador público mediante función segura.
         async function cargarContadorRegistrados() {
             try {
-                const { count, error } = await supabaseClient
-                    .from(SUPABASE_TABLE)
-                    .select('*', { count: 'exact', head: true })
-                    .not('estado', 'is', null)
-                    .neq('estado', '');
+                const { data, error } = await supabaseClient
+                    .rpc('contador_integrantes');
 
                 if (error) throw error;
 
-                const total = Number.isFinite(count) ? count : 0;
-                const headerCount = document.getElementById('totalRegistradosHeader');
-                const bannerCount = document.getElementById('totalRegistradosBanner');
+                const total = Number(data || 0);
+                const headerCount =
+                    document.getElementById('totalRegistradosHeader');
+                const bannerCount =
+                    document.getElementById('totalRegistradosBanner');
 
                 if (headerCount) {
                     headerCount.innerText = total;
                     headerCount.classList.remove('animate-pulse');
                 }
+
                 if (bannerCount) {
                     bannerCount.innerText = total;
                     bannerCount.classList.remove('animate-pulse');
                 }
             } catch (error) {
-                console.error('No se pudo consultar el contador de Supabase:', error);
+                console.error(
+                    'No se pudo consultar el contador seguro:',
+                    error
+                );
+
                 usarFallbackContador();
             }
         }
@@ -721,26 +745,7 @@
             return /^https?:\/\//i.test(limpio) ? limpio : `https://${limpio}`;
         }
 
-        function generarCodigoCincoDigitos() {
-            const valores = new Uint32Array(1);
-            window.crypto.getRandomValues(valores);
-            return String(10000 + (valores[0] % 90000));
-        }
 
-        async function generarCodigoUnico() {
-            for (let intento = 0; intento < 20; intento++) {
-                const codigo = generarCodigoCincoDigitos();
-                const { data, error } = await supabaseClient
-                    .from(SUPABASE_TABLE)
-                    .select('codigo_integrante')
-                    .eq('codigo_integrante', codigo)
-                    .maybeSingle();
-
-                if (error) throw error;
-                if (!data) return codigo;
-            }
-            throw new Error('No fue posible generar un código único. Intenta nuevamente.');
-        }
 
 
         function leerArchivoComoDataUrl(file) {
@@ -850,8 +855,122 @@
             }
         }
 
+        function obtenerRegistroRpc(data, operacion) {
+            if (data == null) return null;
+
+            if (Array.isArray(data)) {
+                if (data.length === 0) return null;
+
+                if (data.length > 1) {
+                    throw new Error(
+                        `${operacion} devolvió más de un registro.`
+                    );
+                }
+
+                return data[0];
+            }
+
+            return data;
+        }
+
+        function actualizarEstadoFoto(estado, detalle) {
+            const box = document.getElementById('fotoStatus');
+            const icon = document.getElementById('fotoStatusIcon');
+            const title = document.getElementById('fotoStatusTitle');
+            const text = document.getElementById('fotoStatusText');
+
+            if (!box || !icon || !title || !text) return;
+
+            box.className =
+                'w-full max-w-xs mb-3 rounded-2xl border px-4 py-3 text-left';
+
+            if (estado === 'guardando') {
+                box.classList.add('border-sky-200', 'bg-sky-50');
+                icon.className =
+                    'fa-solid fa-circle-notch fa-spin text-sky-600 mt-0.5';
+                title.textContent = 'Guardando fotografía';
+                text.textContent =
+                    'La fotografía se está enviando a Google Drive.';
+                return;
+            }
+
+            if (estado === 'guardada') {
+                box.classList.add('border-emerald-200', 'bg-emerald-50');
+                icon.className =
+                    'fa-solid fa-image-circle-check text-emerald-600 mt-0.5';
+                title.textContent = 'Fotografía guardada';
+                text.textContent =
+                    'La imagen quedó vinculada a tu credencial y directorio.';
+                return;
+            }
+
+            box.classList.add('border-amber-200', 'bg-amber-50');
+            icon.className =
+                'fa-solid fa-triangle-exclamation text-amber-600 mt-0.5';
+            title.textContent =
+                'Registro creado; fotografía pendiente';
+            text.textContent =
+                detalle ||
+                'Guarda tu código. Podrás cargar la fotografía desde el acceso de integrantes.';
+        }
+
+        function finalizarRegistroVisual(codigo) {
+            document.getElementById('codigoDisplay').innerText = codigo;
+            successMsg.classList.remove('hidden');
+
+            form.reset();
+            sessionStorage.removeItem('registro_sst_data');
+            form.classList.add('hidden');
+
+            const controlesWizard =
+                submitBtn.closest('.border-t');
+
+            if (controlesWizard) {
+                controlesWizard.classList.add('hidden');
+            }
+
+            const cabeceraWizard =
+                document.querySelector('.bg-slate-50.border-b');
+
+            if (cabeceraWizard) {
+                cabeceraWizard.classList.add('hidden');
+            }
+
+            document.getElementById(
+                'carouselWrapper'
+            ).style.height = 'auto';
+
+            carreraOtraInput.classList.add('hidden');
+            carreraOtraInput.disabled = true;
+            municipioSelect.disabled = true;
+            fileNameDisplay.textContent =
+                'Toca para subir tu foto';
+        }
+
         function obtenerMensajeSupabase(error) {
-            const mensaje = String(error?.message || error || 'Error desconocido');
+            const mensaje = String(
+                error?.message ||
+                error ||
+                'Error desconocido'
+            );
+
+            if (
+                /Esta cédula ya se encuentra registrada/i
+                    .test(mensaje)
+            ) {
+                return 'Esta cédula ya se encuentra registrada en el sistema.';
+            }
+
+            if (
+                error?.code === 'PGRST202' ||
+                /Could not find the function/i.test(mensaje)
+            ) {
+                return (
+                    'Supabase todavía no reconoce la función de registro. ' +
+                    'Ejecuta el SQL de integración y recarga la aplicación.'
+                );
+            }
+
             if (error?.code === '23505' && /cedula/i.test(mensaje)) {
                 return 'Esta cédula ya se encuentra registrada en el sistema.';
             }
@@ -1342,128 +1461,301 @@
                 e.preventDefault();
 
                 submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
-                btnText.innerText = 'Registrando...';
+                submitBtn.classList.add(
+                    'opacity-80',
+                    'cursor-not-allowed'
+                );
+
+                btnText.innerText = 'Creando registro...';
                 btnSpinner.classList.remove('hidden');
                 successMsg.classList.add('hidden');
                 errorMsg.classList.add('hidden');
 
+                let registroCreado = null;
+
                 try {
                     if (!window.supabase || !supabaseClient) {
-                        throw new Error('No se pudo iniciar la conexión con Supabase.');
+                        throw new Error(
+                            'No se pudo iniciar la conexión con Supabase.'
+                        );
                     }
 
                     const formData = new FormData(form);
-                    const cedula = String(formData.get('cedula') || '').replace(/\D/g, '');
-                    const correo = String(formData.get('correo') || '').trim().toLowerCase();
-                    const linkedin = normalizarLinkedInUrl(formData.get('linkedin'));
+                    const cedula = String(
+                        formData.get('cedula') || ''
+                    ).replace(/\D/g, '');
+
+                    const correo = String(
+                        formData.get('correo') || ''
+                    ).trim().toLowerCase();
+
+                    const linkedin =
+                        normalizarLinkedInUrl(
+                            formData.get('linkedin')
+                        );
+
                     const file = fotoInput.files[0];
 
                     let carreraFinal = carreraSelect.value;
-                    if (carreraFinal === 'Otra') carreraFinal = carreraOtraInput.value.trim();
 
-                    const rawWasap = document.getElementById('wasap_mask').value.replace(/\D/g, '');
-                    document.getElementById('wasap_hidden').value = rawWasap;
-
-                    // Verificación anticipada para mostrar un mensaje claro.
-                    const { data: cedulaExistente, error: cedulaError } = await supabaseClient
-                        .from(SUPABASE_TABLE)
-                        .select('cedula')
-                        .eq('cedula', cedula)
-                        .maybeSingle();
-
-                    if (cedulaError) throw cedulaError;
-                    if (cedulaExistente) {
-                        throw Object.assign(new Error('Esta cédula ya se encuentra registrada en el sistema.'), { code: 'DUPLICATE_CEDULA' });
+                    if (carreraFinal === 'Otra') {
+                        carreraFinal =
+                            carreraOtraInput.value.trim();
                     }
 
-                    const codigo = await generarCodigoUnico();
-                    const foto = await subirFotoGoogleDrive(file, cedula, codigo);
-                    btnText.innerText = 'Guardando datos...';
+                    const rawWasap =
+                        document.getElementById(
+                            'wasap_mask'
+                        ).value.replace(/\D/g, '');
 
-                    const valorPostgrado = String(formData.get('postgrado') || '');
-                    const valorDoctorado = String(formData.get('doctorado') || '');
+                    document.getElementById(
+                        'wasap_hidden'
+                    ).value = rawWasap;
 
-                    const registro = {
-                        nombres: String(formData.get('nombres') || '').trim(),
-                        apellidos: String(formData.get('apellidos') || '').trim(),
+                    const valorPostgrado = String(
+                        formData.get('postgrado') || ''
+                    );
+
+                    const valorDoctorado = String(
+                        formData.get('doctorado') || ''
+                    );
+
+                    const datosRegistro = {
+                        nombres: String(
+                            formData.get('nombres') || ''
+                        ).trim(),
+
+                        apellidos: String(
+                            formData.get('apellidos') || ''
+                        ).trim(),
+
                         cedula,
-                        edad: Number(formData.get('edad')),
-                        genero: String(formData.get('genero') || ''),
-                        estado: String(formData.get('estado') || ''),
-                        municipio: String(formData.get('municipio') || ''),
+
+                        edad: Number(
+                            formData.get('edad')
+                        ),
+
+                        genero: String(
+                            formData.get('genero') || ''
+                        ),
+
+                        estado: String(
+                            formData.get('estado') || ''
+                        ),
+
+                        municipio: String(
+                            formData.get('municipio') || ''
+                        ),
+
                         wasap: rawWasap,
                         correo,
-                        grado: String(formData.get('grado') || ''),
-                        laboral: String(formData.get('laboral') || ''),
+
+                        grado: String(
+                            formData.get('grado') || ''
+                        ),
+
+                        laboral: String(
+                            formData.get('laboral') || ''
+                        ),
+
                         carrera: carreraFinal,
-                        postgrado: valorPostgrado === '__NONE__' ? null : valorPostgrado,
-                        doctorado: valorDoctorado === '__NONE__' ? null : valorDoctorado,
-                        linkedin,
-                        foto_url: foto.fotoUrl,
-                        codigo_integrante: codigo
+
+                        postgrado:
+                            valorPostgrado === '__NONE__'
+                                ? null
+                                : valorPostgrado,
+
+                        doctorado:
+                            valorDoctorado === '__NONE__'
+                                ? null
+                                : valorDoctorado,
+
+                        linkedin
                     };
 
-                    const { error: insertError } = await supabaseClient
-                        .from(SUPABASE_TABLE)
-                        .insert(registro);
+                    const {
+                        data: rpcData,
+                        error: registroError
+                    } = await supabaseClient
+                        .rpc('registrar_integrante', {
+                            p_datos: datosRegistro
+                        });
 
-                    if (insertError) {
-                        insertError._movidaEtapa = 'insert';
-                        throw insertError;
+                    if (registroError) {
+                        throw registroError;
                     }
 
-                    document.getElementById('codigoDisplay').innerText = codigo;
-                    successMsg.classList.remove('hidden');
+                    registroCreado =
+                        obtenerRegistroRpc(
+                            rpcData,
+                            'El registro'
+                        );
 
-                    // El correo es una operación secundaria: nunca revierte el registro de Supabase.
-                    // Se ejecuta después de confirmar el INSERT y usa sólo cédula + código.
-                    void enviarCorreoRegistroConAppsScript(registro);
+                    if (
+                        !registroCreado ||
+                        !registroCreado.codigo_integrante
+                    ) {
+                        throw new Error(
+                            'Supabase no confirmó el nuevo registro.'
+                        );
+                    }
 
-                    const customMsg = `¡Ya soy integrante oficial de La Movida de SST Plus! 🇻🇪 Mi código único de registro es ${codigo}. Regístrate tú también aquí para asegurar tu credencial: https://registro.movidasst.com`;
-                    document.getElementById('shareWaBtn').href = `https://wa.me/?text=${encodeURIComponent(customMsg)}`;
+                    const codigo =
+                        registroCreado.codigo_integrante;
+
+                    // El registro ya existe. Desde este momento el
+                    // código se conserva aunque falle la fotografía.
+                    document.getElementById(
+                        'codigoDisplay'
+                    ).innerText = codigo;
+
+                    actualizarEstadoFoto('guardando');
+                    btnText.innerText =
+                        'Guardando fotografía...';
+
+                    let foto = null;
+                    let fotoError = null;
+
+                    try {
+                        foto = await subirFotoGoogleDrive(
+                            file,
+                            cedula,
+                            codigo
+                        );
+
+                        actualizarEstadoFoto('guardada');
+
+                    } catch (errorFoto) {
+                        fotoError = errorFoto;
+
+                        console.warn(
+                            'El registro fue creado, pero la fotografía quedó pendiente:',
+                            errorFoto
+                        );
+
+                        actualizarEstadoFoto(
+                            'pendiente',
+                            errorFoto?.message ||
+                            'Podrás cargarla desde el acceso de integrantes.'
+                        );
+                    }
+
+                    const registroFinal = {
+                        ...datosRegistro,
+                        ...registroCreado,
+                        codigo_integrante: codigo,
+                        foto_url:
+                            foto?.fotoUrl || null
+                    };
+
+                    finalizarRegistroVisual(codigo);
+
+                    // El correo no revierte el registro.
+                    void enviarCorreoRegistroConAppsScript(
+                        registroFinal
+                    );
+
+                    const customMsg =
+                        `¡Ya soy integrante oficial de La Movida de SST Plus! 🇻🇪 ` +
+                        `Mi código único de registro es ${codigo}. ` +
+                        `Regístrate tú también aquí para asegurar tu credencial: ` +
+                        `https://registro.movidasst.com`;
+
+                    document.getElementById(
+                        'shareWaBtn'
+                    ).href =
+                        `https://wa.me/?text=${encodeURIComponent(customMsg)}`;
 
                     try {
                         confetti({
                             particleCount: 180,
                             spread: 85,
                             origin: { y: 0.6 },
-                            colors: ['#FFCC00', '#00247D', '#CF142B']
+                            colors: [
+                                '#FFCC00',
+                                '#00247D',
+                                '#CF142B'
+                            ]
                         });
                     } catch (confettiError) {
-                        console.warn('No se pudo ejecutar la animación:', confettiError);
+                        console.warn(
+                            'No se pudo ejecutar la animación:',
+                            confettiError
+                        );
                     }
 
-                    form.reset();
-                    sessionStorage.removeItem('registro_sst_data');
-                    form.classList.add('hidden');
-
-                    const controlesWizard = submitBtn.closest('.border-t');
-                    if (controlesWizard) controlesWizard.classList.add('hidden');
-                    const cabeceraWizard = document.querySelector('.bg-slate-50.border-b');
-                    if (cabeceraWizard) cabeceraWizard.classList.add('hidden');
-
-                    document.getElementById('carouselWrapper').style.height = 'auto';
-                    carreraOtraInput.classList.add('hidden');
-                    carreraOtraInput.disabled = true;
-                    municipioSelect.disabled = true;
-                    fileNameDisplay.textContent = 'Toca para subir tu foto';
                     await cargarContadorRegistrados();
-                } catch (error) {
-                    console.error('Error registrando integrante:', error);
-                    const mensaje = error?.code === 'DUPLICATE_CEDULA'
-                        ? error.message
-                        : obtenerMensajeSupabase(error);
 
-                    const errorText = errorMsg.querySelector('#errorText');
-                    if (errorText) errorText.innerText = mensaje;
+                    if (fotoError) {
+                        console.info(
+                            'El integrante puede completar la fotografía desde el directorio usando su cédula y código.'
+                        );
+                    }
+
+                } catch (error) {
+                    console.error(
+                        'Error registrando integrante:',
+                        error
+                    );
+
+                    /*
+                     * Si Supabase ya creó el integrante, no se oculta
+                     * su código ni se presenta como registro fallido.
+                     */
+                    if (
+                        registroCreado &&
+                        registroCreado.codigo_integrante
+                    ) {
+                        finalizarRegistroVisual(
+                            registroCreado.codigo_integrante
+                        );
+
+                        actualizarEstadoFoto(
+                            'pendiente',
+                            'El registro está guardado. Podrás cargar la fotografía desde el acceso de integrantes.'
+                        );
+
+                        const registroCorreo = {
+                            ...registroCreado,
+                            codigo_integrante:
+                                registroCreado.codigo_integrante
+                        };
+
+                        void enviarCorreoRegistroConAppsScript(
+                            registroCorreo
+                        );
+
+                        return;
+                    }
+
+                    const mensaje =
+                        obtenerMensajeSupabase(error);
+
+                    const errorText =
+                        errorMsg.querySelector('#errorText');
+
+                    if (errorText) {
+                        errorText.innerText = mensaje;
+                    }
+
                     errorMsg.classList.remove('hidden');
+
                 } finally {
                     submitBtn.disabled = false;
-                    submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
-                    btnText.innerText = 'Completar Registro';
+                    submitBtn.classList.remove(
+                        'opacity-80',
+                        'cursor-not-allowed'
+                    );
+
+                    btnText.innerText =
+                        'Completar Registro';
+
                     btnSpinner.classList.add('hidden');
-                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+
+                    window.scrollTo({
+                        top: document.body.scrollHeight,
+                        behavior: 'smooth'
+                    });
                 }
             });
         }
