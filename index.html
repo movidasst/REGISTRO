@@ -533,8 +533,8 @@
                         <div class="flex items-start gap-2.5">
                             <i id="correoStatusIcon" class="fa-solid fa-envelope-circle-check text-movida-teal mt-0.5"></i>
                             <div>
-                                <p id="correoStatusTitle" class="text-xs font-black text-movida-blue">Preparando correo de confirmación</p>
-                                <p id="correoStatusText" class="text-[0.7rem] leading-relaxed text-slate-500 mt-0.5">El registro ya está guardado en Supabase.</p>
+                                <p id="correoStatusTitle" class="text-xs font-black text-movida-blue">Preparando acceso a la Academia</p>
+                                <p id="correoStatusText" class="text-[0.7rem] leading-relaxed text-slate-500 mt-0.5">El sistema creará tu cuenta Moodle y enviará un único correo con todos tus datos de acceso.</p>
                             </div>
                         </div>
                     </div>
@@ -621,8 +621,9 @@
         const SUPABASE_URL = 'https://lfdmbkzghnwvsapxypvt.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_bRnkA6PA8-v073nrw9zxiQ_8rVGiOn1';
 
-        // Google Apps Script guarda la fotografía en Google Drive y envía el correo.
-        // Supabase conserva los datos y sólo recibe la URL pública de la fotografía.
+        // Google Apps Script guarda la fotografía en Google Drive.
+        // El correo único se envía automáticamente desde smooth-endpoint
+        // después de crear o vincular la cuenta Moodle.
         const EMAIL_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzo8aLb22BBVI50aQr09AL6ibywewyrIrVo8QNb1Xx_YrrHGJScdV2paYuoPkKB71bu/exec';
         const supabaseClient = window.supabase?.createClient
             ? window.supabase.createClient(
@@ -992,81 +993,27 @@
             return mensaje;
         }
 
-        function actualizarEstadoCorreo(estado, correo) {
+        function mostrarEstadoAccesoAutomatico(correo) {
             const box = document.getElementById('correoStatus');
             const icon = document.getElementById('correoStatusIcon');
             const title = document.getElementById('correoStatusTitle');
             const text = document.getElementById('correoStatusText');
             if (!box || !icon || !title || !text) return;
 
-            box.className = 'w-full max-w-xs mb-4 rounded-2xl border px-4 py-3 text-left';
+            const correoSeguro = String(correo || '').trim();
 
-            if (estado === 'enviando') {
-                box.classList.add('border-sky-200', 'bg-sky-50');
-                icon.className = 'fa-solid fa-circle-notch fa-spin text-sky-600 mt-0.5';
-                title.textContent = 'Enviando correo de confirmación';
-                text.textContent = `Estamos enviando el código a ${correo}.`;
-                return;
-            }
+            box.className =
+                'w-full max-w-xs mb-4 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-left';
 
-            if (estado === 'enviado') {
-                box.classList.add('border-emerald-200', 'bg-emerald-50');
-                icon.className = 'fa-solid fa-envelope-circle-check text-emerald-600 mt-0.5';
-                title.textContent = 'Correo enviado';
-                text.textContent = `La confirmación fue enviada a ${correo}. Revisa también la carpeta de spam.`;
-                return;
-            }
+            icon.className =
+                'fa-solid fa-graduation-cap text-sky-700 mt-0.5';
 
-            box.classList.add('border-amber-200', 'bg-amber-50');
-            icon.className = 'fa-solid fa-triangle-exclamation text-amber-600 mt-0.5';
-            title.textContent = 'Registro guardado; correo no confirmado';
-            text.textContent = 'Tu registro está completo. Guarda el código mostrado en pantalla. El correo puede reintentarse desde Apps Script.';
-        }
+            title.textContent =
+                'Acceso a la Academia en preparación';
 
-        async function enviarCorreoRegistroConAppsScript(registro) {
-            actualizarEstadoCorreo('enviando', registro.correo);
-
-            const datosCorreo = new URLSearchParams({
-                action: 'send_registration_email',
-                cedula: registro.cedula,
-                codigo_integrante: registro.codigo_integrante
-            });
-
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 15000);
-
-            try {
-                const response = await fetch(EMAIL_SCRIPT_URL, {
-                    method: 'POST',
-                    body: datosCorreo,
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-                    },
-                    redirect: 'follow',
-                    signal: controller.signal
-                });
-
-                const rawText = await response.text();
-                let resultado = null;
-                try {
-                    resultado = JSON.parse(rawText);
-                } catch (_) {
-                    throw new Error('Apps Script devolvió una respuesta no válida.');
-                }
-
-                if (!response.ok || resultado?.result !== 'success') {
-                    throw new Error(resultado?.message || 'No se pudo confirmar el envío del correo.');
-                }
-
-                actualizarEstadoCorreo('enviado', registro.correo);
-                return true;
-            } catch (error) {
-                console.warn('El registro se guardó, pero el correo no pudo confirmarse:', error);
-                actualizarEstadoCorreo('error', registro.correo);
-                return false;
-            } finally {
-                clearTimeout(timeoutId);
-            }
+            text.textContent = correoSeguro
+                ? `Tu registro quedó guardado. Recibirás en ${correoSeguro} un único correo con tu código, credencial y acceso a Moodle. Revisa también spam o promociones.`
+                : 'Tu registro quedó guardado. Recibirás un único correo con tu código, credencial y acceso a Moodle. Revisa también spam o promociones.';
         }
 
         function showStep(step) {
@@ -1650,9 +1597,10 @@
 
                     finalizarRegistroVisual(codigo);
 
-                    // El correo no revierte el registro.
-                    void enviarCorreoRegistroConAppsScript(
-                        registroFinal
+                    // Moodle y el correo se procesan automáticamente
+                    // mediante el webhook de Supabase y smooth-endpoint.
+                    mostrarEstadoAccesoAutomatico(
+                        registroFinal.correo
                     );
 
                     const customMsg =
@@ -1715,14 +1663,8 @@
                             'El registro está guardado. Podrás cargar la fotografía desde el acceso de integrantes.'
                         );
 
-                        const registroCorreo = {
-                            ...registroCreado,
-                            codigo_integrante:
-                                registroCreado.codigo_integrante
-                        };
-
-                        void enviarCorreoRegistroConAppsScript(
-                            registroCorreo
+                        mostrarEstadoAccesoAutomatico(
+                            registroCreado.correo
                         );
 
                         return;
