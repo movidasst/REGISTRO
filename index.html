@@ -342,6 +342,35 @@
                             <input type="hidden" id="wasap_hidden" name="wasap" />
                         </div>
 
+                        <!-- Nombre de usuario de WhatsApp opcional -->
+                        <div class="flex flex-col relative">
+                            <label for="whatsapp_username" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
+                                <i class="fa-brands fa-whatsapp text-[#25D366] text-sm"></i>
+                                Nombre de usuario de WhatsApp
+                                <span class="text-[0.68rem] font-semibold text-slate-400">(Opcional)</span>
+                            </label>
+                            <div class="relative">
+                                <input
+                                    type="text"
+                                    id="whatsapp_username"
+                                    name="whatsapp_username"
+                                    autocomplete="off"
+                                    autocapitalize="none"
+                                    spellcheck="false"
+                                    maxlength="65"
+                                    pattern="^@?[A-Za-z0-9._]{3,64}$"
+                                    class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base font-semibold text-movida-blue focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm"
+                                    placeholder="Ej. @davidlinaresbrea"
+                                    aria-describedby="whatsappUsernameHelp"
+                                />
+                                <span class="absolute right-3.5 top-1/2 -translate-y-1/2 feedback-icon hidden"></span>
+                            </div>
+                            <p id="whatsappUsernameHelp" class="mt-1.5 text-[0.7rem] text-slate-400 font-medium leading-relaxed">
+                                <i class="fa-solid fa-circle-info mr-1"></i>
+                                Es diferente de tu nombre visible y de tu número. Si todavía no tienes uno, déjalo vacío.
+                            </p>
+                        </div>
+
                         <!-- Correo -->
                         <div class="flex flex-col relative">
                             <label for="correo" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
@@ -1499,6 +1528,17 @@
                             formData.get('linkedin')
                         );
 
+                    const whatsappUsernameIngresado = String(
+                        formData.get('whatsapp_username') || ''
+                    ).trim().replace(/\s+/g, '');
+
+                    const whatsappUsername =
+                        whatsappUsernameIngresado === ''
+                            ? null
+                            : whatsappUsernameIngresado.startsWith('@')
+                                ? whatsappUsernameIngresado
+                                : `@${whatsappUsernameIngresado}`;
+
                     const file = fotoInput.files[0];
 
                     let carreraFinal = carreraSelect.value;
@@ -1553,6 +1593,7 @@
                         ),
 
                         wasap: rawWasap,
+                        whatsapp_username: whatsappUsername,
                         correo,
 
                         grado: String(
