@@ -1502,7 +1502,10 @@
                 }
 
                 setTimeout(() => {
-                    document.querySelectorAll('input:not([type="file"]), select').forEach(input => validateField(input));
+                    document.querySelectorAll('input:not([type="file"]), select').forEach(input => {
+                        const tieneValor = input.type === 'checkbox' ? input.checked : String(input.value || '').trim() !== '';
+                        if (tieneValor) validateField(input);
+                    });
                 }, 200);
 
             } catch (err) {
