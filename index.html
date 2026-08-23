@@ -137,6 +137,11 @@
         .country-options::-webkit-scrollbar { display: block; width: 7px; }
         .country-options::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 999px; }
         .country-option[aria-selected="true"] { background: rgba(0, 123, 133, .1); color: #00205b; }
+        #countryDropdown {
+            position: fixed;
+            inset: auto;
+            z-index: 10000;
+        }
         @media (min-width: 768px) {
             .wizard-step {
                 display: grid;
@@ -795,6 +800,12 @@
             };
 
             const abrirSelector = () => {
+                const rect = countryButton.getBoundingClientRect();
+                const width = Math.min(rect.width, window.innerWidth - 24);
+                const left = Math.max(12, Math.min(rect.left, window.innerWidth - width - 12));
+                countryDropdown.style.left = `${left}px`;
+                countryDropdown.style.width = `${width}px`;
+                countryDropdown.style.top = `${Math.min(rect.bottom + 8, window.innerHeight - 390)}px`;
                 countryDropdown.classList.remove('hidden');
                 countryButton.setAttribute('aria-expanded', 'true');
                 countryButtonChevron.classList.add('rotate-180');
@@ -870,6 +881,8 @@
             document.addEventListener('click', event => {
                 if (!countryButton.parentElement.contains(event.target)) cerrarSelector();
             });
+            window.addEventListener('resize', cerrarSelector);
+            window.addEventListener('scroll', cerrarSelector, { passive: true });
             paisSelect.value = 'VE';
             paisSelect.addEventListener('change', aplicar);
             aplicar();
