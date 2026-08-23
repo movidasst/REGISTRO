@@ -142,6 +142,33 @@
             inset: auto;
             z-index: 10000;
         }
+        #countryDropdown.hidden { display: none; }
+        @media (max-width: 767px) {
+            #countryDropdown:not(.hidden) {
+                left: 12px !important;
+                right: 12px !important;
+                top: auto !important;
+                bottom: max(12px, env(safe-area-inset-bottom)) !important;
+                width: auto !important;
+                max-height: min(76dvh, 560px);
+                display: flex;
+                flex-direction: column;
+                border-radius: 24px;
+                box-shadow: 0 -12px 44px rgba(0, 32, 91, .24);
+            }
+            #countryDropdown .country-options {
+                flex: 1 1 auto;
+                min-height: 0;
+                max-height: none !important;
+                overscroll-behavior: contain;
+                -webkit-overflow-scrolling: touch;
+            }
+            .country-option {
+                min-height: 48px;
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: transparent;
+            }
+        }
         @media (min-width: 768px) {
             .wizard-step {
                 display: grid;
@@ -779,6 +806,10 @@
             const municipioContainer = document.getElementById('municipio-container');
             if (!paisSelect || !countryButton || !window.intlTelInput) return;
 
+            // El selector debe vivir fuera del carrusel transformado. De lo contrario,
+            // los navegadores móviles recortan un elemento fixed por el overflow del wizard.
+            document.body.appendChild(countryDropdown);
+
             const paises = window.intlTelInput.getCountryData()
                 .slice()
                 .sort((a, b) => nombrePais(a.iso2).localeCompare(nombrePais(b.iso2), 'es'));
@@ -803,15 +834,24 @@
                 const rect = countryButton.getBoundingClientRect();
                 const width = Math.min(rect.width, window.innerWidth - 24);
                 const left = Math.max(12, Math.min(rect.left, window.innerWidth - width - 12));
-                countryDropdown.style.left = `${left}px`;
-                countryDropdown.style.width = `${width}px`;
-                countryDropdown.style.top = `${Math.min(rect.bottom + 8, window.innerHeight - 390)}px`;
+                if (window.matchMedia('(min-width: 768px)').matches) {
+                    countryDropdown.style.left = `${left}px`;
+                    countryDropdown.style.width = `${width}px`;
+                    countryDropdown.style.top = `${Math.max(12, Math.min(rect.bottom + 8, window.innerHeight - 390))}px`;
+                } else {
+                    countryDropdown.style.left = '';
+                    countryDropdown.style.width = '';
+                    countryDropdown.style.top = '';
+                }
                 countryDropdown.classList.remove('hidden');
                 countryButton.setAttribute('aria-expanded', 'true');
                 countryButtonChevron.classList.add('rotate-180');
                 countrySearch.value = '';
                 renderizarPaises('');
-                requestAnimationFrame(() => countrySearch.focus());
+                // En móvil no se abre el teclado hasta que el usuario toque Buscar.
+                if (window.matchMedia('(min-width: 768px)').matches) {
+                    requestAnimationFrame(() => countrySearch.focus());
+                }
             };
 
             const seleccionarPais = iso2 => {
@@ -879,7 +919,7 @@
             countrySearch.addEventListener('input', () => renderizarPaises(countrySearch.value));
             countrySearch.addEventListener('keydown', event => { if (event.key === 'Escape') { cerrarSelector(); countryButton.focus(); } });
             document.addEventListener('click', event => {
-                if (!countryButton.parentElement.contains(event.target)) cerrarSelector();
+                if (!countryButton.contains(event.target) && !countryDropdown.contains(event.target)) cerrarSelector();
             });
             window.addEventListener('resize', cerrarSelector);
             window.addEventListener('scroll', cerrarSelector, { passive: true });
