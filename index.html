@@ -7,8 +7,8 @@
     <!-- ==========================================
          SEO BÁSICO Y CONFIGURACIÓN DE PWA
          ========================================== -->
-    <title>Registro Integrante Movida SST Plus 🇻🇪</title>
-    <meta name="description" content="De la Reacción a la prevención. Únete a la comunidad de Seguridad y Salud en el Trabajo más activa de Venezuela y obtén tu código de integrante oficial.">
+    <title>Registro Internacional | La Movida SST Plus</title>
+    <meta name="description" content="Únete desde cualquier país a la red internacional de profesionales de Seguridad y Salud en el Trabajo de La Movida SST Plus.">
     <meta name="keywords" content="SST, Seguridad y Salud Trabajo, Movida SST, Prevención de Riesgos, Venezuela, Higiene Ocupacional">
     <meta name="author" content="David Linares Brea">
     <meta name="robots" content="index, follow">
@@ -50,6 +50,7 @@
     
     <!-- FontAwesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@25.12.2/build/css/intlTelInput.css">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -59,6 +60,7 @@
 
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@25.12.2/build/js/intlTelInput.min.js"></script>
     
     <!-- Configuración Custom de Tailwind -->
     <script>
@@ -88,6 +90,8 @@
             user-select: none;
             -webkit-user-select: none;
         }
+        .iti { width: 100%; }
+        .iti__search-input { padding: .8rem; }
         ::-webkit-scrollbar { display: none; }
         * { scrollbar-width: none; }
         input, select, textarea {
@@ -256,16 +260,23 @@
                             </div>
                         </div>
 
-                        <!-- Cédula -->
+                        <!-- País -->
                         <div class="flex flex-col relative">
-                            <label for="cedula" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
-                                <i class="fa-regular fa-id-card text-movida-teal/70 text-xs"></i> Cédula de Identidad *
+                            <label for="pais" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2"><i class="fa-solid fa-earth-americas text-movida-teal/70 text-xs"></i> País de residencia *</label>
+                            <select id="pais" name="pais_iso2" required class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal outline-none shadow-sm"><option value="">Selecciona tu país</option></select>
+                            <input type="hidden" id="pais_nombre" name="pais_nombre" value="Venezuela">
+                        </div>
+
+                        <!-- Documento -->
+                        <div class="flex flex-col relative">
+                            <label id="documentoLabel" for="cedula" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
+                                <i class="fa-regular fa-id-card text-movida-teal/70 text-xs"></i> Cédula de identidad *
                             </label>
                             <div class="relative">
-                                <input type="text" inputmode="numeric" id="cedula" name="cedula" required pattern="^[0-9]+$" class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm" placeholder="Ej. 12345678" />
+                                <input type="text" inputmode="text" id="cedula" name="cedula" required pattern="^[A-Za-z0-9.-]{3,32}$" maxlength="32" class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm" placeholder="Ej. 12345678 o AB123456" />
                                 <span class="absolute right-3.5 top-1/2 -translate-y-1/2 feedback-icon hidden"></span>
                             </div>
-                            <p class="mt-1.5 text-[0.7rem] text-slate-400 font-medium"><i class="fa-solid fa-circle-info mr-1"></i>Ingresa solo números, sin puntos ni letras.</p>
+                            <p id="documentoHelp" class="mt-1.5 text-[0.7rem] text-slate-400 font-medium"><i class="fa-solid fa-circle-info mr-1"></i>Puede contener letras, números, punto o guion.</p>
                         </div>
 
                         <!-- Edad -->
@@ -297,9 +308,9 @@
 
                     <!-- ================= PASO 2: UBICACIÓN Y CONTACTO ================= -->
                     <div id="step2" class="w-1/3 shrink-0 p-6 space-y-6">
-                        
+
                         <!-- Estado -->
-                        <div class="flex flex-col relative">
+                        <div id="estado-container" class="flex flex-col relative">
                             <label for="estado" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
                                 <i class="fa-solid fa-map-location-dot text-movida-teal/70 text-xs"></i> Estado *
                             </label>
@@ -312,7 +323,7 @@
                         </div>
 
                         <!-- Municipio -->
-                        <div class="flex flex-col relative">
+                        <div id="municipio-container" class="flex flex-col relative">
                             <label for="municipio" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2">
                                 <i class="fa-solid fa-map-pin text-movida-teal/70 text-xs"></i> Municipio *
                             </label>
@@ -330,10 +341,10 @@
                                 <i class="fa-brands fa-whatsapp text-movida-green text-sm"></i> WhatsApp *
                             </label>
                             <div class="relative">
-                                <input type="tel" inputmode="numeric" id="wasap_mask" required class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base font-semibold text-movida-blue tracking-wide focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm" placeholder="Ej. +58 414 123 4567" />
+                                <input type="tel" inputmode="tel" id="wasap_mask" required class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 text-base font-semibold text-movida-blue tracking-wide focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm" placeholder="Número de WhatsApp" />
                                 <span class="absolute right-3.5 top-1/2 -translate-y-1/2 feedback-icon hidden"></span>
                             </div>
-                            <p class="mt-1.5 text-[0.7rem] text-slate-400 font-medium"><i class="fa-solid fa-circle-info mr-1"></i>Debe empezar por +58 (12 dígitos en total).</p>
+                            <p id="wasapHelp" class="mt-1.5 text-[0.7rem] text-slate-400 font-medium"><i class="fa-solid fa-circle-info mr-1"></i>Selecciona el prefijo e ingresa un número válido con código internacional.</p>
                             <!-- Input oculto que guardará el número limpio para el Backend -->
                             <input type="hidden" id="wasap_hidden" name="wasap" />
                         </div>
@@ -653,7 +664,7 @@
 
         // Google Apps Script guarda la fotografía en Google Drive y envía el correo.
         // Supabase conserva los datos y sólo recibe la URL pública de la fotografía.
-        const EMAIL_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzo8aLb22BBVI50aQr09AL6ibywewyrIrVo8QNb1Xx_YrrHGJScdV2paYuoPkKB71bu/exec';
+        const EMAIL_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyvXvf9ekmvxy37uyJFj8anLKGgQRSyf8fe4G_SKsxDBt7kEvB_govxEv9Nu7iSWNoBJg/exec';
         const supabaseClient = window.supabase?.createClient
             ? window.supabase.createClient(
                 SUPABASE_URL,
@@ -695,6 +706,66 @@
             "Yaracuy": ["Arístides Bastidas", "Bolívar", "Bruzual", "Cocorote", "Independencia", "José Antonio Páez", "Macanao", "Nirgua", "Peña", "San Felipe", "Sucre", "Trinidad", "Urachiche"],
             "Zulia": ["Almirante Padilla", "Baralt", "Cabimas", "Catatumbo", "Colón", "Francisco Javier Pulgar", "Guajira", "Jesús Enrique Lossada", "Jesús María Semprún", "La Cañada de Urdaneta", "Lagunillas", "Machiques de Perijá", "Mara", "Maracaibo", "Miranda", "Rosario de Perijá", "San Francisco", "Santa Rita", "Simón Bolívar", "Sucre", "Valmore Rodríguez"]
         };
+
+        let telefonoIntl = null;
+
+        function nombrePais(iso2) {
+            try { return new Intl.DisplayNames(['es'], { type: 'region' }).of(String(iso2).toUpperCase()); }
+            catch (_) { return String(iso2).toUpperCase(); }
+        }
+
+        function banderaPais(iso2) {
+            return String(iso2).toUpperCase().replace(/./g, letra => String.fromCodePoint(127397 + letra.charCodeAt()));
+        }
+
+        function configurarPais() {
+            const paisSelect = document.getElementById('pais');
+            const paisNombre = document.getElementById('pais_nombre');
+            const documento = document.getElementById('cedula');
+            const documentoLabel = document.getElementById('documentoLabel');
+            const documentoHelp = document.getElementById('documentoHelp');
+            const estadoContainer = document.getElementById('estado-container');
+            const municipioContainer = document.getElementById('municipio-container');
+            if (!paisSelect || !window.intlTelInput) return;
+
+            const paises = window.intlTelInput.getCountryData()
+                .slice()
+                .sort((a, b) => nombrePais(a.iso2).localeCompare(nombrePais(b.iso2), 'es'));
+            paises.forEach(pais => {
+                const option = document.createElement('option');
+                option.value = pais.iso2.toUpperCase();
+                option.textContent = `${banderaPais(pais.iso2)} ${nombrePais(pais.iso2)}`;
+                paisSelect.appendChild(option);
+            });
+
+            telefonoIntl = window.intlTelInput(document.getElementById('wasap_mask'), {
+                initialCountry: 've',
+                separateDialCode: true,
+                nationalMode: true,
+                strictMode: true,
+                loadUtils: () => import('https://cdn.jsdelivr.net/npm/intl-tel-input@25.12.2/build/js/utils.js')
+            });
+
+            const aplicar = () => {
+                const iso2 = paisSelect.value || 'VE';
+                const esVenezuela = iso2 === 'VE';
+                paisNombre.value = nombrePais(iso2);
+                estadoContainer.classList.toggle('hidden', !esVenezuela);
+                municipioContainer.classList.toggle('hidden', !esVenezuela);
+                estadoSelect.required = esVenezuela;
+                municipioSelect.required = esVenezuela;
+                if (!esVenezuela) { estadoSelect.value = ''; municipioSelect.innerHTML = '<option value="">No aplica</option>'; municipioSelect.value = ''; municipioSelect.disabled = true; }
+                documentoLabel.innerHTML = `<i class="fa-regular fa-id-card text-movida-teal/70 text-xs"></i> ${esVenezuela ? 'Cédula de identidad' : 'Documento de identidad'} *`;
+                documento.pattern = '^[A-Za-z0-9.-]{3,32}$';
+                documento.inputMode = 'text';
+                documentoHelp.innerHTML = '<i class="fa-solid fa-circle-info mr-1"></i>Puede contener letras, números, punto o guion.';
+                telefonoIntl?.setCountry(iso2.toLowerCase());
+                updateHeight(currentStep);
+            };
+            paisSelect.value = 'VE';
+            paisSelect.addEventListener('change', aplicar);
+            aplicar();
+        }
 
         // --- LÓGICA DEL WIZARD (MULTI-PASO DE DESLIZAMIENTO CON ALTURA DINÁMICA) ---
         let currentStep = 1;
@@ -830,7 +901,7 @@
             };
         }
 
-        async function subirFotoGoogleDrive(file, cedula, codigo) {
+        async function subirFotoGoogleDrive(file, cedula, codigo, paisIso2 = 'VE') {
             btnText.innerText = 'Preparando fotografía...';
             const foto = await prepararFotoParaDrive(file);
             btnText.innerText = 'Subiendo fotografía...';
@@ -838,6 +909,8 @@
             const datosFoto = new URLSearchParams({
                 action: 'upload_registration_photo',
                 cedula,
+                documento: cedula,
+                pais_iso2: paisIso2,
                 codigo_integrante: codigo,
                 mime_type: foto.mimeType,
                 nombre_archivo: foto.fileName,
@@ -1059,6 +1132,8 @@
             const datosCorreo = new URLSearchParams({
                 action: 'send_registration_email',
                 cedula: registro.cedula,
+                documento: registro.documento || registro.cedula,
+                pais_iso2: registro.pais_iso2 || 'VE',
                 codigo_integrante: registro.codigo_integrante
             });
 
@@ -1181,15 +1256,15 @@
                 });
 
                 if(currentStep === 2 && isValid) {
-                    const rawWasap = document.getElementById('wasap_mask').value.replace(/\D/g, '');
-                    if(rawWasap.length !== 12 || !rawWasap.startsWith('58')) {
+                    const numeroE164 = telefonoIntl?.getNumber() || '';
+                    if (!telefonoIntl?.isValidNumber() || !/^\+[1-9]\d{6,14}$/.test(numeroE164)) {
                         const wInput = document.getElementById('wasap_mask');
-                        wInput.setCustomValidity('Debe empezar por +58 y tener 12 números en total.');
+                        wInput.setCustomValidity('Ingresa un número de WhatsApp válido para el país seleccionado.');
                         wInput.reportValidity();
                         isValid = false;
                     } else {
                         document.getElementById('wasap_mask').setCustomValidity('');
-                        document.getElementById('wasap_hidden').value = rawWasap;
+                        document.getElementById('wasap_hidden').value = numeroE164;
                     }
                 }
 
@@ -1220,8 +1295,7 @@
             }
 
             if (input.id === 'wasap_mask') {
-                const rawVal = input.value.replace(/\D/g, '');
-                if (rawVal.length === 12 && rawVal.startsWith('58')) {
+                if (telefonoIntl?.isValidNumber()) {
                     setValidState(input, iconContainer);
                 } else {
                     setInvalidState(input, iconContainer);
@@ -1315,23 +1389,7 @@
         }
 
         const wasapMaskInput = document.getElementById('wasap_mask');
-        if (wasapMaskInput) {
-            wasapMaskInput.addEventListener('input', function(e) {
-                let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,3})(\d{0,7})/);
-                if (!x[1]) {
-                    e.target.value = '';
-                    return;
-                }
-                if (x[1].length === 2 && x[1] !== '58') x[1] = '58';
-                
-                let formatted = '+' + x[1];
-                if (x[2]) formatted += ' ' + x[2];
-                if (x[3]) formatted += ' ' + x[3].substring(0,3) + ' ' + x[3].substring(3,7);
-                
-                e.target.value = formatted;
-                this.setCustomValidity('');
-            });
-        }
+        if (wasapMaskInput) wasapMaskInput.addEventListener('input', function() { this.setCustomValidity(''); });
 
         const fotoInput = document.getElementById('foto');
         const fileNameDisplay = document.getElementById('fileNameDisplay');
@@ -1386,7 +1444,7 @@
         const cedulaInput = document.getElementById('cedula');
         if (cedulaInput) {
             cedulaInput.addEventListener('input', function() {
-                this.value = this.value.replace(/[^0-9]/g, '');
+                this.value = this.value.toUpperCase().replace(/[^A-Z0-9.-]/g, '');
             });
         }
 
@@ -1511,9 +1569,12 @@
                     }
 
                     const formData = new FormData(form);
-                    const cedula = String(
+                    const documento = String(
                         formData.get('cedula') || ''
-                    ).replace(/\D/g, '');
+                    ).trim().toUpperCase();
+                    const paisIso2 = String(formData.get('pais_iso2') || 'VE').toUpperCase();
+                    const paisNombre = String(formData.get('pais_nombre') || nombrePais(paisIso2));
+                    const cedula = documento;
 
                     const correo = String(
                         formData.get('correo') || ''
@@ -1544,10 +1605,11 @@
                             carreraOtraInput.value.trim();
                     }
 
-                    const rawWasap =
-                        document.getElementById(
-                            'wasap_mask'
-                        ).value.replace(/\D/g, '');
+                    const telefonoE164 = telefonoIntl?.getNumber() || '';
+                    if (!telefonoIntl?.isValidNumber() || !/^\+[1-9]\d{6,14}$/.test(telefonoE164)) {
+                        throw new Error('El número de WhatsApp no es válido para el prefijo seleccionado.');
+                    }
+                    const rawWasap = telefonoE164.replace(/\D/g, '');
 
                     document.getElementById(
                         'wasap_hidden'
@@ -1571,6 +1633,10 @@
                         ).trim(),
 
                         cedula,
+                        documento,
+                        tipo_documento: paisIso2 === 'VE' ? 'Cédula' : 'Documento de identidad',
+                        pais_iso2: paisIso2,
+                        pais_nombre: paisNombre,
 
                         edad: Number(
                             formData.get('edad')
@@ -1580,15 +1646,17 @@
                             formData.get('genero') || ''
                         ),
 
-                        estado: String(
+                        estado: paisIso2 === 'VE' ? String(
                             formData.get('estado') || ''
-                        ),
+                        ) : null,
 
-                        municipio: String(
+                        municipio: paisIso2 === 'VE' ? String(
                             formData.get('municipio') || ''
-                        ),
+                        ) : null,
 
                         wasap: rawWasap,
+                        telefono_e164: telefonoE164,
+                        telefono_pais_iso2: telefonoIntl.getSelectedCountryData().iso2.toUpperCase(),
                         whatsapp_username: whatsappUsername,
                         correo,
 
@@ -1619,7 +1687,7 @@
                         data: rpcData,
                         error: registroError
                     } = await supabaseClient
-                        .rpc('registrar_integrante', {
+                        .rpc('registrar_integrante_internacional', {
                             p_datos: datosRegistro
                         });
 
@@ -1662,7 +1730,8 @@
                         foto = await subirFotoGoogleDrive(
                             file,
                             cedula,
-                            codigo
+                            codigo,
+                            paisIso2
                         );
 
                         actualizarEstadoFoto('guardada');
@@ -1700,7 +1769,7 @@
                     // El código de integrante es privado y nunca se comparte.
                     // WhatsApp recibe únicamente una invitación con el enlace público de registro.
                     const customMsg =
-                        `¡Ya soy integrante oficial de La Movida de SST Plus! 🇻🇪 ` +
+                        `¡Ya soy integrante oficial de la red internacional de La Movida de SST Plus! 🌎 ` +
                         `Tú también puedes formar parte de nuestro ecosistema de profesionales de SST. ` +
                         `Regístrate aquí: https://registro.movidasst.com`;
 
@@ -1808,7 +1877,9 @@
         });
 
         window.addEventListener('load', () => {
+            configurarPais();
             loadStateFromStorage();
+            document.getElementById('pais')?.dispatchEvent(new Event('change'));
             showStep(1); 
             cargarContadorRegistrados(); 
         });
