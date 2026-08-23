@@ -49,6 +49,8 @@ alter table public.integrantes
 
 alter table public.integrantes drop constraint if exists integrantes_pais_iso2_check;
 alter table public.integrantes add constraint integrantes_pais_iso2_check check (pais_iso2 ~ '^[A-Z]{2}$');
+alter table public.integrantes drop constraint if exists integrantes_documento_numerico_check;
+alter table public.integrantes add constraint integrantes_documento_numerico_check check (documento ~ '^[0-9]{3,32}$');
 
 update public.integrantes
 set telefono_e164 = null,
@@ -92,6 +94,7 @@ begin
   v_pais := upper(coalesce(nullif(trim(p_datos->>'pais_iso2'), ''), 'VE'));
   v_documento := upper(trim(coalesce(p_datos->>'documento', p_datos->>'cedula', '')));
   if v_documento = '' then raise exception 'El documento de identidad es obligatorio'; end if;
+  if v_documento !~ '^[0-9]{3,32}$' then raise exception 'El documento debe contener solamente números'; end if;
   if coalesce(p_datos->>'telefono_e164', '') !~ '^[+][1-9][0-9]{6,14}$' then
     raise exception 'El número de WhatsApp debe ser internacional y válido';
   end if;
