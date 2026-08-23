@@ -130,6 +130,26 @@
         .animate-pulse-subtle {
             animation: pulse-subtle 2s infinite ease-in-out;
         }
+        .country-options {
+            scrollbar-width: thin;
+            scrollbar-color: #94a3b8 transparent;
+        }
+        .country-options::-webkit-scrollbar { display: block; width: 7px; }
+        .country-options::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 999px; }
+        .country-option[aria-selected="true"] { background: rgba(0, 123, 133, .1); color: #00205b; }
+        @media (min-width: 768px) {
+            .wizard-step {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 1.5rem 1.75rem;
+                padding: 2rem 2.5rem !important;
+            }
+            .wizard-step > * { margin-top: 0 !important; min-width: 0; }
+            .wizard-step > .step-wide { grid-column: 1 / -1; }
+            #carouselWrapper input,
+            #carouselWrapper select,
+            #countryButton { min-height: 52px; }
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-600 font-sans min-h-screen flex flex-col">
@@ -175,7 +195,7 @@
     </header>
 
     <!-- Contenedor Principal Multi-Paso (pt-[7.2rem] adaptado para el Header en móviles y sm:pt-[8.2rem] en pantallas grandes) -->
-    <main class="w-full max-w-md mx-auto px-5 pt-[7.2rem] sm:pt-[8.2rem] pb-8 mt-2 flex-grow">
+    <main class="w-full max-w-5xl mx-auto px-3 sm:px-5 lg:px-8 pt-[7.2rem] sm:pt-[8.2rem] pb-8 mt-2 flex-grow">
         
         <div class="bg-white rounded-3xl border border-movida-border shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
             
@@ -216,10 +236,10 @@
                 <form id="registroForm" class="transition-transform duration-500 ease-out flex w-[300%] items-start" style="transform: translateX(0%);">
                     
                     <!-- ================= PASO 1: DATOS PERSONALES ================= -->
-                    <div id="step1" class="w-1/3 shrink-0 p-6 space-y-6">
+                    <div id="step1" class="wizard-step w-1/3 shrink-0 p-5 sm:p-6 space-y-6">
                         
                         <!-- Banner de Bienvenida y Explicación -->
-                        <div class="bg-movida-blue/5 border-l-4 border-movida-teal rounded-2xl p-4 shadow-sm">
+                        <div class="step-wide bg-movida-blue/5 border-l-4 border-movida-teal rounded-2xl p-4 shadow-sm">
                             <div class="flex items-start gap-3">
                                 <div class="text-movida-teal mt-0.5">
                                     <i class="fa-solid fa-circle-check text-base"></i>
@@ -263,7 +283,25 @@
                         <!-- País -->
                         <div class="flex flex-col relative">
                             <label for="pais" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2"><i class="fa-solid fa-earth-americas text-movida-teal/70 text-xs"></i> País de residencia *</label>
-                            <select id="pais" name="pais_iso2" required class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal outline-none shadow-sm"><option value="">Selecciona tu país</option></select>
+                            <select id="pais" name="pais_iso2" required class="sr-only" tabindex="-1" aria-hidden="true"><option value="">Selecciona tu país</option></select>
+                            <button type="button" id="countryButton" aria-haspopup="listbox" aria-expanded="false" class="w-full flex items-center gap-3 rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 text-left text-slate-800 hover:bg-white hover:border-movida-teal focus:bg-white focus:border-movida-teal focus:ring-2 focus:ring-movida-teal/15 outline-none shadow-sm transition-all">
+                                <span id="countryButtonFlag" class="text-2xl leading-none" aria-hidden="true">🌎</span>
+                                <span class="min-w-0 flex-1">
+                                    <span id="countryButtonName" class="block truncate font-semibold">Selecciona tu país</span>
+                                    <span class="block text-[0.68rem] text-slate-400">Escribe para buscar rápidamente</span>
+                                </span>
+                                <i class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform" id="countryButtonChevron"></i>
+                            </button>
+                            <div id="countryDropdown" class="hidden absolute top-full left-0 right-0 mt-2 z-40 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/15" role="dialog" aria-label="Seleccionar país">
+                                <div class="p-3 border-b border-slate-100 bg-slate-50">
+                                    <div class="relative">
+                                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                                        <input id="countrySearch" type="search" autocomplete="off" placeholder="Buscar país…" class="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm text-slate-800 outline-none focus:border-movida-teal focus:ring-2 focus:ring-movida-teal/10">
+                                    </div>
+                                </div>
+                                <ul id="countryOptions" class="country-options max-h-64 overflow-y-auto p-2" role="listbox" aria-label="Países"></ul>
+                                <p id="countryEmpty" class="hidden px-4 py-6 text-center text-sm text-slate-500">No encontramos ese país.</p>
+                            </div>
                             <input type="hidden" id="pais_nombre" name="pais_nombre" value="Venezuela">
                         </div>
 
@@ -273,10 +311,10 @@
                                 <i class="fa-regular fa-id-card text-movida-teal/70 text-xs"></i> Cédula de identidad *
                             </label>
                             <div class="relative">
-                                <input type="text" inputmode="text" id="cedula" name="cedula" required pattern="^[A-Za-z0-9.-]{3,32}$" maxlength="32" class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm" placeholder="Ej. 12345678 o AB123456" />
+                                <input type="text" inputmode="numeric" id="cedula" name="cedula" required pattern="^[0-9]{3,32}$" maxlength="32" class="w-full rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 pr-10 text-base text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-1 focus:ring-movida-teal outline-none transition-all shadow-sm" placeholder="Ej. 12345678" />
                                 <span class="absolute right-3.5 top-1/2 -translate-y-1/2 feedback-icon hidden"></span>
                             </div>
-                            <p id="documentoHelp" class="mt-1.5 text-[0.7rem] text-slate-400 font-medium"><i class="fa-solid fa-circle-info mr-1"></i>Puede contener letras, números, punto o guion.</p>
+                            <p id="documentoHelp" class="mt-1.5 text-[0.7rem] text-slate-400 font-medium"><i class="fa-solid fa-circle-info mr-1"></i>Usa solamente números, sin puntos, letras, espacios ni símbolos.</p>
                         </div>
 
                         <!-- Edad -->
@@ -307,7 +345,7 @@
                     </div>
 
                     <!-- ================= PASO 2: UBICACIÓN Y CONTACTO ================= -->
-                    <div id="step2" class="w-1/3 shrink-0 p-6 space-y-6">
+                    <div id="step2" class="wizard-step w-1/3 shrink-0 p-5 sm:p-6 space-y-6">
 
                         <!-- Estado -->
                         <div id="estado-container" class="flex flex-col relative">
@@ -406,7 +444,7 @@
                     </div>
 
                     <!-- ================= PASO 3: PERFIL PROFESIONAL ================= -->
-                    <div id="step3" class="w-1/3 shrink-0 p-6 space-y-6">
+                    <div id="step3" class="wizard-step w-1/3 shrink-0 p-5 sm:p-6 space-y-6">
                         
                         <!-- Grado de Instrucción -->
                         <div class="flex flex-col relative">
@@ -493,7 +531,7 @@
                         </div>
 
                         <!-- Foto UI -->
-                        <div class="flex flex-col relative">
+                        <div class="step-wide flex flex-col relative">
                             <label class="text-sm font-bold text-movida-blue mb-2 flex items-center gap-2">
                                 <i class="fa-solid fa-camera text-movida-teal/70 text-xs"></i> Fotografía de Perfil *
                             </label>
@@ -511,7 +549,7 @@
                         </div>
 
                         <!-- Términos y Privacidad (Casilla Obligatoria) -->
-                        <div class="bg-slate-50 border border-movida-border rounded-2xl p-4 mt-4">
+                        <div class="step-wide bg-slate-50 border border-movida-border rounded-2xl p-4 mt-4">
                             <label class="flex items-start gap-3 cursor-pointer">
                                 <div class="flex items-center h-5">
                                     <input id="terms" type="checkbox" required class="w-5 h-5 text-movida-teal bg-white border-slate-300 rounded focus:ring-movida-teal focus:ring-2">
@@ -721,22 +759,81 @@
         function configurarPais() {
             const paisSelect = document.getElementById('pais');
             const paisNombre = document.getElementById('pais_nombre');
+            const countryButton = document.getElementById('countryButton');
+            const countryButtonFlag = document.getElementById('countryButtonFlag');
+            const countryButtonName = document.getElementById('countryButtonName');
+            const countryButtonChevron = document.getElementById('countryButtonChevron');
+            const countryDropdown = document.getElementById('countryDropdown');
+            const countrySearch = document.getElementById('countrySearch');
+            const countryOptions = document.getElementById('countryOptions');
+            const countryEmpty = document.getElementById('countryEmpty');
             const documento = document.getElementById('cedula');
             const documentoLabel = document.getElementById('documentoLabel');
             const documentoHelp = document.getElementById('documentoHelp');
             const estadoContainer = document.getElementById('estado-container');
             const municipioContainer = document.getElementById('municipio-container');
-            if (!paisSelect || !window.intlTelInput) return;
+            if (!paisSelect || !countryButton || !window.intlTelInput) return;
 
             const paises = window.intlTelInput.getCountryData()
                 .slice()
                 .sort((a, b) => nombrePais(a.iso2).localeCompare(nombrePais(b.iso2), 'es'));
+
             paises.forEach(pais => {
                 const option = document.createElement('option');
                 option.value = pais.iso2.toUpperCase();
                 option.textContent = `${banderaPais(pais.iso2)} ${nombrePais(pais.iso2)}`;
                 paisSelect.appendChild(option);
             });
+
+            const normalizarBusqueda = valor => String(valor || '')
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+
+            const cerrarSelector = () => {
+                countryDropdown.classList.add('hidden');
+                countryButton.setAttribute('aria-expanded', 'false');
+                countryButtonChevron.classList.remove('rotate-180');
+            };
+
+            const abrirSelector = () => {
+                countryDropdown.classList.remove('hidden');
+                countryButton.setAttribute('aria-expanded', 'true');
+                countryButtonChevron.classList.add('rotate-180');
+                countrySearch.value = '';
+                renderizarPaises('');
+                requestAnimationFrame(() => countrySearch.focus());
+            };
+
+            const seleccionarPais = iso2 => {
+                paisSelect.value = String(iso2).toUpperCase();
+                paisSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                cerrarSelector();
+                countryButton.focus();
+            };
+
+            const renderizarPaises = filtro => {
+                const consulta = normalizarBusqueda(filtro);
+                const filtrados = paises.filter(pais => {
+                    const texto = `${nombrePais(pais.iso2)} ${pais.iso2} +${pais.dialCode}`;
+                    return normalizarBusqueda(texto).includes(consulta);
+                });
+                countryOptions.innerHTML = '';
+                filtrados.forEach(pais => {
+                    const iso2 = pais.iso2.toUpperCase();
+                    const item = document.createElement('li');
+                    item.setAttribute('role', 'option');
+                    item.setAttribute('aria-selected', String(paisSelect.value === iso2));
+                    item.className = 'country-option flex items-center gap-3 rounded-xl px-3 py-2.5 cursor-pointer hover:bg-slate-100 focus:bg-slate-100 outline-none transition-colors';
+                    item.tabIndex = 0;
+                    item.innerHTML = `<span class="text-2xl" aria-hidden="true">${banderaPais(iso2)}</span><span class="min-w-0 flex-1 truncate font-semibold text-sm">${nombrePais(iso2)}</span><span class="text-xs font-bold text-slate-400">+${pais.dialCode}</span>`;
+                    item.addEventListener('click', () => seleccionarPais(iso2));
+                    item.addEventListener('keydown', event => {
+                        if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); seleccionarPais(iso2); }
+                    });
+                    countryOptions.appendChild(item);
+                });
+                countryEmpty.classList.toggle('hidden', filtrados.length > 0);
+                countryOptions.classList.toggle('hidden', filtrados.length === 0);
+            };
 
             telefonoIntl = window.intlTelInput(document.getElementById('wasap_mask'), {
                 initialCountry: 've',
@@ -750,21 +847,33 @@
                 const iso2 = paisSelect.value || 'VE';
                 const esVenezuela = iso2 === 'VE';
                 paisNombre.value = nombrePais(iso2);
+                countryButtonFlag.textContent = banderaPais(iso2);
+                countryButtonName.textContent = nombrePais(iso2);
                 estadoContainer.classList.toggle('hidden', !esVenezuela);
                 municipioContainer.classList.toggle('hidden', !esVenezuela);
                 estadoSelect.required = esVenezuela;
                 municipioSelect.required = esVenezuela;
                 if (!esVenezuela) { estadoSelect.value = ''; municipioSelect.innerHTML = '<option value="">No aplica</option>'; municipioSelect.value = ''; municipioSelect.disabled = true; }
                 documentoLabel.innerHTML = `<i class="fa-regular fa-id-card text-movida-teal/70 text-xs"></i> ${esVenezuela ? 'Cédula de identidad' : 'Documento de identidad'} *`;
-                documento.pattern = '^[A-Za-z0-9.-]{3,32}$';
-                documento.inputMode = 'text';
-                documentoHelp.innerHTML = '<i class="fa-solid fa-circle-info mr-1"></i>Puede contener letras, números, punto o guion.';
+                documento.pattern = '^[0-9]{3,32}$';
+                documento.inputMode = 'numeric';
+                documento.placeholder = 'Ej. 12345678';
+                documentoHelp.innerHTML = '<i class="fa-solid fa-circle-info mr-1"></i>Usa solamente números, sin puntos, letras, espacios ni símbolos.';
                 telefonoIntl?.setCountry(iso2.toLowerCase());
                 updateHeight(currentStep);
             };
+            countryButton.addEventListener('click', () => {
+                countryDropdown.classList.contains('hidden') ? abrirSelector() : cerrarSelector();
+            });
+            countrySearch.addEventListener('input', () => renderizarPaises(countrySearch.value));
+            countrySearch.addEventListener('keydown', event => { if (event.key === 'Escape') { cerrarSelector(); countryButton.focus(); } });
+            document.addEventListener('click', event => {
+                if (!countryButton.parentElement.contains(event.target)) cerrarSelector();
+            });
             paisSelect.value = 'VE';
             paisSelect.addEventListener('change', aplicar);
             aplicar();
+            renderizarPaises('');
         }
 
         // --- LÓGICA DEL WIZARD (MULTI-PASO DE DESLIZAMIENTO CON ALTURA DINÁMICA) ---
@@ -1444,7 +1553,7 @@
         const cedulaInput = document.getElementById('cedula');
         if (cedulaInput) {
             cedulaInput.addEventListener('input', function() {
-                this.value = this.value.toUpperCase().replace(/[^A-Z0-9.-]/g, '');
+                this.value = this.value.replace(/\D/g, '').slice(0, 32);
             });
         }
 
@@ -1571,7 +1680,7 @@
                     const formData = new FormData(form);
                     const documento = String(
                         formData.get('cedula') || ''
-                    ).trim().toUpperCase();
+                    ).replace(/\D/g, '');
                     const paisIso2 = String(formData.get('pais_iso2') || 'VE').toUpperCase();
                     const paisNombre = String(formData.get('pais_nombre') || nombrePais(paisIso2));
                     const cedula = documento;
