@@ -130,45 +130,6 @@
         .animate-pulse-subtle {
             animation: pulse-subtle 2s infinite ease-in-out;
         }
-        .country-options {
-            scrollbar-width: thin;
-            scrollbar-color: #94a3b8 transparent;
-        }
-        .country-options::-webkit-scrollbar { display: block; width: 7px; }
-        .country-options::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 999px; }
-        .country-option[aria-selected="true"] { background: rgba(0, 123, 133, .1); color: #00205b; }
-        #countryDropdown {
-            position: fixed;
-            inset: auto;
-            z-index: 10000;
-        }
-        #countryDropdown.hidden { display: none; }
-        @media (max-width: 767px) {
-            #countryDropdown:not(.hidden) {
-                left: 12px !important;
-                right: 12px !important;
-                top: auto !important;
-                bottom: max(12px, env(safe-area-inset-bottom)) !important;
-                width: auto !important;
-                max-height: min(76dvh, 560px);
-                display: flex;
-                flex-direction: column;
-                border-radius: 24px;
-                box-shadow: 0 -12px 44px rgba(0, 32, 91, .24);
-            }
-            #countryDropdown .country-options {
-                flex: 1 1 auto;
-                min-height: 0;
-                max-height: none !important;
-                overscroll-behavior: contain;
-                -webkit-overflow-scrolling: touch;
-            }
-            .country-option {
-                min-height: 48px;
-                touch-action: manipulation;
-                -webkit-tap-highlight-color: transparent;
-            }
-        }
         @media (min-width: 768px) {
             .wizard-step {
                 display: grid;
@@ -179,8 +140,7 @@
             .wizard-step > * { margin-top: 0 !important; min-width: 0; }
             .wizard-step > .step-wide { grid-column: 1 / -1; }
             #carouselWrapper input,
-            #carouselWrapper select,
-            #countryButton { min-height: 52px; }
+            #carouselWrapper select { min-height: 52px; }
         }
     </style>
 </head>
@@ -315,25 +275,10 @@
                         <!-- País -->
                         <div class="flex flex-col relative">
                             <label for="pais" class="text-sm font-bold text-movida-blue mb-1.5 flex items-center gap-2"><i class="fa-solid fa-earth-americas text-movida-teal/70 text-xs"></i> País de residencia *</label>
-                            <select id="pais" name="pais_iso2" required class="sr-only" tabindex="-1" aria-hidden="true"><option value="">Selecciona tu país</option></select>
-                            <button type="button" id="countryButton" aria-haspopup="listbox" aria-expanded="false" class="w-full flex items-center gap-3 rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 text-left text-slate-800 hover:bg-white hover:border-movida-teal focus:bg-white focus:border-movida-teal focus:ring-2 focus:ring-movida-teal/15 outline-none shadow-sm transition-all">
-                                <span id="countryButtonFlag" class="text-2xl leading-none" aria-hidden="true">🌎</span>
-                                <span class="min-w-0 flex-1">
-                                    <span id="countryButtonName" class="block truncate font-semibold">Selecciona tu país</span>
-                                    <span class="block text-[0.68rem] text-slate-400">Escribe para buscar rápidamente</span>
-                                </span>
-                                <i class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform" id="countryButtonChevron"></i>
-                            </button>
-                            <div id="countryDropdown" class="hidden absolute top-full left-0 right-0 mt-2 z-40 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/15" role="dialog" aria-label="Seleccionar país">
-                                <div class="p-3 border-b border-slate-100 bg-slate-50">
-                                    <div class="relative">
-                                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                                        <input id="countrySearch" type="search" autocomplete="off" placeholder="Buscar país…" class="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm text-slate-800 outline-none focus:border-movida-teal focus:ring-2 focus:ring-movida-teal/10">
-                                    </div>
-                                </div>
-                                <ul id="countryOptions" class="country-options max-h-64 overflow-y-auto p-2" role="listbox" aria-label="Países"></ul>
-                                <p id="countryEmpty" class="hidden px-4 py-6 text-center text-sm text-slate-500">No encontramos ese país.</p>
-                            </div>
+                            <select id="pais" name="pais_iso2" required class="w-full min-h-[52px] appearance-auto rounded-2xl border border-movida-border bg-slate-50/50 px-4 py-3.5 text-base font-semibold text-slate-800 focus:bg-white focus:border-movida-teal focus:ring-2 focus:ring-movida-teal/15 outline-none shadow-sm transition-all">
+                                <option value="">Selecciona tu país</option>
+                            </select>
+                            <p class="mt-1.5 text-[0.7rem] text-slate-400 font-medium"><i class="fa-solid fa-circle-info mr-1"></i>Toca la lista y selecciona tu país.</p>
                             <input type="hidden" id="pais_nombre" name="pais_nombre" value="Venezuela">
                         </div>
 
@@ -791,24 +736,12 @@
         function configurarPais() {
             const paisSelect = document.getElementById('pais');
             const paisNombre = document.getElementById('pais_nombre');
-            const countryButton = document.getElementById('countryButton');
-            const countryButtonFlag = document.getElementById('countryButtonFlag');
-            const countryButtonName = document.getElementById('countryButtonName');
-            const countryButtonChevron = document.getElementById('countryButtonChevron');
-            const countryDropdown = document.getElementById('countryDropdown');
-            const countrySearch = document.getElementById('countrySearch');
-            const countryOptions = document.getElementById('countryOptions');
-            const countryEmpty = document.getElementById('countryEmpty');
             const documento = document.getElementById('cedula');
             const documentoLabel = document.getElementById('documentoLabel');
             const documentoHelp = document.getElementById('documentoHelp');
             const estadoContainer = document.getElementById('estado-container');
             const municipioContainer = document.getElementById('municipio-container');
-            if (!paisSelect || !countryButton || !window.intlTelInput) return;
-
-            // El selector debe vivir fuera del carrusel transformado. De lo contrario,
-            // los navegadores móviles recortan un elemento fixed por el overflow del wizard.
-            document.body.appendChild(countryDropdown);
+            if (!paisSelect || !window.intlTelInput) return;
 
             const paises = window.intlTelInput.getCountryData()
                 .slice()
@@ -820,71 +753,6 @@
                 option.textContent = `${banderaPais(pais.iso2)} ${nombrePais(pais.iso2)}`;
                 paisSelect.appendChild(option);
             });
-
-            const normalizarBusqueda = valor => String(valor || '')
-                .normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
-
-            const cerrarSelector = () => {
-                countryDropdown.classList.add('hidden');
-                countryButton.setAttribute('aria-expanded', 'false');
-                countryButtonChevron.classList.remove('rotate-180');
-            };
-
-            const abrirSelector = () => {
-                const rect = countryButton.getBoundingClientRect();
-                const width = Math.min(rect.width, window.innerWidth - 24);
-                const left = Math.max(12, Math.min(rect.left, window.innerWidth - width - 12));
-                if (window.matchMedia('(min-width: 768px)').matches) {
-                    countryDropdown.style.left = `${left}px`;
-                    countryDropdown.style.width = `${width}px`;
-                    countryDropdown.style.top = `${Math.max(12, Math.min(rect.bottom + 8, window.innerHeight - 390))}px`;
-                } else {
-                    countryDropdown.style.left = '';
-                    countryDropdown.style.width = '';
-                    countryDropdown.style.top = '';
-                }
-                countryDropdown.classList.remove('hidden');
-                countryButton.setAttribute('aria-expanded', 'true');
-                countryButtonChevron.classList.add('rotate-180');
-                countrySearch.value = '';
-                renderizarPaises('');
-                // En móvil no se abre el teclado hasta que el usuario toque Buscar.
-                if (window.matchMedia('(min-width: 768px)').matches) {
-                    requestAnimationFrame(() => countrySearch.focus());
-                }
-            };
-
-            const seleccionarPais = iso2 => {
-                paisSelect.value = String(iso2).toUpperCase();
-                paisSelect.dispatchEvent(new Event('change', { bubbles: true }));
-                cerrarSelector();
-                countryButton.focus();
-            };
-
-            const renderizarPaises = filtro => {
-                const consulta = normalizarBusqueda(filtro);
-                const filtrados = paises.filter(pais => {
-                    const texto = `${nombrePais(pais.iso2)} ${pais.iso2} +${pais.dialCode}`;
-                    return normalizarBusqueda(texto).includes(consulta);
-                });
-                countryOptions.innerHTML = '';
-                filtrados.forEach(pais => {
-                    const iso2 = pais.iso2.toUpperCase();
-                    const item = document.createElement('li');
-                    item.setAttribute('role', 'option');
-                    item.setAttribute('aria-selected', String(paisSelect.value === iso2));
-                    item.className = 'country-option flex items-center gap-3 rounded-xl px-3 py-2.5 cursor-pointer hover:bg-slate-100 focus:bg-slate-100 outline-none transition-colors';
-                    item.tabIndex = 0;
-                    item.innerHTML = `<span class="text-2xl" aria-hidden="true">${banderaPais(iso2)}</span><span class="min-w-0 flex-1 truncate font-semibold text-sm">${nombrePais(iso2)}</span><span class="text-xs font-bold text-slate-400">+${pais.dialCode}</span>`;
-                    item.addEventListener('click', () => seleccionarPais(iso2));
-                    item.addEventListener('keydown', event => {
-                        if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); seleccionarPais(iso2); }
-                    });
-                    countryOptions.appendChild(item);
-                });
-                countryEmpty.classList.toggle('hidden', filtrados.length > 0);
-                countryOptions.classList.toggle('hidden', filtrados.length === 0);
-            };
 
             telefonoIntl = window.intlTelInput(document.getElementById('wasap_mask'), {
                 initialCountry: 've',
@@ -898,8 +766,6 @@
                 const iso2 = paisSelect.value || 'VE';
                 const esVenezuela = iso2 === 'VE';
                 paisNombre.value = nombrePais(iso2);
-                countryButtonFlag.textContent = banderaPais(iso2);
-                countryButtonName.textContent = nombrePais(iso2);
                 estadoContainer.classList.toggle('hidden', !esVenezuela);
                 municipioContainer.classList.toggle('hidden', !esVenezuela);
                 estadoSelect.required = esVenezuela;
@@ -913,20 +779,9 @@
                 telefonoIntl?.setCountry(iso2.toLowerCase());
                 updateHeight(currentStep);
             };
-            countryButton.addEventListener('click', () => {
-                countryDropdown.classList.contains('hidden') ? abrirSelector() : cerrarSelector();
-            });
-            countrySearch.addEventListener('input', () => renderizarPaises(countrySearch.value));
-            countrySearch.addEventListener('keydown', event => { if (event.key === 'Escape') { cerrarSelector(); countryButton.focus(); } });
-            document.addEventListener('click', event => {
-                if (!countryButton.contains(event.target) && !countryDropdown.contains(event.target)) cerrarSelector();
-            });
-            window.addEventListener('resize', cerrarSelector);
-            window.addEventListener('scroll', cerrarSelector, { passive: true });
             paisSelect.value = 'VE';
             paisSelect.addEventListener('change', aplicar);
             aplicar();
-            renderizarPaises('');
         }
 
         // --- LÓGICA DEL WIZARD (MULTI-PASO DE DESLIZAMIENTO CON ALTURA DINÁMICA) ---
