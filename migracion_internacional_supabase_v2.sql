@@ -102,7 +102,7 @@ begin
     raise exception 'Estado y municipio son obligatorios para Venezuela';
   end if;
   loop
-    v_codigo := upper(substr(encode(gen_random_bytes(5), 'hex'), 1, 5));
+    v_codigo := upper(substr(encode(extensions.gen_random_bytes(5), 'hex'), 1, 5));
     exit when not exists (select 1 from public.integrantes where codigo_integrante = v_codigo);
   end loop;
   insert into public.integrantes (
