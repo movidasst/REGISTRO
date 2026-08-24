@@ -1088,10 +1088,10 @@
             );
 
             if (
-                /Esta cédula ya se encuentra registrada/i
+                /Esta cédula ya se encuentra registrada|Ya existe un integrante registrado con ese documento|documento.+ya.+registrad/i
                     .test(mensaje)
             ) {
-                return 'Esta cédula ya se encuentra registrada en el sistema.';
+                return 'Este documento ya se encuentra registrado. Si necesita modificar sus datos, ingrese al Directorio y abra la sección Credencial.';
             }
 
             if (
@@ -1105,7 +1105,7 @@
             }
 
             if (error?.code === '23505' && /cedula/i.test(mensaje)) {
-                return 'Esta cédula ya se encuentra registrada en el sistema.';
+                return 'Este documento ya se encuentra registrado. Si necesita modificar sus datos, ingrese al Directorio y abra la sección Credencial.';
             }
             if (error?.code === '23505' && /codigo_integrante/i.test(mensaje)) {
                 return 'El código generado coincidió con otro registro. Intenta nuevamente.';
