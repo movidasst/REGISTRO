@@ -1151,13 +1151,62 @@
             }
 
             box.classList.add('border-amber-200', 'bg-amber-50');
-            icon.className = 'fa-solid fa-triangle-exclamation text-amber-600 mt-0.5';
-            title.textContent = 'Registro guardado; correo no confirmado';
-            text.textContent = 'Tu registro está completo. Guarda el código mostrado en pantalla. El correo puede reintentarse desde Apps Script.';
+            icon.className = estado === 'pendiente'
+                ? 'fa-solid fa-clock-rotate-left text-amber-600 mt-0.5'
+                : 'fa-solid fa-triangle-exclamation text-amber-600 mt-0.5';
+            title.textContent = estado === 'pendiente'
+                ? 'Registro guardado; correo programado'
+                : 'Registro guardado; correo no confirmado';
+            text.textContent = estado === 'pendiente'
+                ? 'Tu registro está completo. Supabase reintentará automáticamente el correo; guarda también el código mostrado en pantalla.'
+                : 'Tu registro está completo. Guarda el código mostrado en pantalla.';
+        }
+
+        async function encolarCorreoRegistro(registro, errorInicial = '') {
+            if (!supabaseClient) {
+                throw new Error('Supabase no está disponible para programar el correo.');
+            }
+
+            const { data, error } = await supabaseClient.rpc(
+                'encolar_correo_registro',
+                {
+                    p_pais_iso2: registro.pais_iso2 || 'VE',
+                    p_documento: registro.documento || registro.cedula,
+                    p_codigo_integrante: registro.codigo_integrante,
+                    p_error: errorInicial || null
+                }
+            );
+
+            if (error) throw error;
+            return data;
+        }
+
+        async function confirmarCorreoRegistroEnviado(registro) {
+            if (!supabaseClient) return false;
+
+            const { data, error } = await supabaseClient.rpc(
+                'confirmar_correo_registro_enviado',
+                {
+                    p_pais_iso2: registro.pais_iso2 || 'VE',
+                    p_documento: registro.documento || registro.cedula,
+                    p_codigo_integrante: registro.codigo_integrante
+                }
+            );
+
+            if (error) throw error;
+            return Boolean(data);
         }
 
         async function enviarCorreoRegistroConAppsScript(registro) {
             actualizarEstadoCorreo('enviando', registro.correo);
+
+            let correoEnCola = false;
+            try {
+                await encolarCorreoRegistro(registro);
+                correoEnCola = true;
+            } catch (errorCola) {
+                console.warn('No fue posible crear inicialmente el control del correo:', errorCola);
+            }
 
             const datosCorreo = new URLSearchParams({
                 action: 'send_registration_email',
@@ -1194,10 +1243,35 @@
                 }
 
                 actualizarEstadoCorreo('enviado', registro.correo);
+
+                try {
+                    await confirmarCorreoRegistroEnviado(registro);
+                } catch (errorConfirmacion) {
+                    // Si esta confirmación falla, la cola volverá a consultar Apps Script.
+                    // Su protección contra duplicados responderá que ya fue procesado.
+                    console.warn('El correo salió, pero Supabase no confirmó todavía su estado:', errorConfirmacion);
+                }
+
                 return true;
             } catch (error) {
                 console.warn('El registro se guardó, pero el correo no pudo confirmarse:', error);
-                actualizarEstadoCorreo('error', registro.correo);
+
+                if (!correoEnCola) {
+                    try {
+                        await encolarCorreoRegistro(
+                            registro,
+                            error?.message || String(error)
+                        );
+                        correoEnCola = true;
+                    } catch (errorCola) {
+                        console.warn('Tampoco fue posible programar el reintento del correo:', errorCola);
+                    }
+                }
+
+                actualizarEstadoCorreo(
+                    correoEnCola ? 'pendiente' : 'error',
+                    registro.correo
+                );
                 return false;
             } finally {
                 clearTimeout(timeoutId);
