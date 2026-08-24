@@ -591,8 +591,8 @@
                     </div>
 
                     <!-- Botón de unirse al grupo de WhatsApp (Agregado para incentivo post-registro) -->
-                    <a href="https://chat.whatsapp.com/LTCSym7zKlsKYsGaXc7pFK" target="_blank" class="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold py-3.5 px-4 rounded-xl shadow-md transition-transform transform active:scale-95 text-sm mb-2 cursor-pointer animate-pulse-subtle">
-                        <i class="fa-brands fa-whatsapp text-lg"></i> Unirse al Grupo Oficial de WhatsApp
+                    <a id="successWhatsappGroup" href="https://chat.whatsapp.com/LTCSym7zKlsKYsGaXc7pFK" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold py-3.5 px-4 rounded-xl shadow-md transition-transform transform active:scale-95 text-sm mb-2 cursor-pointer animate-pulse-subtle">
+                        <i class="fa-brands fa-whatsapp text-lg"></i> <span id="successWhatsappGroupText">Unirse al Grupo Oficial de WhatsApp</span>
                     </a>
 
                     <!-- Invitación por WhatsApp: comparte solo el enlace público de registro. -->
@@ -1034,8 +1034,21 @@
                 'Guarda tu código. Podrás cargar la fotografía desde el acceso de integrantes.';
         }
 
-        function finalizarRegistroVisual(codigo) {
+        function finalizarRegistroVisual(codigo, paisIso2 = 'VE') {
             document.getElementById('codigoDisplay').innerText = codigo;
+            const esVenezuela = String(paisIso2 || 'VE').toUpperCase() === 'VE';
+            const grupoWhatsapp = document.getElementById('successWhatsappGroup');
+            const grupoWhatsappTexto = document.getElementById('successWhatsappGroupText');
+            if (grupoWhatsapp) {
+                grupoWhatsapp.href = esVenezuela
+                    ? 'https://chat.whatsapp.com/LTCSym7zKlsKYsGaXc7pFK'
+                    : 'https://chat.whatsapp.com/DIU1Y140TMn81uTmG4u8OT';
+            }
+            if (grupoWhatsappTexto) {
+                grupoWhatsappTexto.textContent = esVenezuela
+                    ? 'Unirse al Grupo Oficial de WhatsApp'
+                    : 'Unirse al Grupo La Movida SST Internacional';
+            }
             successMsg.classList.remove('hidden');
 
             form.reset();
@@ -1779,7 +1792,7 @@
                             foto?.fotoUrl || null
                     };
 
-                    finalizarRegistroVisual(codigo);
+                    finalizarRegistroVisual(codigo, paisIso2);
 
                     // El correo no revierte el registro.
                     void enviarCorreoRegistroConAppsScript(
@@ -1839,7 +1852,8 @@
                         registroCreado.codigo_integrante
                     ) {
                         finalizarRegistroVisual(
-                            registroCreado.codigo_integrante
+                            registroCreado.codigo_integrante,
+                            registroCreado.pais_iso2 || 'VE'
                         );
 
                         actualizarEstadoFoto(
