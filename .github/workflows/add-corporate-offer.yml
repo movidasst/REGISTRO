@@ -1,0 +1,69 @@
+name: Add corporate offer entry
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Integrate corporate offer
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('index.html')
+          text = path.read_bytes().decode('utf-8')
+          nl = '\r\n' if '\r\n' in text else '\n'
+          url = 'https://presupuesto.movidasst.com/'
+
+          if url not in text:
+              anchor = '    <main class="w-full max-w-5xl mx-auto px-3 sm:px-5 lg:px-8 pt-[7.2rem] sm:pt-[8.2rem] pb-8 mt-2 flex-grow">'
+              if anchor not in text:
+                  raise SystemExit('No se encontró el contenedor principal del registro')
+
+              strip = '''
+        <!-- Acceso para empresas -->
+        <a href="https://presupuesto.movidasst.com/" class="group mb-4 block overflow-hidden rounded-2xl border border-movida-teal/20 bg-gradient-to-r from-movida-blue via-[#004e78] to-movida-teal p-[1px] shadow-[0_10px_28px_rgba(0,32,91,.12)] transition hover:-translate-y-0.5">
+            <div class="flex items-center justify-between gap-3 rounded-[15px] bg-white/95 px-3.5 py-3 sm:px-5 sm:py-3.5">
+                <div class="flex min-w-0 items-center gap-3">
+                    <div class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-movida-teal/10 text-movida-teal sm:h-11 sm:w-11">
+                        <i class="fa-solid fa-building text-base sm:text-lg"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="text-[0.58rem] font-black uppercase tracking-[.15em] text-movida-teal sm:text-[0.65rem]">Para empresas</div>
+                        <div class="truncate text-xs font-black text-movida-blue sm:text-sm">Capacitación corporativa SST para tu equipo</div>
+                        <div class="mt-0.5 hidden text-[0.68rem] font-medium text-slate-500 sm:block">Cotiza participantes y cursos y solicita una propuesta formal.</div>
+                    </div>
+                </div>
+                <span class="inline-flex shrink-0 items-center gap-1 rounded-xl bg-movida-yellow px-3 py-2 text-[0.68rem] font-black text-movida-blue shadow-sm transition group-hover:bg-yellow-300 sm:px-4 sm:text-xs">Cotizar <i class="fa-solid fa-arrow-right text-[0.6rem]"></i></span>
+            </div>
+        </a>
+'''.replace('\n', nl)
+              text = text.replace(anchor, anchor + strip, 1)
+              path.write_bytes(text.encode('utf-8'))
+          PY
+      - name: Verify integration
+        run: |
+          grep -q 'https://presupuesto.movidasst.com/' index.html
+          grep -q 'Capacitación corporativa SST para tu equipo' index.html
+      - name: Commit changes
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "No changes needed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "feat: add corporate training entry"
+          git push
