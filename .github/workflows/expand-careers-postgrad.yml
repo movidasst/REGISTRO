@@ -22,81 +22,100 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
 
-          career_old = '''                                    <option value="TSU en Higiene y Seguridad Laboral">TSU en Higiene y Seguridad Laboral</option>
-                                    <option value="Ingeniería en HSL">Ingeniería en HSL</option>
-                                    <option value="Otra">Otra</option>'''
+          careers = [
+              'TSU en Higiene y Seguridad Laboral',
+              'Ingeniería en HSL',
+              'Seguridad y Salud en el Trabajo',
+              'Higiene Ocupacional',
+              'Seguridad Industrial',
+              'Prevención de Riesgos',
+              'Ingeniería Industrial',
+              'Ingeniería Ambiental',
+              'Ingeniería Química',
+              'Ingeniería Mecánica',
+              'Ingeniería Eléctrica',
+              'Ingeniería Civil',
+              'Ingeniería de Producción',
+              'Ingeniería de Procesos',
+              'Enfermería',
+              'Medicina',
+              'Psicología',
+              'Fisioterapia',
+              'Terapia Ocupacional',
+              'Derecho',
+              'Recursos Humanos',
+              'Gestión de Riesgos / Protección Civil',
+              'Otra',
+          ]
 
-          career_new = '''                                    <option value="TSU en Higiene y Seguridad Laboral">TSU en Higiene y Seguridad Laboral</option>
-                                    <option value="Ingeniería en HSL">Ingeniería en HSL</option>
-                                    <option value="Seguridad y Salud en el Trabajo">Seguridad y Salud en el Trabajo</option>
-                                    <option value="Higiene Ocupacional">Higiene Ocupacional</option>
-                                    <option value="Seguridad Industrial">Seguridad Industrial</option>
-                                    <option value="Prevención de Riesgos">Prevención de Riesgos</option>
-                                    <option value="Ingeniería Industrial">Ingeniería Industrial</option>
-                                    <option value="Ingeniería Ambiental">Ingeniería Ambiental</option>
-                                    <option value="Ingeniería Química">Ingeniería Química</option>
-                                    <option value="Ingeniería Mecánica">Ingeniería Mecánica</option>
-                                    <option value="Ingeniería Eléctrica">Ingeniería Eléctrica</option>
-                                    <option value="Ingeniería Civil">Ingeniería Civil</option>
-                                    <option value="Ingeniería de Producción">Ingeniería de Producción</option>
-                                    <option value="Ingeniería de Procesos">Ingeniería de Procesos</option>
-                                    <option value="Enfermería">Enfermería</option>
-                                    <option value="Medicina">Medicina</option>
-                                    <option value="Psicología">Psicología</option>
-                                    <option value="Fisioterapia">Fisioterapia</option>
-                                    <option value="Terapia Ocupacional">Terapia Ocupacional</option>
-                                    <option value="Derecho">Derecho</option>
-                                    <option value="Recursos Humanos">Recursos Humanos</option>
-                                    <option value="Gestión de Riesgos / Protección Civil">Gestión de Riesgos / Protección Civil</option>
-                                    <option value="Otra">Otra</option>'''
-
-          translations = {
-            "en": [
-              ("      'Ingeniería en HSL': 'Engineering in Occupational Hygiene and Safety',\n", "      'Ingeniería en HSL': 'Engineering in Occupational Hygiene and Safety',\n      'Seguridad y Salud en el Trabajo': 'Occupational Safety and Health',\n      'Higiene Ocupacional': 'Occupational Hygiene',\n      'Seguridad Industrial': 'Industrial Safety',\n      'Prevención de Riesgos': 'Risk Prevention',\n      'Ingeniería Industrial': 'Industrial Engineering',\n      'Ingeniería Ambiental': 'Environmental Engineering',\n      'Ingeniería Química': 'Chemical Engineering',\n      'Ingeniería Mecánica': 'Mechanical Engineering',\n      'Ingeniería Eléctrica': 'Electrical Engineering',\n      'Ingeniería Civil': 'Civil Engineering',\n      'Ingeniería de Producción': 'Production Engineering',\n      'Ingeniería de Procesos': 'Process Engineering',\n      'Enfermería': 'Nursing',\n      'Medicina': 'Medicine',\n      'Psicología': 'Psychology',\n      'Fisioterapia': 'Physiotherapy',\n      'Terapia Ocupacional': 'Occupational Therapy',\n      'Derecho': 'Law',\n      'Recursos Humanos': 'Human Resources',\n      'Gestión de Riesgos / Protección Civil': 'Risk Management / Civil Protection',\n"),
-              ("      'Maestría': 'Master’s degree',\n", "      'Maestría': 'Master’s degree',\n      'Magíster': 'Magister',\n"),
-            ],
-            "pt": [
-              ("      'Ingeniería en HSL': 'Engenharia em Higiene e Segurança do Trabalho',\n", "      'Ingeniería en HSL': 'Engenharia em Higiene e Segurança do Trabalho',\n      'Seguridad y Salud en el Trabajo': 'Segurança e Saúde no Trabalho',\n      'Higiene Ocupacional': 'Higiene Ocupacional',\n      'Seguridad Industrial': 'Segurança Industrial',\n      'Prevención de Riesgos': 'Prevenção de Riscos',\n      'Ingeniería Industrial': 'Engenharia Industrial',\n      'Ingeniería Ambiental': 'Engenharia Ambiental',\n      'Ingeniería Química': 'Engenharia Química',\n      'Ingeniería Mecánica': 'Engenharia Mecânica',\n      'Ingeniería Eléctrica': 'Engenharia Elétrica',\n      'Ingeniería Civil': 'Engenharia Civil',\n      'Ingeniería de Producción': 'Engenharia de Produção',\n      'Ingeniería de Procesos': 'Engenharia de Processos',\n      'Enfermería': 'Enfermagem',\n      'Medicina': 'Medicina',\n      'Psicología': 'Psicologia',\n      'Fisioterapia': 'Fisioterapia',\n      'Terapia Ocupacional': 'Terapia Ocupacional',\n      'Derecho': 'Direito',\n      'Recursos Humanos': 'Recursos Humanos',\n      'Gestión de Riesgos / Protección Civil': 'Gestão de Riscos / Proteção Civil',\n"),
-              ("      'Maestría': 'Mestrado',\n", "      'Maestría': 'Mestrado',\n      'Magíster': 'Magister',\n"),
-            ],
-            "fr": [
-              ("      'Ingeniería en HSL': 'Ingénierie en hygiène et sécurité au travail',\n", "      'Ingeniería en HSL': 'Ingénierie en hygiène et sécurité au travail',\n      'Seguridad y Salud en el Trabajo': 'Santé et sécurité au travail',\n      'Higiene Ocupacional': 'Hygiène du travail',\n      'Seguridad Industrial': 'Sécurité industrielle',\n      'Prevención de Riesgos': 'Prévention des risques',\n      'Ingeniería Industrial': 'Génie industriel',\n      'Ingeniería Ambiental': 'Génie environnemental',\n      'Ingeniería Química': 'Génie chimique',\n      'Ingeniería Mecánica': 'Génie mécanique',\n      'Ingeniería Eléctrica': 'Génie électrique',\n      'Ingeniería Civil': 'Génie civil',\n      'Ingeniería de Producción': 'Génie de production',\n      'Ingeniería de Procesos': 'Génie des procédés',\n      'Enfermería': 'Sciences infirmières',\n      'Medicina': 'Médecine',\n      'Psicología': 'Psychologie',\n      'Fisioterapia': 'Physiothérapie',\n      'Terapia Ocupacional': 'Ergothérapie',\n      'Derecho': 'Droit',\n      'Recursos Humanos': 'Ressources humaines',\n      'Gestión de Riesgos / Protección Civil': 'Gestion des risques / Protection civile',\n"),
-              ("      'Maestría': 'Master',\n", "      'Maestría': 'Master',\n      'Magíster': 'Magister',\n"),
-            ],
+          tr = {
+            'en': {
+              'Seguridad y Salud en el Trabajo':'Occupational Safety and Health','Higiene Ocupacional':'Occupational Hygiene','Seguridad Industrial':'Industrial Safety','Prevención de Riesgos':'Risk Prevention','Ingeniería Industrial':'Industrial Engineering','Ingeniería Ambiental':'Environmental Engineering','Ingeniería Química':'Chemical Engineering','Ingeniería Mecánica':'Mechanical Engineering','Ingeniería Eléctrica':'Electrical Engineering','Ingeniería Civil':'Civil Engineering','Ingeniería de Producción':'Production Engineering','Ingeniería de Procesos':'Process Engineering','Enfermería':'Nursing','Medicina':'Medicine','Psicología':'Psychology','Fisioterapia':'Physiotherapy','Terapia Ocupacional':'Occupational Therapy','Derecho':'Law','Recursos Humanos':'Human Resources','Gestión de Riesgos / Protección Civil':'Risk Management / Civil Protection','Magíster':'Magister'
+            },
+            'pt': {
+              'Seguridad y Salud en el Trabajo':'Segurança e Saúde no Trabalho','Higiene Ocupacional':'Higiene Ocupacional','Seguridad Industrial':'Segurança Industrial','Prevención de Riesgos':'Prevenção de Riscos','Ingeniería Industrial':'Engenharia Industrial','Ingeniería Ambiental':'Engenharia Ambiental','Ingeniería Química':'Engenharia Química','Ingeniería Mecánica':'Engenharia Mecânica','Ingeniería Eléctrica':'Engenharia Elétrica','Ingeniería Civil':'Engenharia Civil','Ingeniería de Producción':'Engenharia de Produção','Ingeniería de Procesos':'Engenharia de Processos','Enfermería':'Enfermagem','Medicina':'Medicina','Psicología':'Psicologia','Fisioterapia':'Fisioterapia','Terapia Ocupacional':'Terapia Ocupacional','Derecho':'Direito','Recursos Humanos':'Recursos Humanos','Gestión de Riesgos / Protección Civil':'Gestão de Riscos / Proteção Civil','Magíster':'Magister'
+            },
+            'fr': {
+              'Seguridad y Salud en el Trabajo':'Santé et sécurité au travail','Higiene Ocupacional':'Hygiène du travail','Seguridad Industrial':'Sécurité industrielle','Prevención de Riesgos':'Prévention des risques','Ingeniería Industrial':'Génie industriel','Ingeniería Ambiental':'Génie environnemental','Ingeniería Química':'Génie chimique','Ingeniería Mecánica':'Génie mécanique','Ingeniería Eléctrica':'Génie électrique','Ingeniería Civil':'Génie civil','Ingeniería de Producción':'Génie de production','Ingeniería de Procesos':'Génie des procédés','Enfermería':'Sciences infirmières','Medicina':'Médecine','Psicología':'Psychologie','Fisioterapia':'Physiothérapie','Terapia Ocupacional':'Ergothérapie','Derecho':'Droit','Recursos Humanos':'Ressources humaines','Gestión de Riesgos / Protección Civil':'Gestion des risques / Protection civile','Magíster':'Magister'
+            }
           }
 
-          for fname in ['index.html', 'i18n.js']:
-              path = Path(fname)
-              text = path.read_text(encoding='utf-8')
+          index = Path('index.html')
+          text = index.read_text(encoding='utf-8')
 
-              if fname == 'index.html':
-                  if career_old not in text:
-                      raise SystemExit('career option block not found')
-                  text = text.replace(career_old, career_new, 1)
-                  post_old = '                                    <option value="Maestría">Maestría</option>\n'
-                  post_new = post_old + '                                    <option value="Magíster">Magíster</option>\n'
-                  if post_old not in text:
-                      raise SystemExit('postgraduate option anchor not found')
-                  text = text.replace(post_old, post_new, 1)
+          pattern = re.compile(r'(?P<indent>\s*)<option value="TSU en Higiene y Seguridad Laboral">TSU en Higiene y Seguridad Laboral</option>\s*<option value="Ingeniería en HSL">Ingeniería en HSL</option>\s*<option value="Otra">Otra</option>')
+          m = pattern.search(text)
+          if not m:
+              raise SystemExit('career option block not found')
+          indent = m.group('indent').split('\n')[-1]
+          block = '\n'.join(f'{indent}<option value="{c}">{c}</option>' for c in careers)
+          text = text[:m.start()] + block + text[m.end():]
 
-              for lang, reps in translations.items():
-                  for old, new in reps:
-                      if old not in text:
-                          raise SystemExit(f'{fname}: translation anchor missing for {lang}: {old.strip()}')
-                      text = text.replace(old, new, 1)
+          if '<option value="Magíster">Magíster</option>' not in text:
+              text, n = re.subn(r'(?P<indent>\s*)<option value="Maestría">Maestría</option>', lambda mm: mm.group(0) + '\n' + mm.group('indent').split('\n')[-1] + '<option value="Magíster">Magíster</option>', text, count=1)
+              if n != 1:
+                  raise SystemExit('postgraduate anchor not found')
 
-              path.write_text(text, encoding='utf-8')
+          def add_translations(text):
+              anchors = {
+                'en': "      'Ingeniería en HSL': 'Engineering in Occupational Hygiene and Safety',\n",
+                'pt': "      'Ingeniería en HSL': 'Engenharia em Higiene e Segurança do Trabalho',\n",
+                'fr': "      'Ingeniería en HSL': 'Ingénierie en hygiène et sécurité au travail',\n",
+              }
+              maganchors = {
+                'en': "      'Maestría': 'Master’s degree',\n",
+                'pt': "      'Maestría': 'Mestrado',\n",
+                'fr': "      'Maestría': 'Master',\n",
+              }
+              for lang in ('en','pt','fr'):
+                  if "      'Enfermería':" not in text[text.find(anchors[lang]):text.find(anchors[lang])+2500]:
+                      if anchors[lang] not in text:
+                          raise SystemExit(f'{lang} career translation anchor missing')
+                      additions = ''.join(f"      '{k}': '{v}',\n" for k,v in tr[lang].items() if k != 'Magíster')
+                      text = text.replace(anchors[lang], anchors[lang] + additions, 1)
+                  magline = f"      'Magíster': '{tr[lang]['Magíster']}',\n"
+                  if magline not in text:
+                      if maganchors[lang] not in text:
+                          raise SystemExit(f'{lang} Magister translation anchor missing')
+                      text = text.replace(maganchors[lang], maganchors[lang] + magline, 1)
+              return text
+
+          text = add_translations(text)
+          index.write_text(text, encoding='utf-8')
+
+          js = Path('i18n.js')
+          jstext = add_translations(js.read_text(encoding='utf-8'))
+          js.write_text(jstext, encoding='utf-8')
           PY
 
       - name: Validate changes
         run: |
           set -euxo pipefail
-          grep -F '<option value="Enfermería">Enfermería</option>' index.html
-          grep -F '<option value="Psicología">Psicología</option>' index.html
-          grep -F '<option value="Medicina">Medicina</option>' index.html
-          grep -F '<option value="Derecho">Derecho</option>' index.html
-          grep -F '<option value="Fisioterapia">Fisioterapia</option>' index.html
+          for value in 'Enfermería' 'Psicología' 'Medicina' 'Derecho' 'Fisioterapia' 'Terapia Ocupacional' 'Ingeniería Industrial' 'Ingeniería Ambiental' 'Gestión de Riesgos / Protección Civil'; do
+            grep -F "<option value=\"$value\">$value</option>" index.html
+          done
           grep -F '<option value="Magíster">Magíster</option>' index.html
           grep -F "'Enfermería': 'Nursing'" index.html
           grep -F "'Enfermería': 'Enfermagem'" index.html
