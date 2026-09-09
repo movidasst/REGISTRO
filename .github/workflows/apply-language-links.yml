@@ -1,0 +1,68 @@
+name: Apply robust language links
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-language-links.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Replace selector with direct language links
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          old='''                <select id="languageSelect" aria-label="Cambiar idioma" onchange="window.movidaI18n?.setLanguage(this.value)" class="min-h-[36px] cursor-pointer appearance-auto rounded-xl border-0 bg-transparent px-1.5 text-sm font-black text-movida-blue outline-none focus:ring-2 focus:ring-movida-teal/20">\n                    <option value="es">Español</option>\n                    <option value="en">English</option>\n                    <option value="pt">Português</option>\n                    <option value="fr">Français</option>\n                </select>'''
+          new='''                <nav id="languageLinks" aria-label="Cambiar idioma" class="flex items-center gap-1">\n                    <a data-lang-link="es" href="?lang=es&amp;v=20260909-1705" title="Español" class="rounded-lg px-2 py-2 text-xs font-black text-movida-blue hover:bg-movida-teal/10 focus:outline-none focus:ring-2 focus:ring-movida-teal/30">ES</a>\n                    <a data-lang-link="en" href="?lang=en&amp;v=20260909-1705" title="English" class="rounded-lg px-2 py-2 text-xs font-black text-movida-blue hover:bg-movida-teal/10 focus:outline-none focus:ring-2 focus:ring-movida-teal/30">EN</a>\n                    <a data-lang-link="pt" href="?lang=pt&amp;v=20260909-1705" title="Português" class="rounded-lg px-2 py-2 text-xs font-black text-movida-blue hover:bg-movida-teal/10 focus:outline-none focus:ring-2 focus:ring-movida-teal/30">PT</a>\n                    <a data-lang-link="fr" href="?lang=fr&amp;v=20260909-1705" title="Français" class="rounded-lg px-2 py-2 text-xs font-black text-movida-blue hover:bg-movida-teal/10 focus:outline-none focus:ring-2 focus:ring-movida-teal/30">FR</a>\n                </nav>'''
+          if old not in s:
+              raise SystemExit('language selector block not found')
+          s=s.replace(old,new,1)
+
+          old_init='''  let currentLang = (() => {\n    try {\n      const saved = localStorage.getItem(STORAGE_KEY);\n      if (SUPPORTED.includes(saved)) return saved;\n    } catch (_) {}\n    const browser = String(navigator.language || 'es').slice(0, 2).toLowerCase();\n    return SUPPORTED.includes(browser) ? browser : 'es';\n  })();'''
+          new_init='''  let currentLang = (() => {\n    try {\n      const fromUrl = new URLSearchParams(window.location.search).get('lang');\n      if (SUPPORTED.includes(fromUrl)) return fromUrl;\n    } catch (_) {}\n    try {\n      const saved = localStorage.getItem(STORAGE_KEY);\n      if (SUPPORTED.includes(saved)) return saved;\n    } catch (_) {}\n    const browser = String(navigator.language || 'es').slice(0, 2).toLowerCase();\n    return SUPPORTED.includes(browser) ? browser : 'es';\n  })();'''
+          if old_init not in s:
+              raise SystemExit('currentLang initialization block not found')
+          s=s.replace(old_init,new_init,1)
+
+          old_apply='''      const selector = document.getElementById('languageSelect');\n      if (selector && selector.value !== currentLang) selector.value = currentLang;'''
+          new_apply='''      const selector = document.getElementById('languageSelect');\n      if (selector && selector.value !== currentLang) selector.value = currentLang;\n\n      document.querySelectorAll('[data-lang-link]').forEach(link => {\n        const active = link.getAttribute('data-lang-link') === currentLang;\n        link.setAttribute('aria-current', active ? 'page' : 'false');\n        link.classList.toggle('bg-movida-teal', active);\n        link.classList.toggle('text-white', active);\n        link.classList.toggle('shadow-sm', active);\n      });'''
+          if old_apply not in s:
+              raise SystemExit('language UI sync block not found')
+          s=s.replace(old_apply,new_apply,1)
+          p.write_text(s)
+          PY
+      - name: Validate inline JavaScript and backend anchors
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('index.html').read_text()
+          m=re.search(r'<!-- MOVIDA_I18N_INLINE_START -->\s*<script>\s*(.*?)\s*</script>\s*<!-- MOVIDA_I18N_INLINE_END -->',s,re.S)
+          assert m
+          Path('/tmp/i18n.js').write_text(m.group(1))
+          assert 'registrar_integrante_internacional' in s
+          assert 'upload_registration_photo' in s
+          assert 'send_registration_email' in s
+          assert 'data-lang-link="en"' in s
+          assert 'new URLSearchParams(window.location.search).get(\'lang\')' in s
+          PY
+          node --check /tmp/i18n.js
+          git diff --check
+      - name: Commit language navigation fix
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Replace fragile language selector with direct ES EN PT FR links'
+          git push origin main
