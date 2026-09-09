@@ -3,6 +3,7 @@ name: Apply safe multilingual registration patch
 on:
   push:
     branches:
+      - main
       - i18n-es-en-pt-fr
     paths:
       - .github/workflows/apply-i18n.yml
@@ -17,13 +18,12 @@ permissions:
 
 jobs:
   apply-i18n:
-    if: github.event_name == 'push' || github.head_ref == 'i18n-es-en-pt-fr'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout branch
+      - name: Checkout target branch
         uses: actions/checkout@v4
         with:
-          ref: i18n-es-en-pt-fr
+          ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
           fetch-depth: 0
 
       - name: Apply safe patch
@@ -36,6 +36,8 @@ jobs:
         run: git diff --check
 
       - name: Commit generated integration
+        env:
+          TARGET_BRANCH: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
         run: |
           if git diff --quiet; then
             echo "No generated changes to commit"
@@ -45,4 +47,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html i18n.js
           git commit -m "Integrate ES EN PT FR selector without changing backend values"
-          git push origin HEAD:i18n-es-en-pt-fr
+          git push origin HEAD:${TARGET_BRANCH}
