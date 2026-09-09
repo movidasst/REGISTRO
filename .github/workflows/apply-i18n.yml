@@ -7,12 +7,17 @@ on:
     paths:
       - .github/workflows/apply-i18n.yml
       - tools/apply_i18n.py
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: write
 
 jobs:
   apply-i18n:
+    if: github.event_name == 'push' || github.head_ref == 'i18n-es-en-pt-fr'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout branch
