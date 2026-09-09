@@ -195,6 +195,18 @@
 
     <!-- Contenedor Principal Multi-Paso (pt-[7.2rem] adaptado para el Header en móviles y sm:pt-[8.2rem] en pantallas grandes) -->
     <main class="w-full max-w-5xl mx-auto px-3 sm:px-5 lg:px-8 pt-[7.2rem] sm:pt-[8.2rem] pb-8 mt-2 flex-grow">
+        <!-- Selector multidioma: solo cambia la presentación; los valores enviados al backend permanecen canónicos. -->
+        <div id="languageBar" class="mb-3 flex justify-end">
+            <div class="inline-flex min-h-[44px] items-center gap-2 rounded-2xl border border-movida-teal/20 bg-white px-2.5 py-1.5 shadow-sm">
+                <i class="fa-solid fa-language text-movida-teal" aria-hidden="true"></i>
+                <select id="languageSelect" aria-label="Cambiar idioma" class="min-h-[36px] cursor-pointer appearance-auto rounded-xl border-0 bg-transparent px-1.5 text-sm font-black text-movida-blue outline-none focus:ring-2 focus:ring-movida-teal/20">
+                    <option value="es">Español</option>
+                    <option value="en">English</option>
+                    <option value="pt">Português</option>
+                    <option value="fr">Français</option>
+                </select>
+            </div>
+        </div>
         <!-- Acceso para empresas -->
         <a href="https://presupuesto.movidasst.com/" class="group mb-4 block overflow-hidden rounded-2xl border border-movida-teal/20 bg-gradient-to-r from-movida-blue via-[#004e78] to-movida-teal p-[1px] shadow-[0_10px_28px_rgba(0,32,91,.12)] transition hover:-translate-y-0.5">
             <div class="flex items-center justify-between gap-3 rounded-[15px] bg-white/95 px-3.5 py-3 sm:px-5 sm:py-3.5">
@@ -695,6 +707,7 @@
 
     </main>
 
+    <script src="/i18n.js"></script>
     <script>
         // Conexión pública a Supabase. La seguridad real depende de las políticas RLS.
         const SUPABASE_URL = 'https://lfdmbkzghnwvsapxypvt.supabase.co';
@@ -747,9 +760,15 @@
 
         let telefonoIntl = null;
 
+        // Nombre canónico en español: se conserva para pais_nombre y compatibilidad con la base de datos.
         function nombrePais(iso2) {
             try { return new Intl.DisplayNames(['es'], { type: 'region' }).of(String(iso2).toUpperCase()); }
             catch (_) { return String(iso2).toUpperCase(); }
+        }
+
+        // Nombre localizado: se usa únicamente en la interfaz.
+        function nombrePaisUI(iso2) {
+            return window.movidaI18n?.countryName(iso2) || nombrePais(iso2);
         }
 
         function banderaPais(iso2) {
@@ -768,12 +787,12 @@
 
             const paises = window.intlTelInput.getCountryData()
                 .slice()
-                .sort((a, b) => nombrePais(a.iso2).localeCompare(nombrePais(b.iso2), 'es'));
+                .sort((a, b) => nombrePaisUI(a.iso2).localeCompare(nombrePaisUI(b.iso2), window.movidaI18n?.locale() || 'es'));
 
             paises.forEach(pais => {
                 const option = document.createElement('option');
                 option.value = pais.iso2.toUpperCase();
-                option.textContent = `${banderaPais(pais.iso2)} ${nombrePais(pais.iso2)}`;
+                option.textContent = `${banderaPais(pais.iso2)} ${nombrePaisUI(pais.iso2)}`;
                 paisSelect.appendChild(option);
             });
 
@@ -782,6 +801,8 @@
                 separateDialCode: true,
                 nationalMode: true,
                 strictMode: true,
+                countryNameLocale: window.movidaI18n?.locale() || 'es',
+                uiTranslations: window.movidaI18n?.phoneTranslations() || {},
                 loadUtils: () => import('https://cdn.jsdelivr.net/npm/intl-tel-input@25.12.2/build/js/utils.js')
             });
 
@@ -1386,7 +1407,7 @@
                     const numeroE164 = telefonoIntl?.getNumber() || '';
                     if (!telefonoIntl?.isValidNumber() || !/^\+[1-9]\d{6,14}$/.test(numeroE164)) {
                         const wInput = document.getElementById('wasap_mask');
-                        wInput.setCustomValidity('Ingresa un número de WhatsApp válido para el país seleccionado.');
+                        wInput.setCustomValidity(window.movidaI18n?.t('Ingresa un número de WhatsApp válido para el país seleccionado.') || 'Ingresa un número de WhatsApp válido para el país seleccionado.');
                         wInput.reportValidity();
                         isValid = false;
                     } else {
@@ -1898,7 +1919,7 @@
 
                     // El código de integrante es privado y nunca se comparte.
                     // WhatsApp recibe únicamente una invitación con el enlace público de registro.
-                    const customMsg =
+                    const customMsg = window.movidaI18n?.shareMessage() ||
                         `¡Ya soy integrante oficial de la red internacional de La Movida de SST Plus! 🌎 ` +
                         `Tú también puedes formar parte de nuestro ecosistema de profesionales de SST. ` +
                         `Regístrate aquí: https://registro.movidasst.com`;
@@ -2005,6 +2026,10 @@
 
         window.addEventListener('resize', () => {
             updateHeight(currentStep);
+        });
+
+        window.addEventListener('movida:languagechange', () => {
+            setTimeout(() => updateHeight(currentStep), 60);
         });
 
         window.addEventListener('load', () => {

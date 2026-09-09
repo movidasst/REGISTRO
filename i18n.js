@@ -689,18 +689,13 @@
     if (observer) observer.disconnect();
     observer = new MutationObserver(mutations => {
       if (applying) return;
-      let needsCountryRefresh = false;
       mutations.forEach(mutation => {
         if (mutation.type === 'characterData') translateTextNode(mutation.target);
         mutation.addedNodes?.forEach(node => {
           if (node.nodeType === Node.TEXT_NODE) translateTextNode(node);
-          if (node.nodeType === Node.ELEMENT_NODE) {
-            apply(node);
-            if (node.id === 'pais' || node.closest?.('#pais') || node.querySelector?.('#pais')) needsCountryRefresh = true;
-          }
+          if (node.nodeType === Node.ELEMENT_NODE) apply(node);
         });
       });
-      if (needsCountryRefresh) setTimeout(refreshCountrySelect, 0);
       setTimeout(refreshPhoneUi, 0);
     });
     observer.observe(document.documentElement, { subtree: true, childList: true, characterData: true });
