@@ -199,12 +199,12 @@
         <div id="languageBar" class="mb-3 flex justify-end">
             <div class="inline-flex min-h-[44px] items-center gap-2 rounded-2xl border border-movida-teal/20 bg-white px-2.5 py-1.5 shadow-sm">
                 <i class="fa-solid fa-language text-movida-teal" aria-hidden="true"></i>
-                <select id="languageSelect" aria-label="Cambiar idioma" onchange="window.movidaI18n?.setLanguage(this.value)" class="min-h-[36px] cursor-pointer appearance-auto rounded-xl border-0 bg-transparent px-1.5 text-sm font-black text-movida-blue outline-none focus:ring-2 focus:ring-movida-teal/20">
-                    <option value="es">Español</option>
-                    <option value="en">English</option>
-                    <option value="pt">Português</option>
-                    <option value="fr">Français</option>
-                </select>
+                <nav id="languageLinks" aria-label="Cambiar idioma" class="flex items-center gap-1">
+                    <a data-lang-link="es" href="?lang=es&amp;v=20260909-1705" title="Español" class="rounded-lg px-2 py-2 text-xs font-black text-movida-blue hover:bg-movida-teal/10 focus:outline-none focus:ring-2 focus:ring-movida-teal/30">ES</a>
+                    <a data-lang-link="en" href="?lang=en&amp;v=20260909-1705" title="English" class="rounded-lg px-2 py-2 text-xs font-black text-movida-blue hover:bg-movida-teal/10 focus:outline-none focus:ring-2 focus:ring-movida-teal/30">EN</a>
+                    <a data-lang-link="pt" href="?lang=pt&amp;v=20260909-1705" title="Português" class="rounded-lg px-2 py-2 text-xs font-black text-movida-blue hover:bg-movida-teal/10 focus:outline-none focus:ring-2 focus:ring-movida-teal/30">PT</a>
+                    <a data-lang-link="fr" href="?lang=fr&amp;v=20260909-1705" title="Français" class="rounded-lg px-2 py-2 text-xs font-black text-movida-blue hover:bg-movida-teal/10 focus:outline-none focus:ring-2 focus:ring-movida-teal/30">FR</a>
+                </nav>
             </div>
         </div>
         <!-- Acceso para empresas -->
@@ -1213,6 +1213,10 @@
 
   let currentLang = (() => {
     try {
+      const fromUrl = new URLSearchParams(window.location.search).get('lang');
+      if (SUPPORTED.includes(fromUrl)) return fromUrl;
+    } catch (_) {}
+    try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (SUPPORTED.includes(saved)) return saved;
     } catch (_) {}
@@ -1324,6 +1328,14 @@
 
       const selector = document.getElementById('languageSelect');
       if (selector && selector.value !== currentLang) selector.value = currentLang;
+
+      document.querySelectorAll('[data-lang-link]').forEach(link => {
+        const active = link.getAttribute('data-lang-link') === currentLang;
+        link.setAttribute('aria-current', active ? 'page' : 'false');
+        link.classList.toggle('bg-movida-teal', active);
+        link.classList.toggle('text-white', active);
+        link.classList.toggle('shadow-sm', active);
+      });
     } finally {
       applying = false;
     }
