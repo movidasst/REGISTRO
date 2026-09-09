@@ -1,0 +1,41 @@
+name: Live domain diagnostic
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/live-domain-diagnostic.yml'
+      - 'i18n-check-20260909.html'
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: DNS
+        run: |
+          set -euxo pipefail
+          dig registro.movidasst.com CNAME +short || true
+          dig registro.movidasst.com A +short || true
+      - name: Fetch root headers
+        run: |
+          set -euxo pipefail
+          curl -sSIL --max-time 30 https://registro.movidasst.com/ | tee /tmp/headers.txt
+      - name: Fetch live root
+        run: |
+          set -euxo pipefail
+          curl -fsSL --max-time 30 -H 'Cache-Control: no-cache' 'https://registro.movidasst.com/?diag=20260909-1635' -o /tmp/root.html
+          echo "SIZE=$(wc -c </tmp/root.html)"
+          grep -F 'MOVIDA_I18N_INLINE_START' /tmp/root.html
+          grep -F 'window.movidaI18n?.setLanguage(this.value)' /tmp/root.html
+          grep -F 'Personal Information' /tmp/root.html
+      - name: Fetch unique diagnostic page
+        run: |
+          set -euxo pipefail
+          curl -fsSL --max-time 30 -H 'Cache-Control: no-cache' 'https://registro.movidasst.com/i18n-check-20260909.html?diag=1635' -o /tmp/check.html
+          echo "CHECK_SIZE=$(wc -c </tmp/check.html)"
+          grep -F 'VERSION: I18N-CHECK-20260909-1635' /tmp/check.html
+          grep -F "Personal Information" /tmp/check.html
+      - name: Report hashes
+        run: |
+          sha256sum /tmp/root.html /tmp/check.html
