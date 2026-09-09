@@ -660,7 +660,7 @@
   }
 
   function setLanguage(lang) {
-    if (!SUPPORTED.includes(lang) || lang === currentLang) return;
+    if (!SUPPORTED.includes(lang)) return;
     currentLang = lang;
     try { localStorage.setItem(STORAGE_KEY, lang); } catch (_) {}
     apply(document);
@@ -717,25 +717,34 @@
 
   document.documentElement.lang = currentLang === 'pt' ? 'pt-BR' : currentLang;
 
-  document.addEventListener('DOMContentLoaded', () => {
+  function initLanguageUI() {
     const selector = document.getElementById('languageSelect');
     if (selector) {
       selector.value = currentLang;
-      selector.addEventListener('change', event => setLanguage(event.target.value));
+      if (selector.dataset.i18nBound !== '1') {
+        selector.addEventListener('change', event => setLanguage(event.target.value));
+        selector.dataset.i18nBound = '1';
+      }
     }
     apply(document);
     startObserver();
     setTimeout(() => {
       refreshCountrySelect();
       refreshPhoneUi();
-    }, 500);
-  });
+    }, 100);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLanguageUI, { once: true });
+  } else {
+    initLanguageUI();
+  }
 
   window.addEventListener('load', () => {
-    setTimeout(() => {
-      apply(document);
-      refreshCountrySelect();
-      refreshPhoneUi();
-    }, 250);
+    setTimeout(initLanguageUI, 0);
+  }, { once: true });
+
+  window.addEventListener('pageshow', () => {
+    setTimeout(initLanguageUI, 0);
   });
 })();
