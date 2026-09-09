@@ -1,0 +1,52 @@
+name: Embed multilingual runtime inline
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - tools/embed_i18n_inline.py
+      - .github/workflows/embed-i18n-inline.yml
+
+permissions:
+  contents: write
+
+jobs:
+  embed-i18n:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Embed i18n into index
+        run: python tools/embed_i18n_inline.py
+
+      - name: Validate inline script extraction
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          s = Path('index.html').read_text(encoding='utf-8')
+          m = re.search(r'<!-- MOVIDA_I18N_INLINE_START -->\s*<script>(.*?)</script>\s*<!-- MOVIDA_I18N_INLINE_END -->', s, re.S)
+          if not m:
+              raise SystemExit('inline block not found')
+          Path('/tmp/i18n-inline.js').write_text(m.group(1), encoding='utf-8')
+          PY
+          node --check /tmp/i18n-inline.js
+
+      - name: Validate diff
+        run: git diff --check
+
+      - name: Commit fix
+        run: |
+          if git diff --quiet; then
+            echo "No generated changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Embed ES EN PT FR runtime directly in registration page"
+          git push origin HEAD:main
