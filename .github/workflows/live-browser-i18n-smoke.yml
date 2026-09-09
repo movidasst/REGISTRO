@@ -1,0 +1,55 @@
+name: Live browser i18n smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/live-browser-i18n-smoke.yml'
+  workflow_dispatch:
+
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install puppeteer-core
+        run: npm install --no-save puppeteer-core@24
+      - name: Test desktop and mobile against live domain
+        run: |
+          cat > /tmp/smoke.mjs <<'EOF'
+          import puppeteer from 'puppeteer-core';
+          const chrome = '/usr/bin/google-chrome';
+          const browser = await puppeteer.launch({headless:true, executablePath:chrome, args:['--no-sandbox','--disable-dev-shm-usage']});
+          const cases = [
+            {name:'desktop', viewport:{width:1440,height:900}},
+            {name:'mobile', viewport:{width:390,height:844,isMobile:true,hasTouch:true}}
+          ];
+          let failed = false;
+          for (const c of cases) {
+            const page = await browser.newPage();
+            await page.setViewport(c.viewport);
+            const logs=[];
+            page.on('console', m => logs.push(`console:${m.type()}:${m.text()}`));
+            page.on('pageerror', e => logs.push(`pageerror:${e.message}`));
+            const url='https://registro.movidasst.com/?browser-smoke=20260909-1650';
+            await page.goto(url,{waitUntil:'networkidle2',timeout:60000});
+            await page.waitForSelector('#languageSelect',{timeout:15000});
+            const before = await page.$eval('#stepTitle', e => e.textContent.trim());
+            const apiBefore = await page.evaluate(() => ({type:typeof window.movidaI18n, lang:window.movidaI18n?.currentLang?.()}));
+            await page.select('#languageSelect','en');
+            await new Promise(r=>setTimeout(r,500));
+            const afterEn = await page.$eval('#stepTitle', e => e.textContent.trim());
+            const selectedEn = await page.$eval('#languageSelect', e => e.value);
+            const langEn = await page.evaluate(() => window.movidaI18n?.currentLang?.());
+            await page.select('#languageSelect','fr');
+            await new Promise(r=>setTimeout(r,500));
+            const afterFr = await page.$eval('#stepTitle', e => e.textContent.trim());
+            const selectedFr = await page.$eval('#languageSelect', e => e.value);
+            const langFr = await page.evaluate(() => window.movidaI18n?.currentLang?.());
+            console.log(JSON.stringify({case:c.name,before,apiBefore,afterEn,selectedEn,langEn,afterFr,selectedFr,langFr,logs},null,2));
+            if (afterEn !== 'Personal Information' || selectedEn !== 'en' || langEn !== 'en' || afterFr !== 'Données personnelles' || selectedFr !== 'fr' || langFr !== 'fr') failed=true;
+            await page.close();
+          }
+          await browser.close();
+          if (failed) process.exit(1);
+          EOF
+          node /tmp/smoke.mjs
