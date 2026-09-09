@@ -1,0 +1,48 @@
+name: Fix multilingual runtime loading
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/fix-i18n-runtime.yml
+      - tools/fix_i18n_runtime.py
+
+permissions:
+  contents: write
+
+jobs:
+  fix-i18n-runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Apply runtime fix
+        run: python tools/fix_i18n_runtime.py
+
+      - name: Validate JavaScript
+        run: node --check i18n.js
+
+      - name: Validate diff
+        run: git diff --check
+
+      - name: Verify backend anchors remain unchanged
+        run: |
+          grep -q "registrar_integrante_internacional" index.html
+          grep -q "send_registration_email" index.html
+          grep -q "upload_registration_photo" index.html
+
+      - name: Commit runtime fix
+        run: |
+          if git diff --quiet; then
+            echo "No runtime changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html i18n.js
+          git commit -m "Fix ES EN PT FR selector runtime on desktop and mobile"
+          git push origin HEAD:main
