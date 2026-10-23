@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
     <!-- ==========================================
          SEO BÁSICO Y CONFIGURACIÓN DE PWA
@@ -17,7 +17,7 @@
     <!-- PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Movida SST">
-    <meta name="theme-color" content="#00247D">
+    <meta name="theme-color" content="#00205b">
 
     <!-- ==========================================
          METAETIQUETAS OPEN GRAPH (WhatsApp & Telegram)
@@ -144,6 +144,87 @@
             #carouselWrapper input,
             #carouselWrapper select { min-height: 52px; }
         }
+
+        /* Navegación inferior sólida y distribución mobile first, sin alterar la lógica del formulario. */
+        html { scroll-padding-top: 90px; }
+        body { overflow-x: hidden; background: #f5f9fb; }
+        #registro-app-main { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+        .registro-app-panel[hidden] { display: none !important; }
+        .registro-bottom-nav {
+            position: fixed; z-index: 65; bottom: 0; left: 0; right: 0;
+            box-sizing: border-box; display: grid; grid-template-columns: repeat(3, minmax(0, 190px));
+            justify-content: center; align-items: stretch; width: 100%; padding: 5px 10px calc(5px + env(safe-area-inset-bottom));
+            background: #fff; border-top: 1px solid #dbe6ec; border-radius: 0;
+            box-shadow: 0 -2px 12px rgba(0,32,91,.06);
+        }
+        .registro-tab {
+            position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 5px; min-height: 62px; padding: 6px 2px; min-width: 0;
+            background: transparent; border: 0; border-radius: 0; box-shadow: none;
+            color: #607487; font: 800 11px/1.15 'Outfit', sans-serif; white-space: nowrap; cursor: pointer;
+        }
+        .registro-tab i { font-size: 21px; line-height: 1.2; }
+        .registro-tab[aria-selected="true"] { color: #007b85; }
+        .registro-tab[aria-selected="true"]::before {
+            content: ""; position: absolute; top: -6px; left: 26%; width: 48%; height: 3px;
+            border-radius: 0 0 3px 3px; background: #007b85;
+        }
+        .registro-tab:not([aria-selected="true"]):hover { background: #edf7f7; color: #00205b; }
+        .registro-tab:focus-visible { outline: 3px solid #ffb600; outline-offset: -3px; }
+        .registro-section-intro { padding: 23px 23px 19px; margin-bottom: 14px; border-radius: 20px; background: linear-gradient(125deg,#00205b,#006b80); color: #fff; }
+        .registro-section-intro .registro-kicker { font-size: 10px; line-height: 1.4; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; color: #aeeedc; margin-bottom: 6px; }
+        .registro-section-intro h2 { margin: 0; font-size: clamp(22px,3.7vw,30px); line-height: 1.14; font-weight: 800; }
+        .registro-section-intro p:not(.registro-kicker) { margin-top: 8px; color: #e3f2f6; font-size: 13px; line-height: 1.55; }
+        .registro-intro-form { padding: 18px 22px; background: linear-gradient(115deg,#00205b,#007b85); }
+        .registro-intro-form h2 { font-size: clamp(19px,3vw,25px); }
+        .registro-access-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+        .registro-access-card { display: flex; align-items: center; min-height: 84px; gap: 13px; padding: 15px; border-radius: 16px; border: 1px solid #dce9ef; background: #fff; color: #00205b; text-decoration: none; min-width: 0; }
+        .registro-access-card:hover { border-color: #8acbcf; background: #f0f9f9; }
+        .registro-access-card .registro-access-icon { flex: none; display: grid; place-items: center; width: 41px; height: 41px; font-size: 20px; background: #e5f4f3; border-radius: 12px; color: #007b85; }
+        .registro-access-card > span:nth-child(2) { display: block; min-width: 0; flex: 1; }
+        .registro-access-card strong { display: block; font-size: 14px; font-weight: 800; line-height: 1.25; overflow-wrap: anywhere; }
+        .registro-access-card small { display: block; font-size: 11px; line-height: 1.4; color: #64748b; margin-top: 5px; }
+        .registro-access-arrow { color: #007b85; font-size: 12px; flex: none; }
+        #registro-panel-comunidad footer { margin-top: 17px; margin-bottom: 0; padding: 0; }
+        #registro-panel-comunidad footer > div { border-radius: 16px; box-shadow: none; }
+        #registro-panel-registro .wizard-step { min-width: 0; }
+        #registro-panel-registro input, #registro-panel-registro select, #registro-panel-registro button { max-width: 100%; }
+        @media(max-width: 639px) {
+            .registro-fixed-header { height: 75px !important; padding: 6px 10px; gap: 6px; }
+            .registro-fixed-header > div:first-child { gap: 6px; min-width: 0; }
+            .registro-fixed-header > div:first-child > div:first-child { width: 43px !important; height: 43px !important; flex: none; }
+            .registro-fixed-header img { width: 43px !important; height: 43px !important; }
+            .registro-fixed-header > div:first-child > div:nth-child(2) { min-width: 0; }
+            .registro-fixed-header h1 { font-size: 14px !important; line-height: 1.1; }
+            .registro-fixed-header p { font-size: 9px !important; line-height: 1.15; letter-spacing: 0; }
+            .registro-fixed-header > div:first-child span.inline-flex { font-size: 9px !important; padding: 2px 5px; }
+            .registro-fixed-header > div:last-child { gap: 5px; }
+            #corporateHeaderBtn { width: 37px; height: 39px; padding: 0; justify-content: center; box-shadow: none; }
+            #corporateHeaderBtn span { display: none; }
+            .registro-fixed-header a[href*="directorio.movidasst.com"] { width: 37px; height: 39px; padding: 0; justify-content: center; box-shadow: none; }
+            .registro-fixed-header a[href*="directorio.movidasst.com"] > span { display: none; }
+            .registro-fixed-header a[href*="directorio.movidasst.com"] > div { padding: 4px; }
+            #registro-app-main { padding-top: 86px !important; margin-top: 0; padding-left: 12px; padding-right: 12px; }
+            .registro-section-intro { padding: 16px 17px; border-radius: 17px; }
+            .registro-intro-form { padding: 15px 16px; }
+            .registro-access-grid { grid-template-columns: 1fr; gap: 9px; }
+            .registro-access-card { min-height: 70px; padding: 12px; }
+            #registro-panel-registro .wizard-step { padding: 16px !important; }
+            #registro-panel-registro .wizard-step > * { min-width: 0; }
+            #registro-panel-registro .wizard-step input, #registro-panel-registro .wizard-step select { min-width: 0; }
+        }
+        @media(max-width: 359px) {
+            .registro-fixed-header h1 { font-size: 12px !important; }
+            .registro-fixed-header > div:first-child span.inline-flex { display: none; }
+            .registro-tab { font-size: 10px; }
+            .registro-tab i { font-size: 19px; }
+            #registro-app-main { padding-left: 8px; padding-right: 8px; }
+        }
+        @media(min-width: 640px) and (max-width: 900px) {
+            .registro-fixed-header { gap: 12px; }
+            #registro-app-main { max-width: 900px; }
+        }
+
     </style>
 </head>
 <body class="bg-slate-50 text-slate-600 font-sans min-h-screen flex flex-col">
@@ -152,7 +233,7 @@
     <div class="fixed top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#FFCC00] via-[#00247D] to-[#CF142B] z-[60]"></div>
 
     <!-- Header App Mejorado y Corrección de Alturas Responsivas (Anti-Superposición) -->
-    <header class="fixed top-1.5 left-0 w-full bg-white/95 backdrop-blur-[15px] border-b border-movida-border shadow-sm z-50 h-[5.5rem] sm:h-[6.5rem] flex items-center justify-between px-4 transition-all">
+    <header class="registro-fixed-header fixed top-1.5 left-0 w-full bg-white/95 backdrop-blur-[15px] border-b border-movida-border shadow-sm z-50 h-[5.5rem] sm:h-[6.5rem] flex items-center justify-between px-4 transition-all">
         <div class="flex items-center gap-3 sm:gap-4">
             <!-- Efecto del Logo Táctico Responsivo -->
             <div class="relative group cursor-pointer flex items-center justify-center w-14 h-14 sm:w-20 sm:h-20">
@@ -196,7 +277,7 @@
     </header>
 
     <!-- Contenedor Principal Multi-Paso (pt-[7.2rem] adaptado para el Header en móviles y sm:pt-[8.2rem] en pantallas grandes) -->
-    <main class="w-full max-w-5xl mx-auto px-3 sm:px-5 lg:px-8 pt-[7.2rem] sm:pt-[8.2rem] pb-8 mt-2 flex-grow">
+    <main id="registro-app-main" class="w-full max-w-5xl mx-auto px-3 sm:px-5 lg:px-8 pt-[7.2rem] sm:pt-[8.2rem] pb-8 mt-2 flex-grow">
         <!-- Selector multidioma: solo cambia la presentación; los valores enviados al backend permanecen canónicos. -->
         <div id="languageBar" class="mb-3 flex justify-end">
             <div class="inline-flex min-h-[44px] items-center gap-2 rounded-2xl border border-movida-teal/20 bg-white px-2.5 py-1.5 shadow-sm">
@@ -209,6 +290,13 @@
                 </nav>
             </div>
         </div>
+
+        <section id="registro-panel-servicios" class="registro-app-panel" role="tabpanel" aria-labelledby="registro-tab-servicios" hidden>
+          <div class="registro-section-intro">
+            <p class="registro-kicker">La Movida de SST+</p>
+            <h2>Servicios para avanzar en SST</h2>
+            <p>Conoce las opciones de formación corporativa y el acompañamiento profesional. Son servicios opcionales y no condicionan tu registro gratuito.</p>
+          </div>
         <!-- Acceso para empresas -->
         <a href="https://presupuesto.movidasst.com/" class="group mb-4 block overflow-hidden rounded-2xl border border-movida-teal/20 bg-gradient-to-r from-movida-blue via-[#004e78] to-movida-teal p-[1px] shadow-[0_10px_28px_rgba(0,32,91,.12)] transition hover:-translate-y-0.5">
             <div class="flex items-center justify-between gap-3 rounded-[15px] bg-white/95 px-3.5 py-3 sm:px-5 sm:py-3.5">
@@ -234,13 +322,20 @@
                     <div class="min-w-0">
                         <p class="text-[0.65rem] font-black uppercase tracking-[.12em] text-[#007b85]">Nuevo · Mentoría individual</p>
                         <h2 class="mt-0.5 text-base font-black leading-tight text-[#00205b] sm:text-lg">MENTORING SST <span class="text-[#007b85]">PLUS</span></h2>
-                        <p class="mt-1 text-xs leading-relaxed text-slate-600 sm:text-sm">Aprende, aplica y avanza. Videollamadas de 45 min y consultas por WhatsApp · <strong class="text-[#00205b]">desde 10 USD por mes</strong>.</p>
+                        <p class="mt-1 text-xs leading-relaxed text-slate-600 sm:text-sm">Aprende, aplica y avanza. Videollamadas de 45 min y consultas por WhatsApp · <strong class="text-[#00205b]">desde 15 USD por mes</strong>.</p>
                         <p class="mt-1 text-[0.7rem] font-semibold text-[#006c74]">Sin cobros automáticos · Servicio opcional · Tu registro sigue siendo gratuito</p>
                     </div>
                 </div>
                 <a href="https://mentoring.movidasst.com/?vista=planes" target="_blank" rel="noopener noreferrer" class="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 self-stretch rounded-xl bg-[#ffbf18] px-4 py-2.5 text-xs font-black text-[#00205b] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#ffd35a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#007b85] sm:self-auto sm:text-sm" aria-label="Conocer planes de Mentoring SST Plus en una pestaña nueva">Conocer planes <span aria-hidden="true">↗</span></a>
             </div>
         </aside>
+        </section>
+        <section id="registro-panel-registro" class="registro-app-panel" role="tabpanel" aria-labelledby="registro-tab-registro">
+          <div class="registro-section-intro registro-intro-form">
+            <p class="registro-kicker">Registro internacional · Gratuito</p>
+            <h2>Forma parte de nuestra comunidad</h2>
+            <p>Completa tus datos en tres pasos para obtener tu código y credencial de integrante. Tus avances se conservan mientras visitas las demás secciones de esta página.</p>
+          </div>
         <div class="bg-white rounded-3xl border border-movida-border shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
             
             <!-- Barra de Progreso y Stepper Visual Premium (Neuro-UX) -->
@@ -704,6 +799,20 @@
             </div>
         </div>
 
+
+        </section>
+        <section id="registro-panel-comunidad" class="registro-app-panel" role="tabpanel" aria-labelledby="registro-tab-comunidad" hidden>
+          <div class="registro-section-intro">
+            <p class="registro-kicker">Comunidad de aprendizaje colaborativo</p>
+            <h2>Conecta con La Movida de SST</h2>
+            <p>Consulta el directorio, explora la Academia y accede a nuestra biblioteca. Algunos servicios requieren el registro de integrante.</p>
+          </div>
+          <div class="registro-access-grid">
+            <a href="https://directorio.movidasst.com/" class="registro-access-card" target="_blank" rel="noopener noreferrer"><span class="registro-access-icon"><i class="fa-solid fa-id-card" aria-hidden="true"></i></span><span><strong>Directorio de integrantes</strong><small>Perfil, credencial y comunidad profesional</small></span><i class="fa-solid fa-arrow-up-right-from-square registro-access-arrow" aria-hidden="true"></i></a>
+            <a href="https://inscripciones.movidasst.com/" class="registro-access-card" target="_blank" rel="noopener noreferrer"><span class="registro-access-icon"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i></span><span><strong>Academia Movida SST</strong><small>Explora cursos y actividades de formación</small></span><i class="fa-solid fa-arrow-up-right-from-square registro-access-arrow" aria-hidden="true"></i></a>
+            <a href="https://drive.movidasst.com/" class="registro-access-card" target="_blank" rel="noopener noreferrer"><span class="registro-access-icon"><i class="fa-solid fa-book-open" aria-hidden="true"></i></span><span><strong>Biblioteca colaborativa</strong><small>Documentos y recursos para aprender</small></span><i class="fa-solid fa-arrow-up-right-from-square registro-access-arrow" aria-hidden="true"></i></a>
+            <a href="https://whatsapp.com/channel/0029Va0mlH5Jf05mrcCz8r3e" class="registro-access-card" target="_blank" rel="noopener noreferrer"><span class="registro-access-icon"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></span><span><strong>Canal de WhatsApp</strong><small>Noticias y novedades de La Movida de SST</small></span><i class="fa-solid fa-arrow-up-right-from-square registro-access-arrow" aria-hidden="true"></i></a>
+          </div>
         <!-- Footer / Pie de Página Corporativo -->
         <footer class="mt-10 mb-4 text-center px-4">
             <div class="inline-block bg-white p-5 rounded-2xl shadow-sm border border-movida-border w-full">
@@ -758,8 +867,15 @@
                 </div>
             </div>
         </footer>
+        </section>
 
     </main>
+
+    <nav id="registro-bottom-nav" class="registro-bottom-nav" role="tablist" aria-label="Navegación de Registro Movida SST">
+      <button id="registro-tab-registro" class="registro-tab" type="button" role="tab" data-registro-tab="registro" aria-controls="registro-panel-registro" aria-selected="true"><i class="fa-solid fa-id-card" aria-hidden="true"></i><span class="registro-tab-label">Registro</span></button>
+      <button id="registro-tab-servicios" class="registro-tab" type="button" role="tab" data-registro-tab="servicios" aria-controls="registro-panel-servicios" aria-selected="false"><i class="fa-solid fa-briefcase" aria-hidden="true"></i><span class="registro-tab-label">Servicios</span></button>
+      <button id="registro-tab-comunidad" class="registro-tab" type="button" role="tab" data-registro-tab="comunidad" aria-controls="registro-panel-comunidad" aria-selected="false"><i class="fa-solid fa-users" aria-hidden="true"></i><span class="registro-tab-label">Comunidad</span></button>
+    </nav>
 
     <!-- MOVIDA_I18N_INLINE_START -->
 <script>
@@ -2953,6 +3069,61 @@
             showStep(1); 
             cargarContadorRegistrados(); 
         });
+    </script>
+
+    <!-- La navegación no cambia ni reemplaza la validación del formulario de tres pasos. -->
+    <script>
+    (() => {
+        "use strict";
+        const ids = ["registro","servicios","comunidad"];
+        const tabs = [...document.querySelectorAll("[data-registro-tab]")];
+        const translate = {
+          es: ["Registro","Servicios","Comunidad"],
+          en: ["Register","Services","Community"],
+          pt: ["Cadastro","Serviços","Comunidade"],
+          fr: ["Inscription","Services","Communauté"]
+        };
+        let active = "registro";
+        function syncLabels() {
+            const language = window.movidaI18n?.currentLang?.() || "es";
+            const labels = translate[language] || translate.es;
+            tabs.forEach((tab, i) => {
+                const label = tab.querySelector(".registro-tab-label");
+                if (label) label.textContent = labels[i];
+            });
+        }
+        function activate(name) {
+            if (!ids.includes(name)) return;
+            const processing = document.getElementById("processingMsg");
+            if (processing && !processing.classList.contains("hidden") && name !== "registro") return;
+            active = name;
+            ids.forEach(id => {
+                const panel = document.getElementById("registro-panel-" + id);
+                if (panel) panel.hidden = id !== name;
+            });
+            tabs.forEach(button => {
+                const selected = button.dataset.registroTab === name;
+                button.setAttribute("aria-selected", String(selected));
+            });
+            window.scrollTo({ top: 0, behavior: "instant" });
+            if (name === "registro") requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
+        }
+        tabs.forEach((button, index) => {
+            button.addEventListener("click", () => activate(button.dataset.registroTab));
+            button.addEventListener("keydown", event => {
+                if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+                event.preventDefault();
+                const direction = event.key === "ArrowRight" ? 1 : -1;
+                const next = tabs[(index + direction + tabs.length) % tabs.length];
+                next.focus();
+                activate(next.dataset.registroTab);
+            });
+        });
+        window.addEventListener("movida:languagechange", syncLabels);
+        document.addEventListener("DOMContentLoaded", syncLabels, { once:true });
+        syncLabels();
+        window.registroAppNavigation = { active: () => active };
+    })();
     </script>
 </body>
 </html>
