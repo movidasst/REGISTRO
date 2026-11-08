@@ -17,7 +17,7 @@
     <!-- PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Movida SST">
-    <meta name="theme-color" content="#00205b">
+    <meta name="theme-color" content="#007B85">
 
     <!-- ==========================================
          METAETIQUETAS OPEN GRAPH (WhatsApp & Telegram)
@@ -192,12 +192,9 @@
         @media(max-width: 639px) {
             .registro-fixed-header { height: 75px !important; padding: 6px 10px; gap: 6px; }
             .registro-fixed-header > div:first-child { gap: 6px; min-width: 0; }
-            .registro-fixed-header > div:first-child > div:first-child { width: 43px !important; height: 43px !important; flex: none; }
-            .registro-fixed-header img { width: 43px !important; height: 43px !important; }
-            .registro-fixed-header > div:first-child > div:nth-child(2) { min-width: 0; }
-            .registro-fixed-header h1 { font-size: 14px !important; line-height: 1.1; }
-            .registro-fixed-header p { font-size: 9px !important; line-height: 1.15; letter-spacing: 0; }
-            .registro-fixed-header > div:first-child span.inline-flex { font-size: 9px !important; padding: 2px 5px; }
+            .registro-header-left { min-width: 0; }
+            .registro-logo-surface { width: clamp(118px,35vw,146px); height: 53px; flex: none; }
+            .registro-header-details { display: none; }
             .registro-fixed-header > div:last-child { gap: 5px; }
             #corporateHeaderBtn { width: 37px; height: 39px; padding: 0; justify-content: center; box-shadow: none; }
             #corporateHeaderBtn span { display: none; }
@@ -214,8 +211,8 @@
             #registro-panel-registro .wizard-step input, #registro-panel-registro .wizard-step select { min-width: 0; }
         }
         @media(max-width: 359px) {
-            .registro-fixed-header h1 { font-size: 12px !important; }
-            .registro-fixed-header > div:first-child span.inline-flex { display: none; }
+            .registro-logo-surface { width: 112px; padding: 5px 6px; }
+            .registro-fixed-header a[href*="directorio.movidasst.com"] > span { display: none; }
             .registro-tab { font-size: 10px; }
             .registro-tab i { font-size: 19px; }
             #registro-app-main { padding-left: 8px; padding-right: 8px; }
@@ -225,25 +222,132 @@
             #registro-app-main { max-width: 900px; }
         }
 
+
+        /* Identidad visual institucional 2026: menta, azul pastel, verde y amarillo suave. */
+        :root {
+            --movida-primary: #007B85;
+            --movida-navy: #00205B;
+            --movida-mint: #E9F7F3;
+            --movida-sky: #EEF5FC;
+            --movida-lime: #F1F7E9;
+            --movida-gold-soft: #FFF7DF;
+            --movida-line: #D6E9E6;
+            --movida-ink: #233F53;
+        }
+        body {
+            background: radial-gradient(circle at 10% 5%,rgba(205,238,231,.68),transparent 32rem),
+                        radial-gradient(circle at 95% 28%,rgba(255,241,204,.65),transparent 31rem),
+                        radial-gradient(circle at 12% 70%,rgba(215,231,250,.58),transparent 31rem),
+                        #F8FAFC;
+            color: var(--movida-ink);
+        }
+        .registro-brand-strip {
+            background: linear-gradient(90deg,#007B85 0 37%,#70AD47 37% 70%,#FFB600 70% 100%);
+        }
+        .registro-fixed-header {
+            background: rgba(250,253,251,.96) !important;
+            border-bottom-color: #D5E9E4 !important;
+            box-shadow: 0 6px 24px rgba(0,66,78,.065) !important;
+        }
+        .registro-header-left { min-width: 0; }
+        .registro-logo-surface {
+            width: 188px; height: 72px; flex: none;
+            padding: 7px 11px; background: #fff;
+            border: 1px solid #D6E8E3; border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0,74,92,.07);
+        }
+        .registro-header-logo { width: 100%; height: 100%; display: block; object-fit: contain; }
+        .registro-header-details { min-width: 0; }
+        .registro-fixed-header a:focus-visible,
+        .registro-bottom-nav button:focus-visible,
+        input:focus-visible,select:focus-visible,textarea:focus-visible,
+        #nextBtn:focus-visible,#submitBtn:focus-visible {
+            outline: 3px solid #70AD47 !important; outline-offset: 2px;
+        }
+        #corporateHeaderBtn { background: #007B85 !important; box-shadow: 0 5px 14px rgba(0,123,133,.14) !important; }
+        .registro-section-intro {
+            color: var(--movida-navy);
+            border: 1px solid #CEE8E0;
+            background: linear-gradient(120deg,#E7F7F1 0%,#EEF7FC 70%,#FFF9E9 100%);
+            box-shadow: 0 8px 24px rgba(0,80,92,.045);
+        }
+        .registro-section-intro .registro-kicker { color: #006F78; }
+        .registro-section-intro h2 { color: #00205B; }
+        .registro-section-intro p:not(.registro-kicker) { color: #476478; }
+        .registro-intro-form {
+            background: linear-gradient(120deg,#DEF3EE 0%,#EAF5FB 65%,#FFF5DD 100%);
+            border-color: #C6E5DD;
+        }
+        #registro-panel-registro > .bg-white {
+            border-color: #D6E9E5;
+            box-shadow: 0 12px 32px rgba(0,69,88,.065);
+        }
+        #registro-panel-registro > .bg-white > div:first-child {
+            background: linear-gradient(180deg,#EFF9F5 0%,#fff 100%);
+            border-bottom-color: #D9E9E7;
+        }
+        #registro-panel-registro input:not([type="checkbox"]):not([type="radio"]),
+        #registro-panel-registro select,
+        #registro-panel-registro textarea { border-color: #CFE2DF; }
+        #registro-panel-registro input:not([type="checkbox"]):not([type="radio"]):focus,
+        #registro-panel-registro select:focus,
+        #registro-panel-registro textarea:focus { border-color: #007B85; }
+        #nextBtn, #submitBtn { background: #007B85 !important; color: #fff; box-shadow: 0 8px 22px rgba(0,123,133,.14); }
+        #nextBtn:hover,#submitBtn:hover { background: #006A74 !important; }
+        #registro-panel-servicios > a.group {
+            background: linear-gradient(115deg,#CDECE4,#DAEAF7,#F9E8BE);
+            border-color: #D2E8E3;
+            box-shadow: 0 8px 24px rgba(0,74,92,.06);
+        }
+        #anuncio-mentoring-sst {
+            background: linear-gradient(115deg,#CDECE4,#EAF4FA,#F2E9C9);
+            border-color: #CDE7E2;
+            box-shadow: 0 9px 26px rgba(0,74,92,.06);
+        }
+        #anuncio-mentoring-sst > div { background: #F4FBF8; }
+        .registro-mentoring-logo { width: clamp(118px,27vw,166px); height: auto; max-height: 62px; }
+        .registro-access-card { background: #fff; border-color: #D5E9E4; box-shadow: 0 7px 20px rgba(0,74,92,.04); }
+        .registro-access-card:nth-child(2n) { background: #F4FAFE; }
+        .registro-access-card:nth-child(3n) { background: #F3FAEF; }
+        .registro-access-card:hover { background: #EAF8F3; border-color: #9CD4CB; }
+        .registro-access-icon { background: #E2F4EE !important; }
+        .registro-bottom-nav { background: rgba(250,254,251,.98); border-top-color: #D2E8E3; }
+        .registro-tab[aria-selected="true"] { color: #007B85; background: #EAF7F2; }
+        .registro-tab[aria-selected="true"]::before { background: #007B85; }
+        @media(max-width:639px) {
+            .registro-fixed-header { height: 78px !important; }
+            .registro-logo-surface { width: clamp(118px,35vw,144px); height: 53px; padding: 5px 8px; border-radius: 12px; }
+            .registro-header-details { display: none; }
+            .registro-fixed-header a[href*="directorio.movidasst.com"] > span { display: none; }
+            #registro-app-main { padding-top: 91px !important; }
+            .registro-mentoring-logo { width: 120px; max-height: 46px; }
+        }
+        @media(max-width:359px) {
+            .registro-logo-surface { width: 112px; height: 48px; padding: 4px 6px; }
+            .registro-fixed-header { padding-left: 8px; padding-right: 8px; }
+        }
+        @media(prefers-reduced-motion:reduce) {
+            .registro-fixed-header, .registro-access-card { transition: none; }
+        }
     </style>
   <script defer src="https://www.movidasst.com/analytics.js?v=20261025-ga4com2"></script>
 </head>
 <body class="bg-slate-50 text-slate-600 font-sans min-h-screen flex flex-col">
 
-    <!-- Franja Nacional (Tope Absoluto) -->
-    <div class="fixed top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#FFCC00] via-[#00247D] to-[#CF142B] z-[60]"></div>
+    <!-- Franja de identidad institucional La Movida de SST+ -->
+    <div class="registro-brand-strip fixed top-0 left-0 w-full h-1.5 z-[60]" aria-hidden="true"></div>
 
     <!-- Header App Mejorado y Corrección de Alturas Responsivas (Anti-Superposición) -->
     <header class="registro-fixed-header fixed top-1.5 left-0 w-full bg-white/95 backdrop-blur-[15px] border-b border-movida-border shadow-sm z-50 h-[5.5rem] sm:h-[6.5rem] flex items-center justify-between px-4 transition-all">
-        <div class="flex items-center gap-3 sm:gap-4">
-            <!-- Efecto del Logo Táctico Responsivo -->
-            <div class="relative group cursor-pointer flex items-center justify-center w-14 h-14 sm:w-20 sm:h-20">
-                <!-- Logo oficial, sin anillos ni efectos que alteren la marca -->
-                <img src="/logo-oficial-movida-sst-plus.png"
-                     class="relative h-14 w-14 rounded-full bg-white object-contain sm:h-20 sm:w-20" 
-                     alt="La Movida de SST">
+        <div class="registro-header-left flex items-center gap-3 sm:gap-4">
+            <!-- Logo horizontal oficial, compartido con la página principal y la Academia -->
+            <div class="registro-logo-surface flex items-center justify-center">
+                <img src="https://www.movidasst.com/logo-horizontal-movida-sst-plus.webp"
+                     class="registro-header-logo object-contain"
+                     width="184" height="61" loading="eager" decoding="async" fetchpriority="high"
+                     alt="Logo horizontal oficial de La Movida de SST+">
             </div>
-            <div>
+            <div class="registro-header-details">
                 <h1 class="text-movida-blue font-black text-lg sm:text-xl tracking-tight leading-tight">Movida SST Plus</h1>
                 <!-- Layout de Eslogan y Registrados apilados verticalmente en móviles y en fila en tablets -->
                 <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-0.5">
@@ -258,13 +362,13 @@
         </div>
         
         <div class="flex shrink-0 items-center gap-2">
-            <a id="corporateHeaderBtn" href="https://presupuesto.movidasst.com/" class="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-movida-blue to-movida-teal px-2.5 py-2 text-[0.68rem] font-black text-white shadow-md shadow-cyan-900/10 transition active:scale-95 sm:px-3.5 sm:text-xs">
+            <a id="corporateHeaderBtn" aria-label="Servicios para empresas" href="https://presupuesto.movidasst.com/" class="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-movida-blue to-movida-teal px-2.5 py-2 text-[0.68rem] font-black text-white shadow-md shadow-cyan-900/10 transition active:scale-95 sm:px-3.5 sm:text-xs">
                 <i class="fa-solid fa-building"></i>
                 <span>Empresas</span>
             </a>
 
             <!-- Botón Directorio de Profesionales -->
-            <a href="https://directorio.movidasst.com" class="shrink-0 flex items-center gap-1.5 sm:gap-2 bg-white border border-movida-border hover:border-movida-teal hover:bg-movida-teal/5 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl transition-all shadow-sm active:scale-95 cursor-pointer">
+            <a href="https://directorio.movidasst.com" aria-label="Abrir el Directorio SST" class="shrink-0 flex items-center gap-1.5 sm:gap-2 bg-white border border-movida-border hover:border-movida-teal hover:bg-movida-teal/5 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl transition-all shadow-sm active:scale-95 cursor-pointer">
             <div class="bg-movida-teal/10 p-1.5 rounded-lg text-movida-teal">
                 <i class="fa-solid fa-map-location-dot text-sm sm:text-base"></i>
             </div>
@@ -319,7 +423,7 @@
         <aside id="anuncio-mentoring-sst" class="mb-4 overflow-hidden rounded-2xl border border-[#007b85]/35 bg-gradient-to-r from-[#00205b] via-[#004467] to-[#007b85] p-[1px] shadow-[0_12px_28px_rgba(0,32,91,.13)]" aria-label="Servicio de mentoría profesional SST">
             <div class="flex flex-col gap-3 rounded-[15px] bg-[#f3fbfb] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-5 sm:px-5">
                 <div class="flex min-w-0 items-center gap-3">
-                    <img src="/logo-oficial-movida-sst-plus.png" alt="Logo oficial de La Movida de SST Plus" class="h-14 w-14 shrink-0 object-contain sm:h-16 sm:w-16" width="64" height="64" loading="lazy" decoding="async">
+                    <img src="https://www.movidasst.com/logo-horizontal-movida-sst-plus.webp" alt="Logo horizontal oficial de La Movida de SST+" class="registro-mentoring-logo shrink-0 object-contain" width="166" height="55" loading="lazy" decoding="async">
                     <div class="min-w-0">
                         <p class="text-[0.65rem] font-black uppercase tracking-[.12em] text-[#007b85]">Nuevo · Mentoría individual</p>
                         <h2 class="mt-0.5 text-base font-black leading-tight text-[#00205b] sm:text-lg">MENTORING SST <span class="text-[#007b85]">PLUS</span></h2>
