@@ -196,8 +196,6 @@
             .registro-logo-surface { width: clamp(118px,35vw,146px); height: 53px; flex: none; }
             .registro-header-details { display: none; }
             .registro-fixed-header > div:last-child { gap: 5px; }
-            #corporateHeaderBtn { width: 37px; height: 39px; padding: 0; justify-content: center; box-shadow: none; }
-            #corporateHeaderBtn span { display: none; }
             .registro-fixed-header a[href*="directorio.movidasst.com"] { width: 37px; height: 39px; padding: 0; justify-content: center; box-shadow: none; }
             .registro-fixed-header a[href*="directorio.movidasst.com"] > span { display: none; }
             .registro-fixed-header a[href*="directorio.movidasst.com"] > div { padding: 4px; }
@@ -264,7 +262,6 @@
         #nextBtn:focus-visible,#submitBtn:focus-visible {
             outline: 3px solid #70AD47 !important; outline-offset: 2px;
         }
-        #corporateHeaderBtn { background: #007B85 !important; box-shadow: 0 5px 14px rgba(0,123,133,.14) !important; }
         .registro-section-intro {
             color: var(--movida-navy);
             border: 1px solid #CEE8E0;
@@ -294,18 +291,6 @@
         #registro-panel-registro textarea:focus { border-color: #007B85; }
         #nextBtn, #submitBtn { background: #007B85 !important; color: #fff; box-shadow: 0 8px 22px rgba(0,123,133,.14); }
         #nextBtn:hover,#submitBtn:hover { background: #006A74 !important; }
-        #registro-panel-servicios > a.group {
-            background: linear-gradient(115deg,#CDECE4,#DAEAF7,#F9E8BE);
-            border-color: #D2E8E3;
-            box-shadow: 0 8px 24px rgba(0,74,92,.06);
-        }
-        #anuncio-mentoring-sst {
-            background: linear-gradient(115deg,#CDECE4,#EAF4FA,#F2E9C9);
-            border-color: #CDE7E2;
-            box-shadow: 0 9px 26px rgba(0,74,92,.06);
-        }
-        #anuncio-mentoring-sst > div { background: #F4FBF8; }
-        .registro-mentoring-logo { width: clamp(118px,27vw,166px); height: auto; max-height: 62px; }
         .registro-access-card { background: #fff; border-color: #D5E9E4; box-shadow: 0 7px 20px rgba(0,74,92,.04); }
         .registro-access-card:nth-child(2n) { background: #F4FAFE; }
         .registro-access-card:nth-child(3n) { background: #F3FAEF; }
@@ -320,7 +305,6 @@
             .registro-header-details { display: none; }
             .registro-fixed-header a[href*="directorio.movidasst.com"] > span { display: none; }
             #registro-app-main { padding-top: 91px !important; }
-            .registro-mentoring-logo { width: 120px; max-height: 46px; }
         }
         @media(max-width:359px) {
             .registro-logo-surface { width: 112px; height: 48px; padding: 4px 6px; }
@@ -362,11 +346,6 @@
         </div>
         
         <div class="flex shrink-0 items-center gap-2">
-            <a id="corporateHeaderBtn" aria-label="Servicios para empresas" href="https://presupuesto.movidasst.com/" class="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-movida-blue to-movida-teal px-2.5 py-2 text-[0.68rem] font-black text-white shadow-md shadow-cyan-900/10 transition active:scale-95 sm:px-3.5 sm:text-xs">
-                <i class="fa-solid fa-building"></i>
-                <span>Empresas</span>
-            </a>
-
             <!-- Botón Directorio de Profesionales -->
             <a href="https://directorio.movidasst.com" aria-label="Abrir el Directorio SST" class="shrink-0 flex items-center gap-1.5 sm:gap-2 bg-white border border-movida-border hover:border-movida-teal hover:bg-movida-teal/5 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl transition-all shadow-sm active:scale-95 cursor-pointer">
             <div class="bg-movida-teal/10 p-1.5 rounded-lg text-movida-teal">
@@ -396,45 +375,6 @@
             </div>
         </div>
 
-        <section id="registro-panel-servicios" class="registro-app-panel" role="tabpanel" aria-labelledby="registro-tab-servicios" hidden>
-          <div class="registro-section-intro">
-            <p class="registro-kicker">La Movida de SST+</p>
-            <h2>Servicios para avanzar en SST</h2>
-            <p>Conoce las opciones de formación corporativa y el acompañamiento profesional. Son servicios opcionales y no condicionan tu registro gratuito.</p>
-          </div>
-        <!-- Acceso para empresas -->
-        <a href="https://presupuesto.movidasst.com/" class="group mb-4 block overflow-hidden rounded-2xl border border-movida-teal/20 bg-gradient-to-r from-movida-blue via-[#004e78] to-movida-teal p-[1px] shadow-[0_10px_28px_rgba(0,32,91,.12)] transition hover:-translate-y-0.5">
-            <div class="flex items-center justify-between gap-3 rounded-[15px] bg-white/95 px-3.5 py-3 sm:px-5 sm:py-3.5">
-                <div class="flex min-w-0 items-center gap-3">
-                    <div class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-movida-teal/10 text-movida-teal sm:h-11 sm:w-11">
-                        <i class="fa-solid fa-building text-base sm:text-lg"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <div class="text-[0.58rem] font-black uppercase tracking-[.15em] text-movida-teal sm:text-[0.65rem]">Para empresas</div>
-                        <div class="truncate text-xs font-black text-movida-blue sm:text-sm">Capacitación corporativa SST para tu equipo</div>
-                        <div class="mt-0.5 hidden text-[0.68rem] font-medium text-slate-500 sm:block">Cotiza participantes y cursos y solicita una propuesta formal.</div>
-                    </div>
-                </div>
-                <span class="inline-flex shrink-0 items-center gap-1 rounded-xl bg-movida-yellow px-3 py-2 text-[0.68rem] font-black text-movida-blue shadow-sm transition group-hover:bg-yellow-300 sm:px-4 sm:text-xs">Cotizar <i class="fa-solid fa-arrow-right text-[0.6rem]"></i></span>
-            </div>
-        </a>
-        
-        <!-- Mentoring SST Plus | Servicio opcional que no condiciona el registro gratuito -->
-        <aside id="anuncio-mentoring-sst" class="mb-4 overflow-hidden rounded-2xl border border-[#007b85]/35 bg-gradient-to-r from-[#00205b] via-[#004467] to-[#007b85] p-[1px] shadow-[0_12px_28px_rgba(0,32,91,.13)]" aria-label="Servicio de mentoría profesional SST">
-            <div class="flex flex-col gap-3 rounded-[15px] bg-[#f3fbfb] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-5 sm:px-5">
-                <div class="flex min-w-0 items-center gap-3">
-                    <img src="https://www.movidasst.com/logo-horizontal-movida-sst-plus.webp" alt="Logo horizontal oficial de La Movida de SST+" class="registro-mentoring-logo shrink-0 object-contain" width="166" height="55" loading="lazy" decoding="async">
-                    <div class="min-w-0">
-                        <p class="text-[0.65rem] font-black uppercase tracking-[.12em] text-[#007b85]">Nuevo · Mentoría individual</p>
-                        <h2 class="mt-0.5 text-base font-black leading-tight text-[#00205b] sm:text-lg">MENTORING SST <span class="text-[#007b85]">PLUS</span></h2>
-                        <p class="mt-1 text-xs leading-relaxed text-slate-600 sm:text-sm">Aprende, aplica y avanza. Videollamadas de 45 min y consultas por WhatsApp · <strong class="text-[#00205b]">desde 15 USD por mes</strong>.</p>
-                        <p class="mt-1 text-[0.7rem] font-semibold text-[#006c74]">Sin cobros automáticos · Servicio opcional · Tu registro sigue siendo gratuito</p>
-                    </div>
-                </div>
-                <a href="https://mentoring.movidasst.com/?vista=planes" target="_blank" rel="noopener noreferrer" class="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 self-stretch rounded-xl bg-[#ffbf18] px-4 py-2.5 text-xs font-black text-[#00205b] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#ffd35a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#007b85] sm:self-auto sm:text-sm" aria-label="Conocer planes de Mentoring SST Plus en una pestaña nueva">Conocer planes <span aria-hidden="true">↗</span></a>
-            </div>
-        </aside>
-        </section>
         <section id="registro-panel-registro" class="registro-app-panel" role="tabpanel" aria-labelledby="registro-tab-registro">
           <div class="registro-section-intro registro-intro-form">
             <p class="registro-kicker">Registro internacional · Gratuito</p>
@@ -979,7 +919,6 @@
 
     <nav id="registro-bottom-nav" class="registro-bottom-nav" role="tablist" aria-label="Navegación de Registro Movida SST">
       <button id="registro-tab-registro" class="registro-tab" type="button" role="tab" data-registro-tab="registro" aria-controls="registro-panel-registro" aria-selected="true"><i class="fa-solid fa-id-card" aria-hidden="true"></i><span class="registro-tab-label">Registro</span></button>
-      <button id="registro-tab-servicios" class="registro-tab" type="button" role="tab" data-registro-tab="servicios" aria-controls="registro-panel-servicios" aria-selected="false"><i class="fa-solid fa-briefcase" aria-hidden="true"></i><span class="registro-tab-label">Servicios</span></button>
       <button id="registro-tab-comunidad" class="registro-tab" type="button" role="tab" data-registro-tab="comunidad" aria-controls="registro-panel-comunidad" aria-selected="false"><i class="fa-solid fa-users" aria-hidden="true"></i><span class="registro-tab-label">Comunidad</span></button>
     </nav>
 
@@ -3181,13 +3120,13 @@
     <script>
     (() => {
         "use strict";
-        const ids = ["registro","servicios","comunidad"];
+        const ids = ["registro","comunidad"];
         const tabs = [...document.querySelectorAll("[data-registro-tab]")];
         const translate = {
-          es: ["Registro","Servicios","Comunidad"],
-          en: ["Register","Services","Community"],
-          pt: ["Cadastro","Serviços","Comunidade"],
-          fr: ["Inscription","Services","Communauté"]
+          es: ["Registro","Comunidad"],
+          en: ["Register","Community"],
+          pt: ["Cadastro","Comunidade"],
+          fr: ["Inscription","Communauté"]
         };
         let active = "registro";
         function syncLabels() {
