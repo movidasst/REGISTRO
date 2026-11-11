@@ -196,9 +196,6 @@
             .registro-logo-surface { width: clamp(118px,35vw,146px); height: 53px; flex: none; }
             .registro-header-details { display: none; }
             .registro-fixed-header > div:last-child { gap: 5px; }
-            .registro-fixed-header a[href*="directorio.movidasst.com"] { width: 37px; height: 39px; padding: 0; justify-content: center; box-shadow: none; }
-            .registro-fixed-header a[href*="directorio.movidasst.com"] > span { display: none; }
-            .registro-fixed-header a[href*="directorio.movidasst.com"] > div { padding: 4px; }
             #registro-app-main { padding-top: 86px !important; margin-top: 0; padding-left: 12px; padding-right: 12px; }
             .registro-section-intro { padding: 16px 17px; border-radius: 17px; }
             .registro-intro-form { padding: 15px 16px; }
@@ -210,7 +207,6 @@
         }
         @media(max-width: 359px) {
             .registro-logo-surface { width: 112px; padding: 5px 6px; }
-            .registro-fixed-header a[href*="directorio.movidasst.com"] > span { display: none; }
             .registro-tab { font-size: 10px; }
             .registro-tab i { font-size: 19px; }
             #registro-app-main { padding-left: 8px; padding-right: 8px; }
@@ -303,7 +299,6 @@
             .registro-fixed-header { height: 78px !important; }
             .registro-logo-surface { width: clamp(118px,35vw,144px); height: 53px; padding: 5px 8px; border-radius: 12px; }
             .registro-header-details { display: none; }
-            .registro-fixed-header a[href*="directorio.movidasst.com"] > span { display: none; }
             #registro-app-main { padding-top: 91px !important; }
         }
         @media(max-width:359px) {
@@ -313,6 +308,16 @@
         @media(prefers-reduced-motion:reduce) {
             .registro-fixed-header, .registro-access-card { transition: none; }
         }
+
+        /* El acceso al Directorio se traslada a la barra inferior sin intervenir en las pestañas. */
+        .registro-bottom-nav .registro-tab-group { display: contents; }
+        .registro-bottom-nav .registro-directory-link {
+            text-decoration: none; color: #006F78; background: #EAF7F2;
+            border: 1px solid #CDE9E3; border-radius: 12px;
+            margin: 3px; min-height: 56px; align-self: center;
+        }
+        .registro-bottom-nav .registro-directory-link:hover { color: #00205B; background: #DDF3ED; }
+        .registro-bottom-nav .registro-directory-link:focus-visible { outline: 3px solid #FFB600; outline-offset: -3px; }
 
         /* Accesos sociales del registro, mismos destinos y paleta pastel que el HUB y GEO. */
         .registro-header-actions { min-width: 0; }
@@ -405,17 +410,6 @@
                     <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
                 </a>
             </nav>
-            <!-- Botón Directorio de Profesionales -->
-            <a href="https://directorio.movidasst.com" aria-label="Abrir el Directorio SST" class="shrink-0 flex items-center gap-1.5 sm:gap-2 bg-white border border-movida-border hover:border-movida-teal hover:bg-movida-teal/5 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl transition-all shadow-sm active:scale-95 cursor-pointer">
-            <div class="bg-movida-teal/10 p-1.5 rounded-lg text-movida-teal">
-                <i class="fa-solid fa-map-location-dot text-sm sm:text-base"></i>
-            </div>
-            <div class="flex flex-col items-start justify-center hidden sm:flex">
-                <span class="text-[0.55rem] font-extrabold text-slate-400 uppercase tracking-widest leading-none">Ver Directorio</span>
-                <span class="text-xs font-black text-movida-blue leading-none mt-0.5">Directorio SST</span>
-            </div>
-            <span class="text-[0.7rem] font-black text-movida-blue sm:hidden">Directorio</span>
-        </a>
         </div>
     </header>
 
@@ -976,9 +970,12 @@
 
     </main>
 
-    <nav id="registro-bottom-nav" class="registro-bottom-nav" role="tablist" aria-label="Navegación de Registro Movida SST">
-      <button id="registro-tab-registro" class="registro-tab" type="button" role="tab" data-registro-tab="registro" aria-controls="registro-panel-registro" aria-selected="true"><i class="fa-solid fa-id-card" aria-hidden="true"></i><span class="registro-tab-label">Registro</span></button>
-      <button id="registro-tab-comunidad" class="registro-tab" type="button" role="tab" data-registro-tab="comunidad" aria-controls="registro-panel-comunidad" aria-selected="false"><i class="fa-solid fa-users" aria-hidden="true"></i><span class="registro-tab-label">Comunidad</span></button>
+    <nav id="registro-bottom-nav" class="registro-bottom-nav" aria-label="Navegación de Registro Movida SST">
+      <div class="registro-tab-group" role="tablist" aria-label="Secciones del Registro">
+        <button id="registro-tab-registro" class="registro-tab" type="button" role="tab" data-registro-tab="registro" aria-controls="registro-panel-registro" aria-selected="true"><i class="fa-solid fa-id-card" aria-hidden="true"></i><span class="registro-tab-label">Registro</span></button>
+        <button id="registro-tab-comunidad" class="registro-tab" type="button" role="tab" data-registro-tab="comunidad" aria-controls="registro-panel-comunidad" aria-selected="false"><i class="fa-solid fa-users" aria-hidden="true"></i><span class="registro-tab-label">Comunidad</span></button>
+      </div>
+      <a id="registro-directorio-bottom" class="registro-tab registro-directory-link" href="https://directorio.movidasst.com/" target="_blank" rel="noopener noreferrer" aria-label="Abrir el Directorio SST en una nueva pestaña"><i class="fa-solid fa-address-card" aria-hidden="true"></i><span class="registro-tab-label">Directorio</span></a>
     </nav>
 
     <!-- MOVIDA_I18N_INLINE_START -->
@@ -3195,6 +3192,9 @@
                 const label = tab.querySelector(".registro-tab-label");
                 if (label) label.textContent = labels[i];
             });
+            const directorioLabel = document.querySelector("#registro-directorio-bottom .registro-tab-label");
+            const directorioTranslations = { es: "Directorio", en: "Directory", pt: "Diretório", fr: "Annuaire" };
+            if (directorioLabel) directorioLabel.textContent = directorioTranslations[language] || directorioTranslations.es;
         }
         function activate(name) {
             if (!ids.includes(name)) return;
