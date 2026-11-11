@@ -313,6 +313,54 @@
         @media(prefers-reduced-motion:reduce) {
             .registro-fixed-header, .registro-access-card { transition: none; }
         }
+
+        /* Accesos sociales del registro, mismos destinos y paleta pastel que el HUB y GEO. */
+        .registro-header-actions { min-width: 0; }
+        .registro-header-socials {
+            display: flex; align-items: center; justify-content: center; gap: 7px;
+            flex: 0 0 auto;
+        }
+        .registro-fixed-header .registro-social-link {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 42px; height: 42px; min-width: 42px; flex: 0 0 42px;
+            border: 1px solid #D5E8E4; border-radius: 13px;
+            text-decoration: none; font-size: 21px; line-height: 1;
+            box-shadow: 0 2px 8px rgba(0,65,83,.05);
+            transition: transform .16s ease, background .16s ease, border-color .16s ease;
+        }
+        .registro-fixed-header .registro-social-whatsapp { background: #E8F8EC; border-color: #CAEBD4; color: #128C4A; }
+        .registro-fixed-header .registro-social-instagram { background: #FCEBF5; border-color: #F0D5E5; color: #B72F83; }
+        .registro-fixed-header .registro-social-linkedin { background: #EAF3FD; border-color: #D0E3F7; color: #0A66C2; }
+        .registro-fixed-header .registro-social-link:focus-visible { outline: 3px solid #007B85 !important; outline-offset: 3px; }
+        @media (hover:hover) {
+            .registro-fixed-header .registro-social-link:hover { transform: translateY(-2px); background: #fff; border-color: #92C7C0; }
+        }
+        @media (max-width: 1024px) {
+            .registro-header-details { display: none !important; }
+        }
+        @media (max-width: 639px) {
+            .registro-fixed-header { gap: 6px; }
+            .registro-fixed-header .registro-header-actions { gap: 6px; }
+            .registro-header-socials { gap: 5px; }
+            .registro-fixed-header .registro-social-link {
+                width: 37px; height: 37px; min-width: 37px; flex-basis: 37px;
+                border-radius: 11px; font-size: 19px;
+            }
+            .registro-logo-surface { width: clamp(118px, 37vw, 146px); }
+        }
+        @media (max-width: 359px) {
+            .registro-fixed-header { padding-left: 8px; padding-right: 8px; gap: 4px; }
+            .registro-fixed-header .registro-header-actions { gap: 4px; }
+            .registro-header-socials { gap: 4px; }
+            .registro-fixed-header .registro-social-link {
+                width: 34px; height: 34px; min-width: 34px; flex-basis: 34px;
+                border-radius: 10px; font-size: 18px;
+            }
+            .registro-logo-surface { width: 112px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .registro-fixed-header .registro-social-link { transition: none; }
+        }
     </style>
   <script defer src="https://www.movidasst.com/analytics.js?v=20261025-ga4com2"></script>
 </head>
@@ -345,7 +393,18 @@
             </div>
         </div>
         
-        <div class="flex shrink-0 items-center gap-2">
+        <div class="registro-header-actions flex shrink-0 items-center gap-2">
+            <nav class="registro-header-socials" aria-label="Redes sociales de La Movida">
+                <a class="registro-social-link registro-social-whatsapp" href="https://whatsapp.com/channel/0029Va0mlH5Jf05mrcCz8r3e" target="_blank" rel="noopener noreferrer" title="Canal oficial de WhatsApp" aria-label="Abrir canal oficial de WhatsApp de La Movida">
+                    <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                </a>
+                <a class="registro-social-link registro-social-instagram" href="https://www.instagram.com/movidasst/" target="_blank" rel="noopener noreferrer" title="Instagram @movidasst" aria-label="Abrir Instagram de La Movida, arroba movidasst">
+                    <i class="fa-brands fa-instagram" aria-hidden="true"></i>
+                </a>
+                <a class="registro-social-link registro-social-linkedin" href="https://www.linkedin.com/in/davidlinaresbrea?utm_source=share_via&amp;utm_content=profile&amp;utm_medium=member_android" target="_blank" rel="noopener noreferrer" title="LinkedIn de David Linares Brea" aria-label="Abrir el perfil de LinkedIn de David Linares Brea">
+                    <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
+                </a>
+            </nav>
             <!-- Botón Directorio de Profesionales -->
             <a href="https://directorio.movidasst.com" aria-label="Abrir el Directorio SST" class="shrink-0 flex items-center gap-1.5 sm:gap-2 bg-white border border-movida-border hover:border-movida-teal hover:bg-movida-teal/5 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl transition-all shadow-sm active:scale-95 cursor-pointer">
             <div class="bg-movida-teal/10 p-1.5 rounded-lg text-movida-teal">
